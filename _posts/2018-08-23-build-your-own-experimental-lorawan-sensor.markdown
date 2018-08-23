@@ -17,7 +17,7 @@ get into if you interfere with other radio users.
 
 Lately it's been hot in Britain. Too hot. I want to know how hot it is.
 
-To do this I will install a sensor in my home that measures temperature
+To do this I will run a sensor in my home that measures temperature
 and humidity every 30 minutes. The sensor will be mains powered and will
 use LoRaWAN to push the data to The Things Network ([TTN](https://www.thethingsnetwork.org/)).
 I will then collect the data and store it in a CSV file on my PC.
