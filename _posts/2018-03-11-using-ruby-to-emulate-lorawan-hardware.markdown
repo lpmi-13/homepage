@@ -5,7 +5,9 @@ date:   2018-03-11
 categories:
 ---
 
-For the past year I’ve been working on a background project called [LoraDeviceLib](https://github.com/cjhdev/lora_device_lib) (LDL for short). 
+*update: LDL source code is no longer publicly accessible*
+
+For the past year I’ve been working on a background project called [LoraDeviceLib](https://github.com/cjhdev/lora_device_lib_api) (LDL for short). 
 
 Since this is not my day job, I’ve been focusing on the parts of the problem that interest me (the MAC layer) and avoiding anything that seems tedious (buying a gateway, setting up a gateway, debugging radio/hardware related problems, complaining about late kickstarter projects). 
 
@@ -17,7 +19,7 @@ To continue with my "no hardware" approach, I decided to write a software layer 
 
 # Implementation
 
-The emulator is not one complete program, rather a collection of classes that are composed into a scenario. The classes developed for the emulator live [here](https://github.com/cjhdev/lora_device_lib/tree/master/bindings/ruby/lib/ldl) and everything is arranged in the usual Rubygems [pattern](http://guides.rubygems.org/make-your-own-gem/). 
+The emulator is not one complete program, rather a collection of classes that are composed into a scenario. The classes developed for the emulator live [here]() and everything is arranged in the usual Rubygems [pattern](http://guides.rubygems.org/make-your-own-gem/). 
 
 The classes developed for the emulator look a bit like this:
 

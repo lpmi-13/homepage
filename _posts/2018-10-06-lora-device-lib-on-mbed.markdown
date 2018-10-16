@@ -5,7 +5,9 @@ date:   2018-10-06
 categories:
 ---
 
-I recently completed an MBED wrapper for my [LoRaWAN implementation](https://github.com/cjhdev/lora_device_lib) (LDL). 
+*update: LDL source code is no longer publicly accessible*
+
+I recently completed an MBED wrapper for my [LoRaWAN implementation](https://github.com/cjhdev/lora_device_lib_api) (LDL). 
 This follows on from the [Arduino wrapper]({% post_url 2018-08-23-build-your-own-experimental-lorawan-sensor %}) I wrote about just a few months ago. 
 I thought it would be an interesting point of comparison to see the same demo application implemented for MBED as was implemented for Arduino.
 
@@ -22,10 +24,6 @@ with the same radio and sensor used for the Arduino demo.
 ![assembled sensor]({{ "/assets/mbed_sensor.jpg" | absolute_url }})
 
 ## Application implementation
-
-The demo application is implemented [here](https://github.com/cjhdev/lora_device_lib/tree/master/bindings/mbed/mbed_ldl_sensor) 
-but be aware you need to run make from [this](https://github.com/cjhdev/lora_device_lib/tree/master/bindings/mbed) 
-directory in order to put all the files in the right place.
 
 The application code looks like this:
 

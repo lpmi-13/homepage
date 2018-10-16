@@ -5,7 +5,9 @@ date:   2018-08-23
 categories:
 ---
 
-I wrote an Arduino wrapper for my [LoRaWAN implementation](https://github.com/cjhdev/lora_device_lib). 
+*update: LDL source code is no longer publicly accessible*
+
+I wrote an Arduino wrapper for my [LoRaWAN implementation](https://github.com/cjhdev/lora_device_lib_api). 
 This post shows how to use it in an experimental application.
 
 Note that even though the wrapper is very easy to use, you should not 
@@ -36,7 +38,7 @@ For a gateway I have a Multitech Conduit AP. If you are [lucky](https://www.thet
 
 ## The Firmware
 
-I wrote the following [ino](https://github.com/cjhdev/lora_device_lib/blob/master/bindings/arduino/modules/environment_sensor) 
+I wrote the following ino 
 to meet my application requirements:
 
 {% highlight c %}
