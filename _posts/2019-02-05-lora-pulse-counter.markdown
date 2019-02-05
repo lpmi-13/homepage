@@ -28,7 +28,7 @@ The count and level state is sent to a remote application over LoRaWAN.
 
 This is useful for:
 
-- counting output produced by electricity meters, water meters, and other types of flow meters which do not have intrisically safe requirements
+- counting output produced by electricity meters, water meters, and other types of flow meters
 - tamper detection
 - storage tank monitoring
 
