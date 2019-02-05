@@ -10,3 +10,5 @@ google_analytics: UA-39608896-1
 github_username:  cjhdev
 linkedin_username: cameronisanengineer
 
+plugins:
+  - jekyll-toc
