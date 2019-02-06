@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-02-06T13:22:00+00:00</updated><id>http://localhost:4000/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="http://localhost:4000/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>http://localhost:4000/lora-pulse-counter</id><content type="html" xml:base="http://localhost:4000/lpc">&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-02-06T13:29:07+00:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Above is version &lt;a href=&quot;#011&quot;&gt;0.1.1&lt;/a&gt; of my LoRa Pulse Counter demonstration platform.&lt;/p&gt;
 
@@ -217,9 +217,9 @@ reporting.&lt;/p&gt;
   &lt;li&gt;enlarged M2 mounting holes to M3&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/second_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/second_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/second_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/second_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;h4 id=&quot;problems&quot;&gt;Problems&lt;/h4&gt;
 
@@ -231,11 +231,11 @@ reporting.&lt;/p&gt;
 
 &lt;p&gt;First revision.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;h4 id=&quot;problems-1&quot;&gt;Problems&lt;/h4&gt;
 
@@ -490,7 +490,7 @@ BEGIN
     max-uint32 Integer ::= 4294967295
     max-uint16 Integer ::= 65535
     
-END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="http://localhost:4000/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>http://localhost:4000/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="http://localhost:4000/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
+END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Yesterday I finished a &lt;a href=&quot;https://github.com/cjhdev/ruby_olm&quot;&gt;Ruby wrapper&lt;/a&gt; for Olm. 
 &lt;a href=&quot;https://git.matrix.org/git/olm/&quot;&gt;Olm&lt;/a&gt; is a protocol agnostic 
@@ -554,7 +554,7 @@ use this for other things like M2M/IoT.&lt;/p&gt;
 
 &lt;span class=&quot;n&quot;&gt;assert_equal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice_msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob_msg&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">LoraDeviceLib now works with MBED</title><link href="http://localhost:4000/2018/10/06/lora-device-lib-on-mbed.html" rel="alternate" type="text/html" title="LoraDeviceLib now works with MBED" /><published>2018-10-06T00:00:00+01:00</published><updated>2018-10-06T00:00:00+01:00</updated><id>http://localhost:4000/2018/10/06/lora-device-lib-on-mbed</id><content type="html" xml:base="http://localhost:4000/2018/10/06/lora-device-lib-on-mbed.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">LoraDeviceLib now works with MBED</title><link href="/2018/10/06/lora-device-lib-on-mbed.html" rel="alternate" type="text/html" title="LoraDeviceLib now works with MBED" /><published>2018-10-06T00:00:00+01:00</published><updated>2018-10-06T00:00:00+01:00</updated><id>/2018/10/06/lora-device-lib-on-mbed</id><content type="html" xml:base="/2018/10/06/lora-device-lib-on-mbed.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;I recently completed an MBED wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt; (LDL). 
 This follows on from the &lt;a href=&quot;/2018/08/23/build-your-own-experimental-lorawan-sensor.html&quot;&gt;Arduino wrapper&lt;/a&gt; I wrote about just a few months ago. 
@@ -570,7 +570,7 @@ temperature and humidity every 30 minutes.&lt;/p&gt;
 &lt;p&gt;I’m using an STM Nucleo F446RE board because that’s what I had in my parts bin. I’m combining that
 with the same radio and sensor used for the Arduino demo.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/mbed_sensor.jpg&quot; alt=&quot;assembled sensor&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/mbed_sensor.jpg&quot; alt=&quot;assembled sensor&quot; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;application-implementation&quot;&gt;Application implementation&lt;/h2&gt;
 
@@ -740,12 +740,12 @@ mbed-cli command:&lt;/p&gt;
 
 &lt;p&gt;At the same time we can see activity on The Things Network console:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/mbed_sensor_console.png&quot; alt=&quot;sensor console&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/mbed_sensor_console.png&quot; alt=&quot;sensor console&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Nice.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Ask HN: Who was hiring?</title><link href="http://localhost:4000/2018/09/21/who-was-hiring.html" rel="alternate" type="text/html" title="Ask HN: Who was hiring?" /><published>2018-09-21T00:00:00+01:00</published><updated>2018-09-21T00:00:00+01:00</updated><id>http://localhost:4000/2018/09/21/who-was-hiring</id><content type="html" xml:base="http://localhost:4000/2018/09/21/who-was-hiring.html">&lt;p&gt;This post is about techniques you can use to collect old “Who is hiring?” content
+&lt;p&gt;Nice.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Ask HN: Who was hiring?</title><link href="/2018/09/21/who-was-hiring.html" rel="alternate" type="text/html" title="Ask HN: Who was hiring?" /><published>2018-09-21T00:00:00+01:00</published><updated>2018-09-21T00:00:00+01:00</updated><id>/2018/09/21/who-was-hiring</id><content type="html" xml:base="/2018/09/21/who-was-hiring.html">&lt;p&gt;This post is about techniques you can use to collect old “Who is hiring?” content
 from Hacker News.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/who_is_hiring.png&quot; alt=&quot;who is hiring thread&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/who_is_hiring.png&quot; alt=&quot;who is hiring thread&quot; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;what-is-hacker-news&quot;&gt;What is Hacker News?&lt;/h2&gt;
 
@@ -1069,7 +1069,7 @@ parametrised with different keywords like this:&lt;/p&gt;
 &lt;h2 id=&quot;finally&quot;&gt;Finally&lt;/h2&gt;
 
 &lt;p&gt;If you are actively looking for work on HN I recommend &lt;a href=&quot;https://hnhired.com/&quot;&gt;this&lt;/a&gt; app
-since it more or less does what my scripts do but in your browser and for the most recent month.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.</summary></entry><entry><title type="html">Build Your Own Experimental LoRaWAN Sensor</title><link href="http://localhost:4000/2018/08/23/build-your-own-experimental-lorawan-sensor.html" rel="alternate" type="text/html" title="Build Your Own Experimental LoRaWAN Sensor" /><published>2018-08-23T00:00:00+01:00</published><updated>2018-08-23T00:00:00+01:00</updated><id>http://localhost:4000/2018/08/23/build-your-own-experimental-lorawan-sensor</id><content type="html" xml:base="http://localhost:4000/2018/08/23/build-your-own-experimental-lorawan-sensor.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
+since it more or less does what my scripts do but in your browser and for the most recent month.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.</summary></entry><entry><title type="html">Build Your Own Experimental LoRaWAN Sensor</title><link href="/2018/08/23/build-your-own-experimental-lorawan-sensor.html" rel="alternate" type="text/html" title="Build Your Own Experimental LoRaWAN Sensor" /><published>2018-08-23T00:00:00+01:00</published><updated>2018-08-23T00:00:00+01:00</updated><id>/2018/08/23/build-your-own-experimental-lorawan-sensor</id><content type="html" xml:base="/2018/08/23/build-your-own-experimental-lorawan-sensor.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;I wrote an Arduino wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt;. 
 This post shows how to use it in an experimental application.&lt;/p&gt;
@@ -1096,7 +1096,7 @@ has a CE mark and comes with an antenna.&lt;/p&gt;
 
 &lt;p&gt;The hardware plugs together like so:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/sensor.jpg&quot; alt=&quot;assembled sensor&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/sensor.jpg&quot; alt=&quot;assembled sensor&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;For a gateway I have a Multitech Conduit AP. If you are &lt;a href=&quot;https://www.thethingsnetwork.org/map&quot;&gt;lucky&lt;/a&gt; you might not need one.&lt;/p&gt;
 
@@ -1424,7 +1424,7 @@ output which looks like this:&lt;/p&gt;
 
 &lt;p&gt;You should also be able to see activity on the TTN console:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/sensor_console.png&quot; alt=&quot;sensor console&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/sensor_console.png&quot; alt=&quot;sensor console&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;collecting-data-from-ttn&quot;&gt;Collecting Data from TTN&lt;/h2&gt;
 
@@ -1479,7 +1479,7 @@ that looks like this:&lt;/p&gt;
 &lt;span class=&quot;gp&quot;&gt;2018-08-17T11:20:43.282121472Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,50.0
 &lt;span class=&quot;gp&quot;&gt;2018-08-17T11:50:41.809375253Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,48.0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Using Ruby to Emulate LoRaWAN Hardware</title><link href="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" rel="alternate" type="text/html" title="Using Ruby to Emulate LoRaWAN Hardware" /><published>2018-03-11T00:00:00+00:00</published><updated>2018-03-11T00:00:00+00:00</updated><id>http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware</id><content type="html" xml:base="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Using Ruby to Emulate LoRaWAN Hardware</title><link href="/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" rel="alternate" type="text/html" title="Using Ruby to Emulate LoRaWAN Hardware" /><published>2018-03-11T00:00:00+00:00</published><updated>2018-03-11T00:00:00+00:00</updated><id>/2018/03/11/using-ruby-to-emulate-lorawan-hardware</id><content type="html" xml:base="/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;For the past year I’ve been working on a background project called &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoraDeviceLib&lt;/a&gt; (LDL for short).&lt;/p&gt;
 
@@ -1489,7 +1489,7 @@ that looks like this:&lt;/p&gt;
 
 &lt;p&gt;To continue with my “no hardware” approach, I decided to write a software layer in Ruby that would emulate the hardware components required to connect a free-running instance of LDL up to TTN. Basically, everything in the box marked “emulator”:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/high_level.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/high_level.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;h1 id=&quot;implementation&quot;&gt;Implementation&lt;/h1&gt;
 
@@ -1497,7 +1497,7 @@ that looks like this:&lt;/p&gt;
 
 &lt;p&gt;The classes developed for the emulator look a bit like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/emulator.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/emulator.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -1683,7 +1683,7 @@ send complete&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;We can see the same thing on the TTN data console:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/ttn_console.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/ttn_console.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;h1 id=&quot;was-it-worth-the-trouble&quot;&gt;Was It Worth The Trouble?&lt;/h1&gt;
 

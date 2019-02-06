@@ -13,17 +13,15 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="update: LDL source code is no longer publicly accessible" />
 <meta property="og:description" content="update: LDL source code is no longer publicly accessible" />
-<link rel="canonical" href="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" />
-<meta property="og:url" content="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" />
 <meta property="og:site_name" content="Cameron Harper" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2018-03-11T00:00:00+00:00" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"Using Ruby to Emulate LoRaWAN Hardware","dateModified":"2018-03-11T00:00:00+00:00","datePublished":"2018-03-11T00:00:00+00:00","url":"http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html"},"author":{"@type":"Person","name":"Cameron Harper"},"description":"update: LDL source code is no longer publicly accessible","@context":"http://schema.org"}</script>
+{"@type":"BlogPosting","headline":"Using Ruby to Emulate LoRaWAN Hardware","dateModified":"2018-03-11T00:00:00+00:00","datePublished":"2018-03-11T00:00:00+00:00","url":"/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html","mainEntityOfPage":{"@type":"WebPage","@id":"/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html"},"author":{"@type":"Person","name":"Cameron Harper"},"description":"update: LDL source code is no longer publicly accessible","@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   <link rel="stylesheet" href="/assets/main.css">
-  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cameron Harper" />
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Cameron Harper" />
   
 </head>
 
@@ -96,7 +94,7 @@
 
 <p>To continue with my “no hardware” approach, I decided to write a software layer in Ruby that would emulate the hardware components required to connect a free-running instance of LDL up to TTN. Basically, everything in the box marked “emulator”:</p>
 
-<p><img src="http://localhost:4000/assets/high_level.png" alt="emulator classes" class="center-image" /></p>
+<p><img src="/assets/high_level.png" alt="emulator classes" class="center-image" /></p>
 
 <h1 id="implementation">Implementation</h1>
 
@@ -104,7 +102,7 @@
 
 <p>The classes developed for the emulator look a bit like this:</p>
 
-<p><img src="http://localhost:4000/assets/emulator.png" alt="emulator classes" class="center-image" /></p>
+<p><img src="/assets/emulator.png" alt="emulator classes" class="center-image" /></p>
 
 <ul>
   <li>
@@ -290,7 +288,7 @@ send complete</span></code></pre></figure>
 
 <p>We can see the same thing on the TTN data console:</p>
 
-<p><img src="http://localhost:4000/assets/ttn_console.png" alt="emulator classes" class="center-image" /></p>
+<p><img src="/assets/ttn_console.png" alt="emulator classes" class="center-image" /></p>
 
 <h1 id="was-it-worth-the-trouble">Was It Worth The Trouble?</h1>
 
