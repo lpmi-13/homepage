@@ -1,0 +1,1703 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-02-06T13:22:00+00:00</updated><id>http://localhost:4000/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="http://localhost:4000/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>http://localhost:4000/lora-pulse-counter</id><content type="html" xml:base="http://localhost:4000/lpc">&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Above is version &lt;a href=&quot;#011&quot;&gt;0.1.1&lt;/a&gt; of my LoRa Pulse Counter demonstration platform.&lt;/p&gt;
+
+&lt;p&gt;I put this together to demonstrate an end-to-end hardware/firmware/software project.
+Also I wanted to evaluate Kicad after not making a PCB for almost a decade.&lt;/p&gt;
+
+&lt;h2 id=&quot;application&quot;&gt;Application&lt;/h2&gt;
+
+&lt;p&gt;The LoRa Pulse Counter can be used to count electrical pulses produced by flow meters 
+and/or detect level changes from switch based sensors. 
+The count and level state is sent to a remote application over LoRaWAN.&lt;/p&gt;
+
+&lt;p&gt;This is useful for:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;counting output produced by electricity meters, water meters, and other types of flow meters&lt;/li&gt;
+  &lt;li&gt;tamper detection&lt;/li&gt;
+  &lt;li&gt;storage tank monitoring&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;features&quot;&gt;Features&lt;/h2&gt;
+
+&lt;h3 id=&quot;lorawan&quot;&gt;LoRaWAN&lt;/h3&gt;
+
+&lt;p&gt;The device uses LoRaWAN to send data to a remote application.&lt;/p&gt;
+
+&lt;p&gt;The implementation is my own. Features include:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;low-resource design suitable for constrained devices&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cjhdev.github.io/lora_device_lib_api/&quot;&gt;API&lt;/a&gt; documentation&lt;/li&gt;
+  &lt;li&gt;OTAA only with full support for all network configurable parameters&lt;/li&gt;
+  &lt;li&gt;runtime multi-region support&lt;/li&gt;
+  &lt;li&gt;hardware emulator for debugging against network implementations&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;digital-inputs&quot;&gt;Digital Inputs&lt;/h3&gt;
+
+&lt;p&gt;The device has two inputs suitable for interfacing with open-collector or
+dry-contact outputs.&lt;/p&gt;
+
+&lt;h3 id=&quot;external-pickup-power-supply&quot;&gt;External Pickup Power Supply&lt;/h3&gt;
+
+&lt;p&gt;The device can supply power to external pickups required to interface
+with different equipment. Typical external pickups include:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;photodiode to detect a flashing LED&lt;/li&gt;
+  &lt;li&gt;hall-effect sensor to detect a rotating magnet&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;status-button-and-led&quot;&gt;Status Button and LED&lt;/h3&gt;
+
+&lt;p&gt;The device has a button which when pressed enables a status LED which
+makes it possible to quickly inspect the status of the device.&lt;/p&gt;
+
+&lt;p&gt;The status codes are:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;number of flashes&lt;/th&gt;
+      &lt;th&gt;status&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0&lt;/td&gt;
+      &lt;td&gt;dead&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;1&lt;/td&gt;
+      &lt;td&gt;not-joined&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;2&lt;/td&gt;
+      &lt;td&gt;joining&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;3&lt;/td&gt;
+      &lt;td&gt;joined but no downlink received in interval&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;4&lt;/td&gt;
+      &lt;td&gt;joined and downlink received in interval&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;uart-connection&quot;&gt;UART Connection&lt;/h3&gt;
+
+&lt;p&gt;The device has a level-converted UART connection to support:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;commissioning&lt;/li&gt;
+  &lt;li&gt;firmware update&lt;/li&gt;
+  &lt;li&gt;fault finding&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The connector used is a 6 pin header with the following configuration:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;pin&lt;/th&gt;
+      &lt;th&gt;signal&lt;/th&gt;
+      &lt;th&gt;comment&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;1&lt;/td&gt;
+      &lt;td&gt;GND&lt;/td&gt;
+      &lt;td&gt;mandatory&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;2&lt;/td&gt;
+      &lt;td&gt;CTS&lt;/td&gt;
+      &lt;td&gt;connected to GND&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;3&lt;/td&gt;
+      &lt;td&gt;VCC&lt;/td&gt;
+      &lt;td&gt;mandatory 3V3 or 5V; battery is still required&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;4&lt;/td&gt;
+      &lt;td&gt;TXD&lt;/td&gt;
+      &lt;td&gt;transmit line&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;5&lt;/td&gt;
+      &lt;td&gt;RXD&lt;/td&gt;
+      &lt;td&gt;receive line&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;6&lt;/td&gt;
+      &lt;td&gt;DTR&lt;/td&gt;
+      &lt;td&gt;not connected&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;This configuration is compatible with USB to serial converters
+made by FTDI, Sparkfun, and many others.&lt;/p&gt;
+
+&lt;h3 id=&quot;battery-voltage-sensor&quot;&gt;Battery Voltage Sensor&lt;/h3&gt;
+
+&lt;p&gt;The device is able to sample battery voltage through a switched resistive
+divider. This information is made available to the remote application.&lt;/p&gt;
+
+&lt;h3 id=&quot;ambient-temperature-sensor&quot;&gt;Ambient Temperature Sensor&lt;/h3&gt;
+
+&lt;p&gt;The device is able to monitor ambient temperature. This information is made available to 
+the remote application.&lt;/p&gt;
+
+&lt;h3 id=&quot;field-serviceable-primary-cell&quot;&gt;Field Serviceable Primary Cell&lt;/h3&gt;
+
+&lt;p&gt;The device is powered by a CR123A (Li-MnO2) primary cell which
+is installed in a PCB mounted holder.&lt;/p&gt;
+
+&lt;p&gt;Having the cell easily replaceable is useful for shipping, and for 
+allowing the device to be used in applications which require high frequency
+reporting.&lt;/p&gt;
+
+&lt;h3 id=&quot;configurable&quot;&gt;Configurable&lt;/h3&gt;
+
+&lt;p&gt;The following characteristics can be reconfigured:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;input behaviour
+    &lt;ul&gt;
+      &lt;li&gt;rising/falling/both edges&lt;/li&gt;
+      &lt;li&gt;alerting&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;reporting interval and alerting strategy&lt;/li&gt;
+  &lt;li&gt;link-check interval&lt;/li&gt;
+  &lt;li&gt;no-downlink-error interval&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;low-power-design&quot;&gt;Low Power Design&lt;/h3&gt;
+
+&lt;p&gt;The device is designed for low power consumption:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;direct unregulated power supply&lt;/li&gt;
+  &lt;li&gt;switched battery voltage divider&lt;/li&gt;
+  &lt;li&gt;status LED active only when user button is pressed&lt;/li&gt;
+  &lt;li&gt;UART level converter powered by the USB to serial converter and not by the device&lt;/li&gt;
+  &lt;li&gt;event driven firmware&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Average power consumption depends upon:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;resting state of digital inputs (active-low will produce longest battery life)&lt;/li&gt;
+  &lt;li&gt;frequency of pulse signals&lt;/li&gt;
+  &lt;li&gt;frequency of pulse count reporting&lt;/li&gt;
+  &lt;li&gt;alerting strategy&lt;/li&gt;
+  &lt;li&gt;link-check strategy&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;hardware-revisions&quot;&gt;Hardware Revisions&lt;/h2&gt;
+
+&lt;h3 id=&quot;020&quot;&gt;0.2.0&lt;/h3&gt;
+
+&lt;p&gt;Changes from last revision:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;U.FL replaced with dual SMA/U.FL footprint&lt;/li&gt;
+  &lt;li&gt;removed DIO4 and DIO5 routing&lt;/li&gt;
+  &lt;li&gt;using single inverter for UART transmit line&lt;/li&gt;
+  &lt;li&gt;removed reset button&lt;/li&gt;
+  &lt;li&gt;using larger footprints for easy soldering&lt;/li&gt;
+  &lt;li&gt;enlarged M2 mounting holes to M3&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/second_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/second_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;problems&quot;&gt;Problems&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;011&quot;&gt;0.1.1&lt;/h3&gt;
+
+&lt;p&gt;First revision.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;problems-1&quot;&gt;Problems&lt;/h4&gt;
+
+&lt;p&gt;Thoughts I had after having this PCB made:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There should be a keepout underneath the U.FL connector&lt;/li&gt;
+  &lt;li&gt;The radio module is too far away from the U.FL connector&lt;/li&gt;
+  &lt;li&gt;UART pin assignment means the STM32L051K8 cannot be swapped for the lower cost STM32L010K8&lt;/li&gt;
+  &lt;li&gt;The UART level converter power consumption could be improved by using the 
+MCU UART signal invert feature&lt;/li&gt;
+  &lt;li&gt;It is not necessary to connect radio module DIO4 and DIO5&lt;/li&gt;
+  &lt;li&gt;The reset switch is redundant&lt;/li&gt;
+  &lt;li&gt;The footprints are too small for easy soldering&lt;/li&gt;
+  &lt;li&gt;Double row storage capacitors are difficult to solder by hand&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;communication-protocol&quot;&gt;Communication Protocol&lt;/h2&gt;
+
+&lt;p&gt;A protocol is required in order to commission and manage the LoRa Pulse Counter.&lt;/p&gt;
+
+&lt;h3 id=&quot;uart-settings&quot;&gt;UART Settings&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;38400 baud&lt;/li&gt;
+  &lt;li&gt;8 data bits, 1 stop bit, no parity&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;framing&quot;&gt;Framing&lt;/h3&gt;
+
+&lt;p&gt;The protocol uses start, end, escape, and xor characters to mark start/end of 
+messages and to remove start/end markers from the message payload.&lt;/p&gt;
+
+&lt;p&gt;Special characters are as follows:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;name&lt;/th&gt;
+      &lt;th&gt;value&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;start&lt;/td&gt;
+      &lt;td&gt;0x7e&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;end&lt;/td&gt;
+      &lt;td&gt;0x7f&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;escape&lt;/td&gt;
+      &lt;td&gt;0x7d&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;xor&lt;/td&gt;
+      &lt;td&gt;0x20&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;When a start, end, or escape character appears within a message payload, it is replaced
+by an escape character followed by the original character XORed with the xor character.&lt;/p&gt;
+
+&lt;p&gt;The last two bytes of a frame is a 16 bit CRC ordered most significant byte first.
+The CRC is calculated over the payload bytes as they appear on the wire (i.e. including escape characters).&lt;/p&gt;
+
+&lt;p&gt;CRC parameters are as follows:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;name&lt;/td&gt;
+      &lt;td&gt;CRC-16-CCITT&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;polynomial&lt;/td&gt;
+      &lt;td&gt;0x1021&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;initial value&lt;/td&gt;
+      &lt;td&gt;0xffff&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;message-encoding-rules&quot;&gt;Message Encoding Rules&lt;/h3&gt;
+
+&lt;p&gt;Messages are encoded/decoded according to Octet Encoding Rules X.696.&lt;/p&gt;
+
+&lt;h3 id=&quot;commands&quot;&gt;Commands&lt;/h3&gt;
+
+&lt;h4 id=&quot;commission&quot;&gt;Commission&lt;/h4&gt;
+
+&lt;p&gt;Device shall be commissioned by writing the following values to
+non-volatile memory:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Application EUI&lt;/li&gt;
+  &lt;li&gt;Application Key&lt;/li&gt;
+  &lt;li&gt;Device EUI&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Following this the device shall forget the network and enter a non-joining
+mode.&lt;/p&gt;
+
+&lt;h4 id=&quot;join&quot;&gt;Join&lt;/h4&gt;
+
+&lt;p&gt;Device shall forget the network and enter a joining mode.&lt;/p&gt;
+
+&lt;h4 id=&quot;forget&quot;&gt;Forget&lt;/h4&gt;
+
+&lt;p&gt;Device shall forget the network and enter a non-joining mode.&lt;/p&gt;
+
+&lt;h4 id=&quot;get-device-eui&quot;&gt;Get-Device-EUI&lt;/h4&gt;
+
+&lt;p&gt;Return the Device-EUI.&lt;/p&gt;
+
+&lt;h4 id=&quot;get-application-eui&quot;&gt;Get-Application-EUI&lt;/h4&gt;
+
+&lt;p&gt;Return the Application-EUI.&lt;/p&gt;
+
+&lt;h4 id=&quot;get-encrypted-application-key&quot;&gt;Get-Encrypted-Application-Key&lt;/h4&gt;
+
+&lt;p&gt;Return the result of performing AES-128 encryption of a zeroed block using the Application-Key.&lt;/p&gt;
+
+&lt;h4 id=&quot;set-log-severity-level&quot;&gt;Set-Log-Severity-Level&lt;/h4&gt;
+
+&lt;p&gt;Set the severity level for log messages pushed by Log-Message alert in accordance
+with RFC 5424.&lt;/p&gt;
+
+&lt;h3 id=&quot;alerts&quot;&gt;Alerts&lt;/h3&gt;
+
+&lt;h4 id=&quot;log-alert&quot;&gt;Log-Alert&lt;/h4&gt;
+
+&lt;p&gt;Used to push logging messages to a client depending on the severity level
+set by the Set-Log-Severity-Level command.&lt;/p&gt;
+
+&lt;h3 id=&quot;message-structure&quot;&gt;Message Structure&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Pulse-Counter-Protocol
+DEFINITIONS ::=
+BEGIN
+     
+    PDU ::= CHOICE 
+    {
+        command     Command,
+        response    Response,
+        alert       Alert
+    }
+
+    Command ::= SEQUENCE
+    {
+        type CHOICE 
+        {    
+            commission      Commission-Command,
+            join            Join-Command,
+            forget          Forget-Command,
+            get-deveui      Get-DevEUI-Command,
+            get-appeui      Get-AppEUI-Command,
+            get-encrypted-appkey    Get-Encrypted-AppKey-Command,
+            set-log-severity-level  Set-Log-Severity-Level-Command
+        }
+    }
+    
+    Response ::= SEQUENCE
+    {
+        type CHOICE
+        {
+            commission      Commission-Response,
+            join            Join-Response,
+            forget          Forget-Response,
+            get-deveui      Get-DevEUI-Response,
+            get-appeui      Get-AppEUI-Response,
+            get-encrypted-appkey     Get-Encrypted-AppKey-Response,
+            set-log-severity-level   Set-Log-severity-Level-Response
+        }
+    }
+    
+    Alert ::= SEQUENCE
+    {
+        type CHOICE
+        {
+            log     Log-Alert
+        }
+    }
+
+    # 
+    # Commands, Response, Alert
+    #
+
+    Commission-Command  ::= SEQUENCE
+    {        
+        counter Invocation-Counter,
+        app-eui EUI,
+        dev-eui EUI,
+        app-key Key
+    }
+    Commission-Response ::= Empty-Response
+    
+    Join-Command    ::= Empty-Command
+    Join-Response   ::= Empty-Response
+    
+    Forget-Command  ::= Empty-Command
+    Forget-Response ::= Empty-Response
+    
+    Get-AppEUI-Command  ::= Empty-Command
+    Get-AppEUI-Response ::= SEQUENCE
+    {
+        counter Invocation-Counter,
+        eui     EUI
+    }
+    
+    Get-DevEUI-Command  ::= Empty-Command
+    Get-DevEUI-Response ::= SEQUENCE
+    {
+        counter Invocation-Counter,
+        eui     EUI
+    }
+    
+    Get-Encrypted-AppKey-Command    ::= Empty-Command
+    Get-Encrypted-AppKey-Response   ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        encrypted-key   Key
+    }
+
+    Set-Log-Severity-Level-Command ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        severity-level  INTEGER (0..7)
+    }
+    Set-Log-Severity-Level-Response ::= Empty-Response
+    
+    #
+    # useful definitions
+    #
+    
+    Empty-Command ::= Empty-Response
+    Empty-Response ::= SEQUENCE
+    {
+        counter Invocation-Counter
+    }
+    
+    Log-Alert ::= VisibleString
+    
+    Invocation-Counter ::= INTEGER (0..max-uint8)
+    EUI ::= OCTET STRING (SIZE(8))
+    Key ::= OCTET STRING (SIZE(16))
+    
+    max-uint32 Integer ::= 4294967295
+    max-uint16 Integer ::= 65535
+    
+END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="http://localhost:4000/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>http://localhost:4000/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="http://localhost:4000/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Yesterday I finished a &lt;a href=&quot;https://github.com/cjhdev/ruby_olm&quot;&gt;Ruby wrapper&lt;/a&gt; for Olm. 
+&lt;a href=&quot;https://git.matrix.org/git/olm/&quot;&gt;Olm&lt;/a&gt; is a protocol agnostic 
+implementation of &lt;a href=&quot;https://en.wikipedia.org/wiki/Double_Ratchet_Algorithm&quot;&gt;Double Ratchet&lt;/a&gt; provided as part of the &lt;a href=&quot;https://matrix.org/blog/home/&quot;&gt;Matrix&lt;/a&gt; 
+project. It’s nicely written, has been &lt;a href=&quot;https://www.nccgroup.trust/us/our-research/matrix-olm-cryptographic-review/&quot;&gt;audited&lt;/a&gt;, and is perhaps the
+easiest to port library I’ve ever come across.&lt;/p&gt;
+
+&lt;p&gt;Olm is useful if you want to build things that use Double-Ratchet. Coming 
+from Matrix the main focus is on implementing chat clients, but you could
+use this for other things like M2M/IoT.&lt;/p&gt;
+
+&lt;p&gt;This is an example exchange between two parties using ruby_olm:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ruby_olm'&lt;/span&gt;
+
+&lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;RubyOlm&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;alice&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Account&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Account&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Alice wants to send a message to Bob&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;alice_msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;hi bob&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Bob generates a one-time-key&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;gen_otk&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Alice must have Bob's identity and one-time-key to make a session&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;alice_session&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;outbound_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ik&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'curve25519'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;otk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'curve25519'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;values&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Bob marks all one-time-keys as published&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;mark_otk&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Alice can encrypt&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;encrypted&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;encrypt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alice_msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;assert_instance_of&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;PreKeyMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;encrypted&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Bob can create a session from this first message&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bob_session&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;inbound_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encrypted&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Bob can now update his list of marked otk (since he knows one has been used)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;update_otk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bob_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Bob can decrypt Alice's message&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bob_msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;decrypt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encrypted&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;assert_equal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice_msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob_msg&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# At this point Bob has received but Alice hasn't&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;has_received?&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;refute&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;has_received?&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;####&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Bob can send messages back to Alice    &lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bob_msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;hi alice&quot;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;encrypted&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;encrypt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bob_msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;assert_instance_of&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;encrypted&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;alice_msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;decrypt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encrypted&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;assert_equal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice_msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob_msg&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">LoraDeviceLib now works with MBED</title><link href="http://localhost:4000/2018/10/06/lora-device-lib-on-mbed.html" rel="alternate" type="text/html" title="LoraDeviceLib now works with MBED" /><published>2018-10-06T00:00:00+01:00</published><updated>2018-10-06T00:00:00+01:00</updated><id>http://localhost:4000/2018/10/06/lora-device-lib-on-mbed</id><content type="html" xml:base="http://localhost:4000/2018/10/06/lora-device-lib-on-mbed.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I recently completed an MBED wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt; (LDL). 
+This follows on from the &lt;a href=&quot;/2018/08/23/build-your-own-experimental-lorawan-sensor.html&quot;&gt;Arduino wrapper&lt;/a&gt; I wrote about just a few months ago. 
+I thought it would be an interesting point of comparison to see the same demo application implemented for MBED as was implemented for Arduino.&lt;/p&gt;
+
+&lt;h2 id=&quot;application-requirements&quot;&gt;Application requirements&lt;/h2&gt;
+
+&lt;p&gt;The requirements are the same as for the Arduino demo. The node shall power up, join &lt;a href=&quot;https://www.thethingsnetwork.org/&quot;&gt;The Things Network&lt;/a&gt;, then transmit
+temperature and humidity every 30 minutes.&lt;/p&gt;
+
+&lt;h2 id=&quot;hardware&quot;&gt;Hardware&lt;/h2&gt;
+
+&lt;p&gt;I’m using an STM Nucleo F446RE board because that’s what I had in my parts bin. I’m combining that
+with the same radio and sensor used for the Arduino demo.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/mbed_sensor.jpg&quot; alt=&quot;assembled sensor&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;application-implementation&quot;&gt;Application implementation&lt;/h2&gt;
+
+&lt;p&gt;The application code looks like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include &quot;mbed_ldl.h&quot;
+#include &quot;DHT.h&quot;
+&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Semaphore&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pending_flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Semaphore&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sample_flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;pending_handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;pending_flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;release&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sample_handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;sample_flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;release&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;    
+    &lt;span class=&quot;n&quot;&gt;pending_flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;release&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;    
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Ticker&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sample_ticker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SPI&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;spi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;D12&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;D13&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DHT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sensor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DHT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DHT11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;devEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DEV_EUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;APP_EUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;APP_KEY&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MbedLDL&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;callback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pending_handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;        
+        &lt;span class=&quot;n&quot;&gt;devEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;appEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;n&quot;&gt;appKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;n&quot;&gt;EU_863_870&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;         &lt;span class=&quot;cm&quot;&gt;/* region */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;LORA_RADIO_SX1272&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;cm&quot;&gt;/* radio */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;spi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                &lt;span class=&quot;cm&quot;&gt;/* SPI instance (possibly shared) */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;A0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* radio reset */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;D10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                &lt;span class=&quot;cm&quot;&gt;/* radio select */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;D2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* DIO0 */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;D3&lt;/span&gt;                  &lt;span class=&quot;cm&quot;&gt;/* DIO1 */&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setRate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setPower&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;                
+ 
+    &lt;span class=&quot;n&quot;&gt;sample_ticker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;attach_us&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;callback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample_handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30UL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;60UL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000000UL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+        
+        &lt;span class=&quot;n&quot;&gt;pending_flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+        
+        &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+    
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;joined&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+                
+                &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample_flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0UL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+                
+                    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sensor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DHT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SUCCESS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+                
+                        &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                            &lt;span class=&quot;n&quot;&gt;sensor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getTemperature&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; 
+                            &lt;span class=&quot;n&quot;&gt;sensor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getHumidity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+                        &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+                        
+                        &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unconfirmedData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+                    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+                &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                        
+                &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;otaa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The bulk of the application looks similar to the Arduino demo. The main difference is that the MBED
+wrapper will notify the application by callback when an event is pending 
+(i.e. when the application needs to call process())).&lt;/p&gt;
+
+&lt;p&gt;The demo application uses this callback to release the &lt;em&gt;pending_flag&lt;/em&gt; semphore. 
+The &lt;em&gt;pending_flag&lt;/em&gt; semaphore is also released by &lt;em&gt;sample_handler&lt;/em&gt; which is called every 30 minutes
+by &lt;em&gt;sample_ticker&lt;/em&gt;. The main loop then waits on the &lt;em&gt;pending_flag&lt;/em&gt; and the effect is that the application will
+sleep when there is no work to be done.&lt;/p&gt;
+
+&lt;p&gt;Building the application using the mbed-cli tool produces the following output:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt; mbed compile
+&lt;span class=&quot;go&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;&amp;lt;snip&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;
+Link: mbed_ldl_sensor
+Elf2Bin: mbed_ldl_sensor
+| Module                       |         .text |       .data |        .bss |
+|------------------------------|---------------|-------------|-------------|
+| [fill]                       |     134(+134) |       4(+4) |     25(+25) |
+| [lib]/c.a                    | 27885(+27885) | 2472(+2472) |     89(+89) |
+| [lib]/gcc.a                  |   3272(+3272) |       0(+0) |       0(+0) |
+| [lib]/misc                   |     208(+208) |     12(+12) |     28(+28) |
+| environment_sensor.o         |   1402(+1402) |       4(+4) | 1140(+1140) |
+| mbed-dht/DHT.o               |     722(+722) |       0(+0) |       0(+0) |
+| mbed-os/components           |       96(+96) |       0(+0) |       0(+0) |
+| mbed-os/drivers              |   2072(+2072) |       4(+4) |   144(+144) |
+| mbed-os/hal                  |   2073(+2073) |       4(+4) |     68(+68) |
+| mbed-os/platform             |   3472(+3472) |   276(+276) |   173(+173) |
+| mbed-os/rtos                 |   9747(+9747) |   168(+168) | 6053(+6053) |
+| mbed-os/targets              | 15129(+15129) |       4(+4) | 1132(+1132) |
+| mbed_ldl/lora_aes.o          |     835(+835) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_board.o        |       34(+34) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_cmac.o         |     560(+560) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_event.o        |     512(+512) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_frame.o        |   1654(+1654) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_mac.o          |   4354(+4354) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_mac_commands.o |     656(+656) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_radio.o        |   1247(+1247) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_region.o       |   1114(+1114) |       0(+0) |       0(+0) |
+| mbed_ldl/lora_stream.o       |     106(+106) |       0(+0) |       0(+0) |
+| mbed_ldl/mbed_ldl.o          |   1231(+1231) |       4(+4) |     32(+32) |
+| Subtotals                    | 78515(+78515) | 2952(+2952) | 8884(+8884) |
+Total Static RAM memory (data + bss): 11836(+11836) bytes
+Total Flash memory (text + data): 81467(+81467) bytes&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;LDL appears to occupy around 11K bytes of flash memory and this includes run-time support 
+for multiple regions and radios.&lt;/p&gt;
+
+&lt;p&gt;RAM usage is no more than 1140 bytes in bss and some of that will be taken up by the other
+objects in the demo application.&lt;/p&gt;
+
+&lt;h2 id=&quot;flashing-and-running-the-demo&quot;&gt;Flashing and running the demo&lt;/h2&gt;
+
+&lt;p&gt;The MBED wrapper will print status information to the terminal as it runs. 
+You can compile the application, flash the target, and open a terminal using the following
+mbed-cli command:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt; mbed compile &lt;span class=&quot;nt&quot;&gt;--flash&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--sterm&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;&amp;lt;snip&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;
+[mbed] Detecting connected targets/boards to your system...
+[mbed] Opening serial terminal to &quot;NUCLEO_F446RE&quot;
+--- Terminal on /dev/ttyACM2 - 9600,8,N,1 ---
+[94]RESET
+[21736]STARTUP
+[60061482]TX_BEGIN: SZ=23 F=868300000 SF=7 BW=125 P=5
+[60123557]TX_COMPLETE
+[65118809]RX1_SLOT: F=868300000 SF=7 BW=125
+[65196647]DOWNSTREAM: SZ=33 RSSI=-66 SNR=9
+[65239633]JOIN_COMPLETE
+[65287790]TX_BEGIN: SZ=21 F=867900000 SF=7 BW=125 P=5
+[65344750]TX_COMPLETE
+[66344194]RX1_SLOT: F=867900000 SF=7 BW=125
+[67314471]RX2_SLOT: F=869525000 SF=9 BW=125
+[67358533]DATA_COMPLETE
+[1800023429]TX_BEGIN: SZ=21 F=867100000 SF=7 BW=125 P=5
+[1800080384]TX_COMPLETE
+[1801079827]RX1_SLOT: F=867100000 SF=7 BW=125
+[1802050106]RX2_SLOT: F=869525000 SF=9 BW=125
+[1802096183]DATA_COMPLETE&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;At the same time we can see activity on The Things Network console:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/mbed_sensor_console.png&quot; alt=&quot;sensor console&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Nice.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Ask HN: Who was hiring?</title><link href="http://localhost:4000/2018/09/21/who-was-hiring.html" rel="alternate" type="text/html" title="Ask HN: Who was hiring?" /><published>2018-09-21T00:00:00+01:00</published><updated>2018-09-21T00:00:00+01:00</updated><id>http://localhost:4000/2018/09/21/who-was-hiring</id><content type="html" xml:base="http://localhost:4000/2018/09/21/who-was-hiring.html">&lt;p&gt;This post is about techniques you can use to collect old “Who is hiring?” content
+from Hacker News.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/who_is_hiring.png&quot; alt=&quot;who is hiring thread&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;what-is-hacker-news&quot;&gt;What is Hacker News?&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://news.ycombinator.com/&quot;&gt;Hacker News&lt;/a&gt; is a Reddit style website run by US based startup incubator &lt;a href=&quot;http://www.ycombinator.com/&quot;&gt;Y Combinator&lt;/a&gt;.
+Users submit content (usually tech related news) and other users vote the content up or down.&lt;/p&gt;
+
+&lt;p&gt;My favourite recurring story is the monthly &lt;a href=&quot;https://www.google.com/search?q=site%3Anews.ycombinator.com+%22Who+is+hiring%3F%22&quot;&gt;“Who is hiring?”&lt;/a&gt; 
+where tech
+companies from around the world post links to current vacancies. These
+ads are interesting since they are posted by internal recruiters and
+are usually transparent in terms of who the company is and what they do.&lt;/p&gt;
+
+&lt;h2 id=&quot;why-look-at-old-stories&quot;&gt;Why look at old stories?&lt;/h2&gt;
+
+&lt;p&gt;If you are looking for a job it makes sense to look at the most recent posts, 
+but I find old posts interesting as well since:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Those companies might still be hiring&lt;/li&gt;
+  &lt;li&gt;The posts give some insight (through the HN lens) as to what the 
+job market is like in a particular city&lt;/li&gt;
+  &lt;li&gt;I can see what kind of technologies companies are using&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;getting-links-to-stories&quot;&gt;Getting links to stories&lt;/h2&gt;
+
+&lt;p&gt;Before you can download historical “Who is hiring?” content you need to 
+find links to the stories. This Ruby script does just that using the Google
+search API:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'rest-client'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'json'&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;begin&lt;/span&gt;
+
+  &lt;span class=&quot;kp&quot;&gt;loop&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  
+    &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+      &lt;span class=&quot;no&quot;&gt;RestClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://www.googleapis.com/customsearch/v1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;ss&quot;&gt;:params&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;ss&quot;&gt;key: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;redacted&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;ss&quot;&gt;cx: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;redacted&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;ss&quot;&gt;dateRestrict: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;y5&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;ss&quot;&gt;start: &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+          &lt;span class=&quot;ss&quot;&gt;q: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Ask HN: Who is Hiring&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; 
+      &lt;span class=&quot;p&quot;&gt;}).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_s&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'items'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    
+      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/Ask HN: Who is hiring\? \([a-zA-Z]+ [0-9]+\)/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'title'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'link'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'title'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;include?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+      
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'queries'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'nextPage'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'startIndex'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  
+&lt;span class=&quot;k&quot;&gt;rescue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;STDERR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;pretty_generate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;results&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I’m searching for the exact phrase “Ask HN: Who is hiring?” using 
+a custom search engine configured to only search HN. The search
+results are limited to the last five years. I’m also using some regex
+to make sure I don’t collect links for meta stories.&lt;/p&gt;
+
+&lt;p&gt;Google returns 10 results per page and (at time of writing) will never return more than 10 pages 
+regardless of how many results there are. The script will loop until an exception is encountered;
+for me this is a non-successful response code to the request for the 11th page of results.&lt;/p&gt;
+
+&lt;p&gt;This is how I run the script:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt; ruby search.rb &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; links.json&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;getting-the-content&quot;&gt;Getting the content&lt;/h2&gt;
+
+&lt;p&gt;Once you have the links, you can use the &lt;a href=&quot;https://github.com/HackerNews/API&quot;&gt;HN API&lt;/a&gt; to get the content. This is my script:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'json'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'restclient'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'logger'&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;STDERR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;RQ&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Struct&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;pool&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+
+  &lt;span class=&quot;no&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  
+    &lt;span class=&quot;kp&quot;&gt;loop&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  
+      &lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;pop&lt;/span&gt;
+      
+      &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;unless&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;      
+      
+      &lt;span class=&quot;k&quot;&gt;begin&lt;/span&gt;
+      
+        &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+          &lt;span class=&quot;no&quot;&gt;RestClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://hacker-news.firebaseio.com/v0/item/&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;.json&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_s&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; returned a NULL object&quot;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+      &lt;span class=&quot;k&quot;&gt;rescue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; failed but will try again (&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;)&quot;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+       
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;writer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+
+  &lt;span class=&quot;kp&quot;&gt;loop&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  
+    &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;pop&lt;/span&gt;
+  
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;nil?&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;finished writing&quot;&lt;/span&gt;    
+      &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_json&lt;/span&gt;
+    
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ARGV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;RQ&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/id=(?&amp;lt;item&amp;gt;[0-9]+)/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'link'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;getting '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'title'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;'...&quot;&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;pop&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;getting &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'kids'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; posts&quot;&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'kids'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;RQ&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+  
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;pool&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)}.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;writer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)}.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;all done&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The script gets each story object and then uses that information to get all 
+of the top level posts.&lt;/p&gt;
+
+&lt;p&gt;The HN API seems to take around 1s to answer a request and doesn’t return collections.
+This means if a story contains 1000 top level posts, it will take ~16 minutes to get them all if you
+only use one thread of execution. To speed this up my script uses a pool of worker threads. I assume 
+this isn’t a burden for the host since it’s Firebase and every app using this API will need
+to do a lot of IO.&lt;/p&gt;
+
+&lt;p&gt;The script must not be left running unattended since failed requests are re-queued regardless of the type 
+of failure. This is a lazy solution to recovering from the occasional socket related temporary failure.&lt;/p&gt;
+
+&lt;p&gt;Running the script produces STDERR terminal output that looks like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt; ruby get.rb links.json &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; posts.json
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:20:48.334370 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting &lt;span class=&quot;s1&quot;&gt;'Ask HN: Who is hiring? (August 2018) | Hacker News'&lt;/span&gt;...
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:20:49.000806 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting 918 posts
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:20:49.025621 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting &lt;span class=&quot;s1&quot;&gt;'Ask HN: Who is hiring? (July 2018) | Hacker News'&lt;/span&gt;...
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:20:53.952558 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : 17664917 returned a NULL object
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:01.930408 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting 776 posts
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:01.932161 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting &lt;span class=&quot;s1&quot;&gt;'Ask HN: Who is hiring? (June 2018) | Hacker News'&lt;/span&gt;...
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:08.996272 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : 17493081 returned a NULL object
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:12.678740 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting 796 posts
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:12.690395 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting &lt;span class=&quot;s1&quot;&gt;'Ask HN: Who is hiring? (May 2018) | Hacker News'&lt;/span&gt;...
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:23.509626 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting 1033 posts
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:23.514804 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting &lt;span class=&quot;s1&quot;&gt;'Ask HN: Who is hiring? (March 2018) | Hacker News'&lt;/span&gt;...
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:30.793308 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : 16987633 returned a NULL object
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:34.502299 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : 16969165 returned a NULL object
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:36.262272 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : 16970062 failed but will try again &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SSL_connect SYSCALL &lt;span class=&quot;nv&quot;&gt;returned&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;5 &lt;span class=&quot;nv&quot;&gt;errno&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 &lt;span class=&quot;nv&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;unknown state&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;I, [2018-09-03T12:21:37.664146 #&lt;/span&gt;859]  INFO &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; : getting 909 posts
+&lt;span class=&quot;c&quot;&gt;...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;It took me around 10 minutes to return ~40,000 top level posts from the past 5 years.&lt;/p&gt;
+
+&lt;h2 id=&quot;filter-by-keyword&quot;&gt;Filter by keyword&lt;/h2&gt;
+
+&lt;p&gt;Once you have all the posts from the previous step you can process them any way you like. 
+I decided to filter the results by keywords and create human readable lists.&lt;/p&gt;
+
+&lt;p&gt;This is my keyword filter:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'json'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    
+    &lt;span class=&quot;ss&quot;&gt;:all&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:downcase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;uniq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sort&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;ss&quot;&gt;:any&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:downcase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;uniq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sort&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;ss&quot;&gt;:none&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:none&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;none&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:downcase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;uniq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sort&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;pattern&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Regexp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;union&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:none&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Regexp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;b&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Regexp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;escape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Regexp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;IGNORECASE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)})&lt;/span&gt;
+
+  &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;r&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      
+      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'text'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+      
+        &lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'text'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;scan&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pattern&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:downcase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;uniq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sort&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;empty?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sort&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        
+          &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;empty?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;size&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+          
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:none&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;empty?&lt;/span&gt;
+            
+              &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;
+              
+            &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+            
+          &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+          
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The script scans for a union of keywords in the post and returns the results as an array. 
+I use this array to accept/reject the post based on:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;keywords which must all be present (all)&lt;/li&gt;
+  &lt;li&gt;keywords where one or more must present (any)&lt;/li&gt;
+  &lt;li&gt;keywords which must not be present (none)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I print the filtered posts in reverse-chronological order with HTML formatting converted to plain-text using this script:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'time'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'html_to_plain_text'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;put_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;results&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; results&quot;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sort_by&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'time'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;reverse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;80&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;join&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'by'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;https://news.ycombinator.com/user?id=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'by'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;at&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'time'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;HtmlToPlainText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;plain_text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'text'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+    
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The filter and print scripts are implemented as methods so they can be
+parametrised with different keywords like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;london_c.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;w&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;put_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ARGV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; 
+      &lt;span class=&quot;ss&quot;&gt;all: &lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%w(london)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;ss&quot;&gt;any: &lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%w(c c++ c/c++ firmware embedded)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;berlin_ruby.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;w&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;put_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ARGV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; 
+      &lt;span class=&quot;ss&quot;&gt;all: &lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%w(berlin ruby)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;And so on.&lt;/p&gt;
+
+&lt;h2 id=&quot;finally&quot;&gt;Finally&lt;/h2&gt;
+
+&lt;p&gt;If you are actively looking for work on HN I recommend &lt;a href=&quot;https://hnhired.com/&quot;&gt;this&lt;/a&gt; app
+since it more or less does what my scripts do but in your browser and for the most recent month.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.</summary></entry><entry><title type="html">Build Your Own Experimental LoRaWAN Sensor</title><link href="http://localhost:4000/2018/08/23/build-your-own-experimental-lorawan-sensor.html" rel="alternate" type="text/html" title="Build Your Own Experimental LoRaWAN Sensor" /><published>2018-08-23T00:00:00+01:00</published><updated>2018-08-23T00:00:00+01:00</updated><id>http://localhost:4000/2018/08/23/build-your-own-experimental-lorawan-sensor</id><content type="html" xml:base="http://localhost:4000/2018/08/23/build-your-own-experimental-lorawan-sensor.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I wrote an Arduino wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt;. 
+This post shows how to use it in an experimental application.&lt;/p&gt;
+
+&lt;p&gt;Note that even though the wrapper is very easy to use, you should not 
+use it unless you know what you are doing. This includes knowing if you 
+are allowed to do this where you live, and how much trouble you might
+get into if you interfere with other radio users.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-application&quot;&gt;The Application&lt;/h2&gt;
+
+&lt;p&gt;Lately it’s been hot in Britain. Too hot. I want to know how hot it is.&lt;/p&gt;
+
+&lt;p&gt;To do this I will run a sensor in my home that measures temperature
+and humidity every 30 minutes. The sensor will be mains powered and will
+use LoRaWAN to push the data to The Things Network (&lt;a href=&quot;https://www.thethingsnetwork.org/&quot;&gt;TTN&lt;/a&gt;).
+I will then collect the data and store it in a CSV file on my PC.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-hardware&quot;&gt;The Hardware&lt;/h2&gt;
+
+&lt;p&gt;For this project I’m using an Adafruit Metro (ATMEGA328) configured for 3V3 operation, 
+a Semtech SX1272MB2DAS shield, and a DHT11 sensor. The Semtech shield 
+has a CE mark and comes with an antenna.&lt;/p&gt;
+
+&lt;p&gt;The hardware plugs together like so:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/sensor.jpg&quot; alt=&quot;assembled sensor&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;For a gateway I have a Multitech Conduit AP. If you are &lt;a href=&quot;https://www.thethingsnetwork.org/map&quot;&gt;lucky&lt;/a&gt; you might not need one.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-firmware&quot;&gt;The Firmware&lt;/h2&gt;
+
+&lt;p&gt;I wrote the following ino 
+to meet my application requirements:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#define DEBUG_LEVEL 2
+#include &quot;src/arduino_ldl/arduino_ldl.h&quot;
+#include &quot;src/Grove_Temperature_And_Humidity_Sensor/DHT.h&quot;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;devEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PROGMEM&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PROGMEM&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PROGMEM&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x2bU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x7eU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x15U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x16U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x28U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xaeU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xd2U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xa6U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xabU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xf7U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x15U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x88U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x09U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xcfU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x4fU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x3cU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push_interval&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30UL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;60UL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000UL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push_timer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;ArduinoLDL&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;devEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;appEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;appKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;EU_863_870&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;         &lt;span class=&quot;cm&quot;&gt;/* specify region */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;LORA_RADIO_SX1272&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;cm&quot;&gt;/* specify radio */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;A0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* radio reset pin */&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* radio select pin */&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                  &lt;span class=&quot;cm&quot;&gt;/* radio dio0 pin */&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;                   &lt;span class=&quot;cm&quot;&gt;/* radio dio1 pin */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;DHT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                  &lt;span class=&quot;cm&quot;&gt;/* pin */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;DHT11&lt;/span&gt;               &lt;span class=&quot;cm&quot;&gt;/* sensor type */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;expired&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;millis&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;    
+    &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;delta&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;time&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UINT32_MAX&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delta&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INT32_MAX&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;setup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Serial&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;begin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;115200U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;       
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;begin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;begin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;            
+    
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setRate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setPower&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;                
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expired&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;push_timer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)){&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;push_timer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;millis&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push_interval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+    
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;joined&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+            
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+                
+                &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readTemperature&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readHumidity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+                &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+                
+                &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unconfirmedData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+                
+                &lt;span class=&quot;n&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                    
+            &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;otaa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;            
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Compiling in the Arduino environment produces the following message:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;Sketch uses 22158 bytes (68%) of program storage space. Maximum is 32256 bytes.
+Global variables use 684 bytes (33%) of dynamic memory, leaving 1364 bytes for local variables. Maximum is 2048 bytes.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;There’s still a bit of code space for extra features.&lt;/p&gt;
+
+&lt;p&gt;RAM usage seems OK but keep in mind that ldl.process() will use the stack
+to store the downstream frame, various keys, and a shadow instance of 
+the session parameters. You probably need at least 500 bytes free to ensure 
+the wheels don’t fall off.&lt;/p&gt;
+
+&lt;h2 id=&quot;firmware-explanation&quot;&gt;Firmware Explanation&lt;/h2&gt;
+
+&lt;h3 id=&quot;includes&quot;&gt;Includes&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#define DEBUG_LEVEL 2
+#include &quot;src/arduino_ldl/arduino_ldl.h&quot;
+#include &quot;src/Grove_Temperature_And_Humidity_Sensor/DHT.h&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Here the preprocessor is used to include the ArduinoLDL header.&lt;/p&gt;
+
+&lt;p&gt;Defining DEBUG_LEVEL before the include will enable a set of inline 
+diagnostic messages. Level 1 gives a summary of state transitions, 
+level 2 also includes parameters.&lt;/p&gt;
+
+&lt;p&gt;The DHT11 library header is needed to interface with the temperature and
+humidity sensor.&lt;/p&gt;
+
+&lt;h3 id=&quot;mandatory-lorawan-parameters&quot;&gt;Mandatory LoRaWAN Parameters&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;devEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PROGMEM&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PROGMEM&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PROGMEM&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x2bU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x7eU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x15U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x16U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x28U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xaeU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xd2U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xa6U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xabU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xf7U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x15U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x88U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x09U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xcfU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x4fU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x3cU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;These byte strings are required to connect to TTN. 
+TTN has plenty of resource explaining the purpose of these strings and 
+where they come from so I won’t explain here.&lt;/p&gt;
+
+&lt;p&gt;These aren’t the values I actually used. What you see here is just filler.&lt;/p&gt;
+
+&lt;p&gt;The PROGMEM attribute is a quirky thing needed on AVR to ensure strings
+end up in flash memory rather than SRAM.&lt;/p&gt;
+
+&lt;h3 id=&quot;arduinoldl-construction&quot;&gt;ArduinoLDL Construction&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;n&quot;&gt;ArduinoLDL&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;devEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;appEUI&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;appKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;EU_863_870&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;         &lt;span class=&quot;cm&quot;&gt;/* specify region */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;LORA_RADIO_SX1272&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;cm&quot;&gt;/* specify radio */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;A0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* radio reset pin */&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* radio select pin */&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                  &lt;span class=&quot;cm&quot;&gt;/* radio dio0 pin */&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;                   &lt;span class=&quot;cm&quot;&gt;/* radio dio1 pin */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The constructor
+caches the settings but doesn’t perform any initialisation.
+Initialisation is done later in &lt;a href=&quot;#setup&quot;&gt;setup()&lt;/a&gt; by ldl.begin().&lt;/p&gt;
+
+&lt;p&gt;The two-step pattern is slightly awkward solution to two problems:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The static object is constructed before the Arduino environment is 
+initialised (so you should avoid touching the Arduino interfaces)&lt;/li&gt;
+  &lt;li&gt;The core implementation needs a pointer to the ArduinoLDL instance (which is not
+possible to know in the constructor)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;dht11-construction&quot;&gt;DHT11 Construction&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;n&quot;&gt;DHT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                  &lt;span class=&quot;cm&quot;&gt;/* pin */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;DHT11&lt;/span&gt;               &lt;span class=&quot;cm&quot;&gt;/* sensor type */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Here an instance of the sensor object is constructed by specifying 
+the pin the sensor is connected to, and the hardware variant.&lt;/p&gt;
+
+&lt;h3 id=&quot;application-timer&quot;&gt;Application Timer&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push_interval&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30UL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;60UL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000UL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push_timer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// snip&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;expired&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;millis&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;    
+    &lt;span class=&quot;kt&quot;&gt;uint32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;delta&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;time&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UINT32_MAX&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delta&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INT32_MAX&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This code is used in &lt;a href=&quot;#loop&quot;&gt;loop()&lt;/a&gt; to generate a push
+event every 30 minutes based on the Arduino millisecond counter.&lt;/p&gt;
+
+&lt;h3 id=&quot;setup&quot;&gt;setup()&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;setup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Serial&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;begin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;115200U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;       
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;begin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;begin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;                
+    
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setRate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setPower&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;                
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This function is called once from Arduino main() after the 
+environment is initialised but before &lt;a href=&quot;#loop&quot;&gt;loop()&lt;/a&gt; is called.&lt;/p&gt;
+
+&lt;p&gt;Serial must be initialised to support the optional ArduinoLDL diagnostic messages.
+DHT and ArduinoLDL instances must also be initialised here by calling their begin() 
+methods.&lt;/p&gt;
+
+&lt;p&gt;After initialisation the rate and power settings can be adjusted. I recommend using the 
+lowest transmit power and spreading factor you can get away with.&lt;/p&gt;
+
+&lt;p&gt;The meaning of these integers changes depending on which region
+you specify in the ArduinoLDL constructor. You can read about it in the 
+&lt;a href=&quot;https://lora-alliance.org/lorawan-for-developers&quot;&gt;LoRaWAN Regional Parameters&lt;/a&gt; companion specification.&lt;/p&gt;
+
+&lt;h3 id=&quot;loop&quot;&gt;loop()&lt;/h3&gt;
+
+&lt;p&gt;Loop is called repeatedly from Arduino main().&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expired&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;push_timer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)){&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;push_timer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;millis&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push_interval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+    
+        &lt;span class=&quot;c1&quot;&gt;// snip&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;            
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Three things happen at the base of the loop:&lt;/p&gt;
+
+&lt;p&gt;First there is a check for if the application timer has expired. If it has, the 
+push flag is set and push_timer is reset to the next interval.&lt;/p&gt;
+
+&lt;p&gt;Next there is a check for if ArduinoLDL is ready. ArduinoLDL must be ready before
+it will initiate a join or send data. ArduinoLDL is ready when:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;chip initialisation is complete, and&lt;/li&gt;
+  &lt;li&gt;there are no active operations (e.g. transmit/receive in progress), and&lt;/li&gt;
+  &lt;li&gt;a channel is available&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Finally ldl.process() is called to make ArduinoLDL process events.&lt;/p&gt;
+
+&lt;p&gt;Drilling into the ldl.ready() branch:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+    
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;joined&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+
+            &lt;span class=&quot;c1&quot;&gt;// snip&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                    
+            &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;otaa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;When ArduinoLDL is ready but not joined to the network, it will attempt
+to join using ‘over the air activation’.&lt;/p&gt;
+
+&lt;p&gt;If ldl.otaa() completes successfully, ldl.joined() will return true, which will
+open up this branch:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;joined&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+            
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+                
+                &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readTemperature&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;dht&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readHumidity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+                &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+                
+                &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unconfirmedData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+                
+                &lt;span class=&quot;n&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;If the push flag is set, the firmware reads the sensor and sends the data
+using the unconfirmed data service on port 1.&lt;/p&gt;
+
+&lt;p&gt;The push flag is cleared after initiating the send. This ensures
+the send will not occur again until ArduinoLDL is ready and the application
+timer has expired.&lt;/p&gt;
+
+&lt;h2 id=&quot;serial-monitor-and-ttn-console&quot;&gt;Serial Monitor and TTN Console&lt;/h2&gt;
+
+&lt;p&gt;Running the sensor for two hours will produce serial monitor 
+output which looks like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;[520]RESET
+[11936]STARTUP
+[60304716]TX_BEGIN: SZ=23 F=868500000 SF=7 BW=125 P=5
+[60367124]TX_COMPLETE
+[65342284]RX1_SLOT: F=868500000 SF=7 BW=125
+[65443864]DOWNSTREAM: SZ=33 RSSI=-62 SNR=10
+[65450208]JOIN_COMPLETE
+[65981800]TX_BEGIN: SZ=21 F=867300000 SF=7 BW=125 P=5
+[66039092]TX_COMPLETE
+[67034196]RX1_SLOT: F=867300000 SF=7 BW=125
+[68016644]RX2_SLOT: F=869525000 SF=9 BW=125
+[68054048]DATA_COMPLETE
+[1800531712]TX_BEGIN: SZ=21 F=868300000 SF=7 BW=125 P=5
+[1800588980]TX_COMPLETE
+[1801584120]RX1_SLOT: F=868300000 SF=7 BW=125
+[1802566600]RX2_SLOT: F=869525000 SF=9 BW=125
+[1802603968]DATA_COMPLETE
+[3600531348]TX_BEGIN: SZ=21 F=867100000 SF=7 BW=125 P=5
+[3600588612]TX_COMPLETE
+[3601583756]RX1_SLOT: F=867100000 SF=7 BW=125
+[3602566244]RX2_SLOT: F=869525000 SF=9 BW=125
+[3602603608]DATA_COMPLETE
+[1105564436]TX_BEGIN: SZ=21 F=868100000 SF=7 BW=125 P=5
+[1105621700]TX_COMPLETE
+[1106616840]RX1_SLOT: F=868100000 SF=7 BW=125
+[1107599316]RX2_SLOT: F=869525000 SF=9 BW=125
+[1107636680]DATA_COMPLETE&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;You should also be able to see activity on the TTN console:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/sensor_console.png&quot; alt=&quot;sensor console&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;collecting-data-from-ttn&quot;&gt;Collecting Data from TTN&lt;/h2&gt;
+
+&lt;p&gt;I had originally planned to use the TTN 
+&lt;a href=&quot;https://www.thethingsnetwork.org/docs/applications/http/&quot;&gt;HTTP integration&lt;/a&gt;
+to POST upstream messages to a Google Sheet. This didn’t work
+as expected and proved too difficult to debug in the time available.&lt;/p&gt;
+
+&lt;p&gt;I decided instead to use the &lt;a href=&quot;https://www.thethingsnetwork.org/docs/applications/mqtt/&quot;&gt;MQTT interface&lt;/a&gt;. 
+One useful feature of this protocol is that the client can receive 
+messages from behind NAT. This means you can get started with something
+simple running on your PC, like this program I wrote in Ruby:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'mqtt'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'base64'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'json'&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;MQTT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Client&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+  &lt;span class=&quot;ss&quot;&gt;:host&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'eu.thethings.network'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+  &lt;span class=&quot;ss&quot;&gt;:port&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;8883&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;ss&quot;&gt;:ssl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;ss&quot;&gt;:username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'environment-sensor'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;ss&quot;&gt;:password&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'this-should-be-the-application-key'&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;environment-sensor/devices/+/up&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+  
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;time,dev_id,hardware_serial,temperature,humidity&quot;&lt;/span&gt;
+  
+  &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  
+    &lt;span class=&quot;n&quot;&gt;temperature&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;humidity&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Base64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;decode64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'payload_raw'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;unpack&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ff&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'metadata'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'time'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'dev_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'hardware_serial'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;temperature&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;humidity&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+  
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The program subscribes to upstream messages from all devices in my ‘environment-sensor’
+application. Received messages are unpacked and printed to stdout in CSV format.&lt;/p&gt;
+
+&lt;p&gt;Running the program and the sensor at the same time should produce output 
+that looks like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt; ruby listen.rb
+&lt;span class=&quot;go&quot;&gt;time,dev_id,hardware_serial,temperature,humidity
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;2018-08-17T10:21:51.616432507Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,52.0
+&lt;span class=&quot;gp&quot;&gt;2018-08-17T10:50:44.766045205Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,52.0
+&lt;span class=&quot;gp&quot;&gt;2018-08-17T11:20:43.282121472Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,50.0
+&lt;span class=&quot;gp&quot;&gt;2018-08-17T11:50:41.809375253Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,48.0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Using Ruby to Emulate LoRaWAN Hardware</title><link href="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" rel="alternate" type="text/html" title="Using Ruby to Emulate LoRaWAN Hardware" /><published>2018-03-11T00:00:00+00:00</published><updated>2018-03-11T00:00:00+00:00</updated><id>http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware</id><content type="html" xml:base="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;For the past year I’ve been working on a background project called &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoraDeviceLib&lt;/a&gt; (LDL for short).&lt;/p&gt;
+
+&lt;p&gt;Since this is not my day job, I’ve been focusing on the parts of the problem that interest me (the MAC layer) and avoiding anything that seems tedious (buying a gateway, setting up a gateway, debugging radio/hardware related problems, complaining about late kickstarter projects).&lt;/p&gt;
+
+&lt;p&gt;To make this work, I’ve been exercising all features on my development machine using small tests with varying degrees of mocking vs. integration. This is effective up until the point where all the parts are ready to come together to talk to a network service. For me, I got to this point at the beginning of the year when I was ready to start talking to &lt;a href=&quot;https://www.thethingsnetwork.org&quot;&gt;The Things Network&lt;/a&gt; (TTN).&lt;/p&gt;
+
+&lt;p&gt;To continue with my “no hardware” approach, I decided to write a software layer in Ruby that would emulate the hardware components required to connect a free-running instance of LDL up to TTN. Basically, everything in the box marked “emulator”:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/high_level.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;implementation&quot;&gt;Implementation&lt;/h1&gt;
+
+&lt;p&gt;The emulator is not one complete program, rather a collection of classes that are composed into a scenario. The classes developed for the emulator live &lt;a href=&quot;&quot;&gt;here&lt;/a&gt; and everything is arranged in the usual Rubygems &lt;a href=&quot;http://guides.rubygems.org/make-your-own-gem/&quot;&gt;pattern&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The classes developed for the emulator look a bit like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/emulator.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;ExtMAC is a native extension (Ruby written in C) that wraps up LDL.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;MAC is a pure Ruby subclass that extends and improves the basic interfaces in ExtMAC. Native extensions are more difficult to write and maintain than pure
+Ruby so this pattern helps to keep ExtMAC simple.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Device combines a MAC and a Radio to emulate a LoRaWAN device. It runs an application which is passed in as a block upon initialisation.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Radio contains the minimum amount of logic required to send and receive LoRaWAN frames via an instance of Broker. It can detect overlapping transmit and receive windows but doesn’t go so far as to simulate the effect of distance and obstacles on signal quality.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Gateway is a fully functional LoRaWAN gateway. It implements the Semtech forwarder protocol to connect up to TTN. To avoid dealing with configuration, the gateway will send and receive frames on any frequency. Also, since I’m not simulating radio, every frame relayed upstream has perfect signal quality.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Clock implements a event queue which drives Device and Gateway instances. It ensures that system time stands still until an event is complete. This means that timing sensitive code in LDL is never late even if the garbage collector kicks in.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;FrameLogger logs radio frames which it subscribes to via Broker. It includes a packet dissector built from another native extension (not shown).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Broker implements publish/subscribe messaging used to pass frames and events.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;running-a-scenario&quot;&gt;Running a Scenario&lt;/h1&gt;
+
+&lt;p&gt;The first thing I wanted to try on the emulator was a scenario in which the device would join and then send and receive data. In bullet point form:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;device starts&lt;/li&gt;
+  &lt;li&gt;device joins&lt;/li&gt;
+  &lt;li&gt;device sends a short unique message upstream as often as duty cycle limits permit&lt;/li&gt;
+  &lt;li&gt;while running, device receives downstream messages in the receive slots&lt;/li&gt;
+  &lt;li&gt;device prints messages to the terminal as it runs so we can see what is happening&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Implemented as a scenario:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ldl'&lt;/span&gt;
+
+&lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;LDL&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;LDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Logger&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;CompositeLogger&lt;/span&gt;
+&lt;span class=&quot;no&quot;&gt;LDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Logger&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;STDOUT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;tap&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;formatter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;LDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;LOG_FORMATTER&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sev_threshold&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Logger&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;INFO&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;LDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;SystemTime&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Clock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;broker&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Broker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;FrameLogger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;broker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'frame.log'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'w'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;gateway&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Gateway&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;broker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;EUI64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ENV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GATEWAY_EUI&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt; 
+    &lt;span class=&quot;ss&quot;&gt;name: &lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'gateway'&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;device&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Device&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;broker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;ss&quot;&gt;devEUI: &lt;/span&gt;&lt;span class=&quot;no&quot;&gt;EUI64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ENV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;DEV_EUI&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt;
+    &lt;span class=&quot;ss&quot;&gt;appEUI: &lt;/span&gt;&lt;span class=&quot;no&quot;&gt;EUI64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ENV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;APP_EUI&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt; 
+    &lt;span class=&quot;ss&quot;&gt;appKey: &lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ENV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;APP_KEY&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt; 
+    &lt;span class=&quot;ss&quot;&gt;name: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;device&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+
+  &lt;span class=&quot;nb&quot;&gt;sleep&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;on_receive&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;port&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+          
+  &lt;span class=&quot;k&quot;&gt;begin&lt;/span&gt;   
+      
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;joining...&quot;&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;join&lt;/span&gt;
+    
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;join complete&quot;&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;counter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    
+    &lt;span class=&quot;kp&quot;&gt;loop&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    
+      &lt;span class=&quot;no&quot;&gt;SystemTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ticksUntilNextChannel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      
+      &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;sending message '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;counter&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;' to port &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;...&quot;&lt;/span&gt;
+  
+      &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_s&lt;/span&gt;
+      
+      &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;send complete&quot;&lt;/span&gt;
+      
+      &lt;span class=&quot;n&quot;&gt;counter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+        
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+      
+  &lt;span class=&quot;k&quot;&gt;rescue&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JoinTimeout&lt;/span&gt;            
+  
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;join failed&quot;&lt;/span&gt;
+      
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;LDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;SystemTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gateway&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;device&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+&lt;span class=&quot;k&quot;&gt;begin&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;sleep&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;rescue&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Interrupt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;LDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;SystemTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gateway&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;device&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:stop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Running the scenario for a few seconds produces the following lines on the terminal:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt; bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;ruby &lt;span class=&quot;nt&quot;&gt;-Ilib&lt;/span&gt; examples/one_device_one_gateway.rb
+&lt;span class=&quot;go&quot;&gt;joining...
+INFO  [2018-03-10 00:16:37]        231 gateway: sending PullData (keep alive)
+INFO  [2018-03-10 00:16:37]       2263 gateway: received PullAck
+INFO  [2018-03-10 00:16:37]       5780 gateway: received frame
+INFO  [2018-03-10 00:16:37]       5836 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:37]       5836 gateway: received PushAck
+INFO  [2018-03-10 00:16:41]     100014 gateway: received PullResp
+INFO  [2018-03-10 00:16:41]     100014 gateway: transmit frame in 4057660us (tmst=5057800)
+INFO  [2018-03-10 00:16:41]     100014 gateway: send up TXAck (error=NONE)
+INFO  [2018-03-10 00:16:42]     505780 gateway: transmitting frame
+INFO  [2018-03-10 00:16:42]     512460 device: received message
+join complete
+sending message '0' to port 1...
+INFO  [2018-03-10 00:16:42]     516707 gateway: received frame
+INFO  [2018-03-10 00:16:42]     516796 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:42]     516796 gateway: received PushAck
+INFO  [2018-03-10 00:16:42]     516796 gateway: received PullResp
+INFO  [2018-03-10 00:16:42]     516796 gateway: transmit frame in 999110us (tmst=6167070)
+INFO  [2018-03-10 00:16:42]     516796 gateway: send up TXAck (error=NONE)
+INFO  [2018-03-10 00:16:43]     616707 gateway: transmitting frame
+INFO  [2018-03-10 00:16:43]     621340 device: received message
+port1: hello
+send complete
+sending message '1' to port 1...
+INFO  [2018-03-10 00:16:43]     625547 gateway: received frame
+INFO  [2018-03-10 00:16:43]     625617 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:43]     625617 gateway: received PushAck
+send complete
+sending message '2' to port 1...
+INFO  [2018-03-10 00:16:46]     928837 gateway: received frame
+INFO  [2018-03-10 00:16:46]     928897 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:46]     928897 gateway: received PushAck
+send complete
+sending message '3' to port 1...
+INFO  [2018-03-10 00:16:48]    1133042 gateway: received frame
+INFO  [2018-03-10 00:16:48]    1133125 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:48]    1133125 gateway: received PushAck
+send complete
+sending message '4' to port 1...
+INFO  [2018-03-10 00:16:50]    1340969 gateway: received frame
+INFO  [2018-03-10 00:16:50]    1341054 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:50]    1341054 gateway: received PushAck
+send complete
+sending message '5' to port 1...
+INFO  [2018-03-10 00:16:52]    1545174 gateway: received frame
+INFO  [2018-03-10 00:16:52]    1545245 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:52]    1545245 gateway: received PushAck
+send complete&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The following CSV format lines are logged by FrameLogger:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;frame.log
+&lt;span class=&quot;go&quot;&gt;system_time, eui, message_type, frequency, spreading_factor, bandwidth, power, air_time, size, message
+0.00123, 75-0A-FA-1F-8F-01-57-8C, JoinReq, 868300000, 7, 125, 0, 0.05657, 23, AJRFAPB+1bNwjFcBjx/6CnUhYsMTQI8=
+5.0578, EA-15-79-3E-11-2C-7F-93, JoinAccept, 868300000, 7, 125, 0, 0.06681, 33, IN7FEkE2/DzEr4ofNWbrMAiSxmxW7LdiGwzQWW3pcUqI
+5.12586, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 867700000, 7, 125, 0, 0.04121, 14, QBknASYAAAABU523sLo=
+6.16707, EA-15-79-3E-11-2C-7F-93, UnconfirmedDataDown, 867700000, 7, 125, 0, 0.04633, 18, YBknASYAAAABA/v+WucSM4Z1
+6.21426, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 868500000, 7, 125, 0, 0.04121, 14, QBknASYAAQABtYpgU6Q=
+9.24716, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 867900000, 7, 125, 0, 0.04121, 14, QBknASYAAgABrhd/ihw=
+11.28921, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 868300000, 7, 125, 0, 0.04121, 14, QBknASYAAwABwOB/BJo=
+13.36848, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 867100000, 7, 125, 0, 0.04121, 14, QBknASYABAABK/zPSX4=
+15.41053, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 868100000, 7, 125, 0, 0.04121, 14, QBknASYABQAB4PZJfdY=&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;We can see the same thing on the TTN data console:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/ttn_console.png&quot; alt=&quot;emulator classes&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;was-it-worth-the-trouble&quot;&gt;Was It Worth The Trouble?&lt;/h1&gt;
+
+&lt;p&gt;Yes. It’s just as useful as I thought it would be.&lt;/p&gt;
+
+&lt;p&gt;The emulator helps me to:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Try out complete instances of LDL against TTN without any physical setup&lt;/li&gt;
+  &lt;li&gt;Iterate through development/debug cycles just as quickly as a non-embedded software project&lt;/li&gt;
+  &lt;li&gt;Conserve the ISM band by not blasting out useless “hello world” messages&lt;/li&gt;
+  &lt;li&gt;Run LDL in different regions (LoRaWAN works differently in EU compared to US, for example)&lt;/li&gt;
+  &lt;li&gt;Setup automated end-to-end tests&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;It’s not perfect. There are plenty of wrinkles and missing features, the most obvious being that the emulator doesn’t simulate the effect of distance and obstacles on radio signals. 
+This means that at this time it’s not useful for debugging ADR or for observing the effect of many devices and gateways operating in the same space.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry></feed>

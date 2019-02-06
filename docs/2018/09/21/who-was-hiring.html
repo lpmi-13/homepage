@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Ask HN: Who was hiring? | Cameron Harper</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="Ask HN: Who was hiring?" />
+<meta name="author" content="Cameron Harper" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News." />
+<meta property="og:description" content="This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News." />
+<link rel="canonical" href="http://localhost:4000/2018/09/21/who-was-hiring.html" />
+<meta property="og:url" content="http://localhost:4000/2018/09/21/who-was-hiring.html" />
+<meta property="og:site_name" content="Cameron Harper" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-09-21T00:00:00+01:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Ask HN: Who was hiring?","dateModified":"2018-09-21T00:00:00+01:00","datePublished":"2018-09-21T00:00:00+01:00","url":"http://localhost:4000/2018/09/21/who-was-hiring.html","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/09/21/who-was-hiring.html"},"author":{"@type":"Person","name":"Cameron Harper"},"description":"This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cameron Harper" />
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" rel="author" href="/">Cameron Harper</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Ask HN: Who was hiring?</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2018-09-21T00:00:00+01:00" itemprop="datePublished">
+        
+        Sep 21, 2018
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>This post is about techniques you can use to collect old “Who is hiring?” content
+from Hacker News.</p>
+
+<p><img src="http://localhost:4000/assets/who_is_hiring.png" alt="who is hiring thread" /></p>
+
+<h2 id="what-is-hacker-news">What is Hacker News?</h2>
+
+<p><a href="https://news.ycombinator.com/">Hacker News</a> is a Reddit style website run by US based startup incubator <a href="http://www.ycombinator.com/">Y Combinator</a>.
+Users submit content (usually tech related news) and other users vote the content up or down.</p>
+
+<p>My favourite recurring story is the monthly <a href="https://www.google.com/search?q=site%3Anews.ycombinator.com+%22Who+is+hiring%3F%22">“Who is hiring?”</a> 
+where tech
+companies from around the world post links to current vacancies. These
+ads are interesting since they are posted by internal recruiters and
+are usually transparent in terms of who the company is and what they do.</p>
+
+<h2 id="why-look-at-old-stories">Why look at old stories?</h2>
+
+<p>If you are looking for a job it makes sense to look at the most recent posts, 
+but I find old posts interesting as well since:</p>
+
+<ol>
+  <li>Those companies might still be hiring</li>
+  <li>The posts give some insight (through the HN lens) as to what the 
+job market is like in a particular city</li>
+  <li>I can see what kind of technologies companies are using</li>
+</ol>
+
+<h2 id="getting-links-to-stories">Getting links to stories</h2>
+
+<p>Before you can download historical “Who is hiring?” content you need to 
+find links to the stories. This Ruby script does just that using the Google
+search API:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'rest-client'</span>
+<span class="nb">require</span> <span class="s1">'json'</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">begin</span>
+
+  <span class="kp">loop</span> <span class="k">do</span>
+  
+    <span class="n">obj</span> <span class="o">=</span> <span class="no">JSON</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span>
+      <span class="no">RestClient</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s2">"https://www.googleapis.com/customsearch/v1"</span><span class="p">,</span> <span class="p">{</span>
+        <span class="ss">:params</span> <span class="o">=&gt;</span> <span class="p">{</span>
+          <span class="ss">key: </span><span class="s2">"&lt;redacted&gt;"</span><span class="p">,</span> 
+          <span class="ss">cx: </span><span class="s2">"&lt;redacted&gt;"</span><span class="p">,</span> 
+          <span class="ss">dateRestrict: </span><span class="s2">"y5"</span><span class="p">,</span> 
+          <span class="ss">start: </span><span class="n">index</span><span class="p">,</span>
+          <span class="ss">q: </span><span class="s2">"</span><span class="se">\"</span><span class="s2">Ask HN: Who is Hiring</span><span class="se">\"</span><span class="s2">"</span>
+        <span class="p">}</span> 
+      <span class="p">}).</span><span class="nf">body</span><span class="p">.</span><span class="nf">to_s</span>
+    <span class="p">)</span>
+    
+    <span class="n">obj</span><span class="p">[</span><span class="s1">'items'</span><span class="p">].</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+    
+      <span class="k">if</span> <span class="sr">/Ask HN: Who is hiring\? \([a-zA-Z]+ [0-9]+\)/</span><span class="p">.</span><span class="nf">match</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">'title'</span><span class="p">])</span>
+    
+        <span class="n">results</span> <span class="o">&lt;&lt;</span> <span class="n">item</span><span class="p">.</span><span class="nf">select</span><span class="p">{</span><span class="o">|</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="o">|</span><span class="p">[</span><span class="s1">'link'</span><span class="p">,</span><span class="s1">'title'</span><span class="p">].</span><span class="nf">include?</span> <span class="n">k</span><span class="p">}</span>
+        
+      <span class="k">end</span>
+      
+    <span class="k">end</span>
+    
+    <span class="n">index</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s1">'queries'</span><span class="p">][</span><span class="s1">'nextPage'</span><span class="p">].</span><span class="nf">first</span><span class="p">[</span><span class="s1">'startIndex'</span><span class="p">]</span>
+    
+  <span class="k">end</span>
+  
+<span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+  <span class="no">STDERR</span><span class="p">.</span><span class="nf">puts</span> <span class="n">e</span>
+<span class="k">end</span>
+
+<span class="nb">puts</span> <span class="no">JSON</span><span class="p">.</span><span class="nf">pretty_generate</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></code></pre></figure>
+
+<p>I’m searching for the exact phrase “Ask HN: Who is hiring?” using 
+a custom search engine configured to only search HN. The search
+results are limited to the last five years. I’m also using some regex
+to make sure I don’t collect links for meta stories.</p>
+
+<p>Google returns 10 results per page and (at time of writing) will never return more than 10 pages 
+regardless of how many results there are. The script will loop until an exception is encountered;
+for me this is a non-successful response code to the request for the 11th page of results.</p>
+
+<p>This is how I run the script:</p>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> ruby search.rb <span class="o">&gt;</span> links.json</code></pre></figure>
+
+<h2 id="getting-the-content">Getting the content</h2>
+
+<p>Once you have the links, you can use the <a href="https://github.com/HackerNews/API">HN API</a> to get the content. This is my script:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'json'</span>
+<span class="nb">require</span> <span class="s1">'restclient'</span>
+<span class="nb">require</span> <span class="s1">'logger'</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">STDERR</span><span class="p">)</span>
+
+<span class="no">RQ</span> <span class="o">=</span> <span class="no">Struct</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">:id</span><span class="p">,</span> <span class="ss">:output</span><span class="p">)</span>
+
+<span class="n">input</span> <span class="o">=</span> <span class="no">Queue</span><span class="p">.</span><span class="nf">new</span>
+<span class="n">output</span> <span class="o">=</span> <span class="no">Queue</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="n">pool</span> <span class="o">=</span> <span class="no">Array</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span> <span class="k">do</span>
+
+  <span class="no">Thread</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+  
+    <span class="kp">loop</span> <span class="k">do</span>
+  
+      <span class="n">rq</span> <span class="o">=</span> <span class="n">input</span><span class="p">.</span><span class="nf">pop</span>
+      
+      <span class="k">break</span> <span class="k">unless</span> <span class="n">rq</span>      
+      
+      <span class="k">begin</span>
+      
+        <span class="n">item</span> <span class="o">=</span> <span class="no">JSON</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span>
+          <span class="no">RestClient</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s2">"https://hacker-news.firebaseio.com/v0/item/</span><span class="si">#{</span><span class="n">rq</span><span class="p">.</span><span class="nf">id</span><span class="si">}</span><span class="s2">.json"</span><span class="p">).</span><span class="nf">body</span><span class="p">.</span><span class="nf">to_s</span>
+        <span class="p">)</span>
+      
+        <span class="k">if</span> <span class="n">item</span>
+          <span class="n">rq</span><span class="p">.</span><span class="nf">output</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">else</span>
+          <span class="n">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"</span><span class="si">#{</span><span class="n">rq</span><span class="p">.</span><span class="nf">id</span><span class="si">}</span><span class="s2"> returned a NULL object"</span>
+        <span class="k">end</span>
+
+      <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+        <span class="n">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"</span><span class="si">#{</span><span class="n">rq</span><span class="p">.</span><span class="nf">id</span><span class="si">}</span><span class="s2"> failed but will try again (</span><span class="si">#{</span><span class="n">e</span><span class="si">}</span><span class="s2">)"</span>
+        <span class="n">input</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">rq</span><span class="p">)</span>
+      <span class="k">end</span>
+       
+    <span class="k">end</span>
+    
+  <span class="k">end</span>
+  
+<span class="k">end</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="no">Thread</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+
+  <span class="kp">loop</span> <span class="k">do</span>
+  
+    <span class="n">post</span> <span class="o">=</span> <span class="n">output</span><span class="p">.</span><span class="nf">pop</span>
+  
+    <span class="k">if</span> <span class="n">post</span><span class="p">.</span><span class="nf">nil?</span>
+      <span class="n">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"finished writing"</span>    
+      <span class="k">break</span>
+    <span class="k">end</span>
+  
+    <span class="nb">puts</span> <span class="n">post</span><span class="p">.</span><span class="nf">to_json</span>
+    
+  <span class="k">end</span>
+
+<span class="k">end</span>
+
+<span class="no">JSON</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="no">File</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="no">ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">])).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">page</span><span class="o">|</span>
+  
+  <span class="n">rq</span> <span class="o">=</span> <span class="no">RQ</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="sr">/id=(?&lt;item&gt;[0-9]+)/</span><span class="p">.</span><span class="nf">match</span><span class="p">(</span><span class="n">page</span><span class="p">[</span><span class="s1">'link'</span><span class="p">])[</span><span class="ss">:item</span><span class="p">],</span> <span class="no">Queue</span><span class="p">.</span><span class="nf">new</span><span class="p">)</span>
+  
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"getting '</span><span class="si">#{</span><span class="n">page</span><span class="p">[</span><span class="s1">'title'</span><span class="p">]</span><span class="si">}</span><span class="s2">'..."</span>
+  
+  <span class="n">input</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">rq</span><span class="p">)</span>
+  
+  <span class="n">post</span> <span class="o">=</span> <span class="n">rq</span><span class="p">.</span><span class="nf">output</span><span class="p">.</span><span class="nf">pop</span>
+  
+  <span class="n">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"getting </span><span class="si">#{</span><span class="n">post</span><span class="p">[</span><span class="s1">'kids'</span><span class="p">].</span><span class="nf">size</span><span class="si">}</span><span class="s2"> posts"</span>
+  
+  <span class="n">post</span><span class="p">[</span><span class="s1">'kids'</span><span class="p">].</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">id</span><span class="o">|</span>
+    
+    <span class="n">input</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="no">RQ</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
+  
+  <span class="k">end</span>
+  
+<span class="k">end</span>
+
+<span class="n">pool</span><span class="p">.</span><span class="nf">each</span><span class="p">{</span><span class="n">input</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="kp">nil</span><span class="p">)}.</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:join</span><span class="p">)</span>
+<span class="p">[</span><span class="n">writer</span><span class="p">].</span><span class="nf">each</span><span class="p">{</span><span class="n">output</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="kp">nil</span><span class="p">)}.</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:join</span><span class="p">)</span>
+
+<span class="n">logger</span><span class="p">.</span><span class="nf">info</span> <span class="s2">"all done"</span></code></pre></figure>
+
+<p>The script gets each story object and then uses that information to get all 
+of the top level posts.</p>
+
+<p>The HN API seems to take around 1s to answer a request and doesn’t return collections.
+This means if a story contains 1000 top level posts, it will take ~16 minutes to get them all if you
+only use one thread of execution. To speed this up my script uses a pool of worker threads. I assume 
+this isn’t a burden for the host since it’s Firebase and every app using this API will need
+to do a lot of IO.</p>
+
+<p>The script must not be left running unattended since failed requests are re-queued regardless of the type 
+of failure. This is a lazy solution to recovering from the occasional socket related temporary failure.</p>
+
+<p>Running the script produces STDERR terminal output that looks like this:</p>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> ruby get.rb links.json <span class="o">&gt;</span> posts.json
+<span class="gp">I, [2018-09-03T12:20:48.334370 #</span>859]  INFO <span class="nt">--</span> : getting <span class="s1">'Ask HN: Who is hiring? (August 2018) | Hacker News'</span>...
+<span class="gp">I, [2018-09-03T12:20:49.000806 #</span>859]  INFO <span class="nt">--</span> : getting 918 posts
+<span class="gp">I, [2018-09-03T12:20:49.025621 #</span>859]  INFO <span class="nt">--</span> : getting <span class="s1">'Ask HN: Who is hiring? (July 2018) | Hacker News'</span>...
+<span class="gp">I, [2018-09-03T12:20:53.952558 #</span>859]  INFO <span class="nt">--</span> : 17664917 returned a NULL object
+<span class="gp">I, [2018-09-03T12:21:01.930408 #</span>859]  INFO <span class="nt">--</span> : getting 776 posts
+<span class="gp">I, [2018-09-03T12:21:01.932161 #</span>859]  INFO <span class="nt">--</span> : getting <span class="s1">'Ask HN: Who is hiring? (June 2018) | Hacker News'</span>...
+<span class="gp">I, [2018-09-03T12:21:08.996272 #</span>859]  INFO <span class="nt">--</span> : 17493081 returned a NULL object
+<span class="gp">I, [2018-09-03T12:21:12.678740 #</span>859]  INFO <span class="nt">--</span> : getting 796 posts
+<span class="gp">I, [2018-09-03T12:21:12.690395 #</span>859]  INFO <span class="nt">--</span> : getting <span class="s1">'Ask HN: Who is hiring? (May 2018) | Hacker News'</span>...
+<span class="gp">I, [2018-09-03T12:21:23.509626 #</span>859]  INFO <span class="nt">--</span> : getting 1033 posts
+<span class="gp">I, [2018-09-03T12:21:23.514804 #</span>859]  INFO <span class="nt">--</span> : getting <span class="s1">'Ask HN: Who is hiring? (March 2018) | Hacker News'</span>...
+<span class="gp">I, [2018-09-03T12:21:30.793308 #</span>859]  INFO <span class="nt">--</span> : 16987633 returned a NULL object
+<span class="gp">I, [2018-09-03T12:21:34.502299 #</span>859]  INFO <span class="nt">--</span> : 16969165 returned a NULL object
+<span class="gp">I, [2018-09-03T12:21:36.262272 #</span>859]  INFO <span class="nt">--</span> : 16970062 failed but will try again <span class="o">(</span>SSL_connect SYSCALL <span class="nv">returned</span><span class="o">=</span>5 <span class="nv">errno</span><span class="o">=</span>0 <span class="nv">state</span><span class="o">=</span>unknown state<span class="o">)</span>
+<span class="gp">I, [2018-09-03T12:21:37.664146 #</span>859]  INFO <span class="nt">--</span> : getting 909 posts
+<span class="c">...</span></code></pre></figure>
+
+<p>It took me around 10 minutes to return ~40,000 top level posts from the past 5 years.</p>
+
+<h2 id="filter-by-keyword">Filter by keyword</h2>
+
+<p>Once you have all the posts from the previous step you can process them any way you like. 
+I decided to filter the results by keywords and create human readable lists.</p>
+
+<p>This is my keyword filter:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'json'</span>
+
+<span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">filter</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">opts</span><span class="p">)</span>
+
+  <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+  
+  <span class="n">f</span> <span class="o">=</span> <span class="p">{</span>
+    
+    <span class="ss">:all</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:all</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[:</span><span class="n">all</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
+    <span class="ss">:any</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:any</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[:</span><span class="n">any</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
+    <span class="ss">:none</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:none</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[:</span><span class="n">none</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
+  <span class="p">}</span>
+
+  <span class="n">pattern</span> <span class="o">=</span> <span class="no">Regexp</span><span class="p">.</span><span class="nf">union</span><span class="p">((</span><span class="n">f</span><span class="p">[</span><span class="ss">:all</span><span class="p">]</span> <span class="o">+</span> <span class="n">f</span><span class="p">[</span><span class="ss">:any</span><span class="p">]</span> <span class="o">+</span> <span class="n">f</span><span class="p">[</span><span class="ss">:none</span><span class="p">]).</span><span class="nf">map</span><span class="p">{</span><span class="o">|</span><span class="n">s</span><span class="o">|</span><span class="no">Regexp</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">b"</span> <span class="o">+</span> <span class="no">Regexp</span><span class="p">.</span><span class="nf">escape</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">b"</span><span class="p">,</span> <span class="no">Regexp</span><span class="o">::</span><span class="no">IGNORECASE</span><span class="p">)})</span>
+
+  <span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
+
+    <span class="k">if</span> <span class="n">post</span> <span class="o">=</span> <span class="no">JSON</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+      
+      <span class="k">if</span> <span class="n">post</span><span class="p">[</span><span class="s1">'text'</span><span class="p">]</span>
+      
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">post</span><span class="p">[</span><span class="s1">'text'</span><span class="p">].</span><span class="nf">scan</span><span class="p">(</span><span class="n">pattern</span><span class="p">).</span><span class="nf">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span>
+        
+        <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="ss">:all</span><span class="p">].</span><span class="nf">empty?</span> <span class="n">or</span> <span class="p">((</span><span class="n">matches</span> <span class="o">&amp;</span> <span class="n">f</span><span class="p">[</span><span class="ss">:all</span><span class="p">]).</span><span class="nf">sort</span> <span class="o">==</span> <span class="n">f</span><span class="p">[</span><span class="ss">:all</span><span class="p">])</span>
+        
+          <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="ss">:any</span><span class="p">].</span><span class="nf">empty?</span> <span class="n">or</span> <span class="p">(</span><span class="n">matches</span> <span class="o">&amp;</span> <span class="n">f</span><span class="p">[</span><span class="ss">:any</span><span class="p">]).</span><span class="nf">size</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          
+            <span class="k">if</span> <span class="p">(</span><span class="n">matches</span> <span class="o">&amp;</span> <span class="n">f</span><span class="p">[</span><span class="ss">:none</span><span class="p">]).</span><span class="nf">empty?</span>
+            
+              <span class="n">results</span> <span class="o">&lt;&lt;</span> <span class="n">post</span>
+              
+            <span class="k">end</span>
+            
+          <span class="k">end</span>
+        
+        <span class="k">end</span>
+          
+      <span class="k">end</span>
+    
+    <span class="k">end</span>
+    
+  <span class="k">end</span>
+
+  <span class="n">results</span>
+
+<span class="k">end</span></code></pre></figure>
+
+<p>The script scans for a union of keywords in the post and returns the results as an array. 
+I use this array to accept/reject the post based on:</p>
+
+<ul>
+  <li>keywords which must all be present (all)</li>
+  <li>keywords where one or more must present (any)</li>
+  <li>keywords which must not be present (none)</li>
+</ul>
+
+<p>I print the filtered posts in reverse-chronological order with HTML formatting converted to plain-text using this script:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'time'</span>
+<span class="nb">require</span> <span class="s1">'html_to_plain_text'</span>
+
+<span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">put_list</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+  
+  <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">results</span><span class="p">.</span><span class="nf">size</span><span class="si">}</span><span class="s2"> results"</span>
+  <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">""</span>
+
+  <span class="n">results</span><span class="p">.</span><span class="nf">sort_by</span><span class="p">{</span><span class="o">|</span><span class="n">post</span><span class="o">|</span><span class="n">post</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]}.</span><span class="nf">reverse</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+    
+    <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="no">Array</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="mi">80</span><span class="p">){</span><span class="s2">"-"</span><span class="p">}.</span><span class="nf">join</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">post</span><span class="p">[</span><span class="s1">'by'</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">"https://news.ycombinator.com/user?id=</span><span class="si">#{</span><span class="n">post</span><span class="p">[</span><span class="s1">'by'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="no">Time</span><span class="p">.</span><span class="nf">at</span><span class="p">(</span><span class="n">post</span><span class="p">[</span><span class="s1">'time'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">""</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="no">HtmlToPlainText</span><span class="p">.</span><span class="nf">plain_text</span><span class="p">(</span><span class="n">post</span><span class="p">[</span><span class="s1">'text'</span><span class="p">])</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">""</span>
+    
+  <span class="k">end</span>
+  
+<span class="k">end</span></code></pre></figure>
+
+<p>The filter and print scripts are implemented as methods so they can be
+parametrised with different keywords like this:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="s2">"london_c.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span>
+  <span class="n">put_list</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">,</span>
+    <span class="n">filter</span><span class="p">(</span><span class="no">ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+      <span class="ss">all: </span><span class="sx">%w(london)</span><span class="p">,</span>
+      <span class="ss">any: </span><span class="sx">%w(c c++ c/c++ firmware embedded)</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+<span class="k">end</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="s2">"berlin_ruby.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span>
+  <span class="n">put_list</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">,</span>
+    <span class="n">filter</span><span class="p">(</span><span class="no">ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+      <span class="ss">all: </span><span class="sx">%w(berlin ruby)</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>And so on.</p>
+
+<h2 id="finally">Finally</h2>
+
+<p>If you are actively looking for work on HN I recommend <a href="https://hnhired.com/">this</a> app
+since it more or less does what my scripts do but in your browser and for the most recent month.</p>
+
+  </div>
+
+  
+
+  <a class="u-url" href="/2018/09/21/who-was-hiring.html" hidden></a>
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          
+            
+            <li><a class="u-email" href="mailto:contact@cjh.id.au">contact@cjh.id.au</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <ul class="social-media-list">
+  
+  
+  
+  <li><a href="https://github.com/cjhdev"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">cjhdev</span></a></li>
+  
+  <li><a href="https://www.linkedin.com/in/cameronisanengineer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">cameronisanengineer</span></a></li>
+  
+  
+  
+  
+  
+  
+</ul>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Using Ruby to Emulate LoRaWAN Hardware | Cameron Harper</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="Using Ruby to Emulate LoRaWAN Hardware" />
+<meta name="author" content="Cameron Harper" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="update: LDL source code is no longer publicly accessible" />
+<meta property="og:description" content="update: LDL source code is no longer publicly accessible" />
+<link rel="canonical" href="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" />
+<meta property="og:url" content="http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" />
+<meta property="og:site_name" content="Cameron Harper" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-03-11T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Using Ruby to Emulate LoRaWAN Hardware","dateModified":"2018-03-11T00:00:00+00:00","datePublished":"2018-03-11T00:00:00+00:00","url":"http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html"},"author":{"@type":"Person","name":"Cameron Harper"},"description":"update: LDL source code is no longer publicly accessible","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cameron Harper" />
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" rel="author" href="/">Cameron Harper</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Using Ruby to Emulate LoRaWAN Hardware</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2018-03-11T00:00:00+00:00" itemprop="datePublished">
+        
+        Mar 11, 2018
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><em>update: LDL source code is no longer publicly accessible</em></p>
+
+<p>For the past year I’ve been working on a background project called <a href="https://github.com/cjhdev/lora_device_lib_api">LoraDeviceLib</a> (LDL for short).</p>
+
+<p>Since this is not my day job, I’ve been focusing on the parts of the problem that interest me (the MAC layer) and avoiding anything that seems tedious (buying a gateway, setting up a gateway, debugging radio/hardware related problems, complaining about late kickstarter projects).</p>
+
+<p>To make this work, I’ve been exercising all features on my development machine using small tests with varying degrees of mocking vs. integration. This is effective up until the point where all the parts are ready to come together to talk to a network service. For me, I got to this point at the beginning of the year when I was ready to start talking to <a href="https://www.thethingsnetwork.org">The Things Network</a> (TTN).</p>
+
+<p>To continue with my “no hardware” approach, I decided to write a software layer in Ruby that would emulate the hardware components required to connect a free-running instance of LDL up to TTN. Basically, everything in the box marked “emulator”:</p>
+
+<p><img src="http://localhost:4000/assets/high_level.png" alt="emulator classes" class="center-image" /></p>
+
+<h1 id="implementation">Implementation</h1>
+
+<p>The emulator is not one complete program, rather a collection of classes that are composed into a scenario. The classes developed for the emulator live <a href="">here</a> and everything is arranged in the usual Rubygems <a href="http://guides.rubygems.org/make-your-own-gem/">pattern</a>.</p>
+
+<p>The classes developed for the emulator look a bit like this:</p>
+
+<p><img src="http://localhost:4000/assets/emulator.png" alt="emulator classes" class="center-image" /></p>
+
+<ul>
+  <li>
+    <p>ExtMAC is a native extension (Ruby written in C) that wraps up LDL.</p>
+  </li>
+  <li>
+    <p>MAC is a pure Ruby subclass that extends and improves the basic interfaces in ExtMAC. Native extensions are more difficult to write and maintain than pure
+Ruby so this pattern helps to keep ExtMAC simple.</p>
+  </li>
+  <li>
+    <p>Device combines a MAC and a Radio to emulate a LoRaWAN device. It runs an application which is passed in as a block upon initialisation.</p>
+  </li>
+  <li>
+    <p>Radio contains the minimum amount of logic required to send and receive LoRaWAN frames via an instance of Broker. It can detect overlapping transmit and receive windows but doesn’t go so far as to simulate the effect of distance and obstacles on signal quality.</p>
+  </li>
+  <li>
+    <p>Gateway is a fully functional LoRaWAN gateway. It implements the Semtech forwarder protocol to connect up to TTN. To avoid dealing with configuration, the gateway will send and receive frames on any frequency. Also, since I’m not simulating radio, every frame relayed upstream has perfect signal quality.</p>
+  </li>
+  <li>
+    <p>Clock implements a event queue which drives Device and Gateway instances. It ensures that system time stands still until an event is complete. This means that timing sensitive code in LDL is never late even if the garbage collector kicks in.</p>
+  </li>
+  <li>
+    <p>FrameLogger logs radio frames which it subscribes to via Broker. It includes a packet dissector built from another native extension (not shown).</p>
+  </li>
+  <li>
+    <p>Broker implements publish/subscribe messaging used to pass frames and events.</p>
+  </li>
+</ul>
+
+<h1 id="running-a-scenario">Running a Scenario</h1>
+
+<p>The first thing I wanted to try on the emulator was a scenario in which the device would join and then send and receive data. In bullet point form:</p>
+
+<ul>
+  <li>device starts</li>
+  <li>device joins</li>
+  <li>device sends a short unique message upstream as often as duty cycle limits permit</li>
+  <li>while running, device receives downstream messages in the receive slots</li>
+  <li>device prints messages to the terminal as it runs so we can see what is happening</li>
+</ul>
+
+<p>Implemented as a scenario:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'ldl'</span>
+
+<span class="kp">include</span> <span class="no">LDL</span>
+
+<span class="no">LDL</span><span class="o">::</span><span class="no">Logger</span> <span class="o">=</span> <span class="no">CompositeLogger</span>
+<span class="no">LDL</span><span class="o">::</span><span class="no">Logger</span> <span class="o">&lt;&lt;</span> <span class="o">::</span><span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">STDOUT</span><span class="p">).</span><span class="nf">tap</span> <span class="k">do</span> <span class="o">|</span><span class="n">log</span><span class="o">|</span>
+  <span class="n">log</span><span class="p">.</span><span class="nf">formatter</span> <span class="o">=</span> <span class="no">LDL</span><span class="o">::</span><span class="no">LOG_FORMATTER</span>
+  <span class="n">log</span><span class="p">.</span><span class="nf">sev_threshold</span> <span class="o">=</span> <span class="o">::</span><span class="no">Logger</span><span class="o">::</span><span class="no">INFO</span>
+<span class="k">end</span>
+
+<span class="no">LDL</span><span class="o">::</span><span class="no">SystemTime</span> <span class="o">=</span> <span class="no">Clock</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="n">broker</span> <span class="o">=</span> <span class="no">Broker</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="no">FrameLogger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">broker</span><span class="p">,</span> <span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="s1">'frame.log'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">))</span>
+
+<span class="n">gateway</span> <span class="o">=</span> <span class="no">Gateway</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">broker</span><span class="p">,</span> <span class="no">EUI64</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">ENV</span><span class="p">[</span><span class="s2">"GATEWAY_EUI"</span><span class="p">]),</span> 
+    <span class="ss">name: </span><span class="s1">'gateway'</span>
+<span class="p">)</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="no">Device</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">broker</span><span class="p">,</span> 
+    <span class="ss">devEUI: </span><span class="no">EUI64</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">ENV</span><span class="p">[</span><span class="s2">"DEV_EUI"</span><span class="p">]),</span>
+    <span class="ss">appEUI: </span><span class="no">EUI64</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">ENV</span><span class="p">[</span><span class="s2">"APP_EUI"</span><span class="p">]),</span> 
+    <span class="ss">appKey: </span><span class="no">Key</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">ENV</span><span class="p">[</span><span class="s2">"APP_KEY"</span><span class="p">]),</span> 
+    <span class="ss">name: </span><span class="s2">"device"</span>
+<span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">d</span><span class="o">|</span>
+
+  <span class="nb">sleep</span> <span class="mi">1</span>
+
+  <span class="n">d</span><span class="p">.</span><span class="nf">mac</span><span class="p">.</span><span class="nf">on_receive</span> <span class="p">{</span> <span class="o">|</span><span class="n">port</span><span class="p">,</span> <span class="n">message</span><span class="o">|</span> <span class="nb">puts</span> <span class="s2">"port</span><span class="si">#{</span><span class="n">port</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span> <span class="p">}</span>
+          
+  <span class="k">begin</span>   
+      
+    <span class="nb">puts</span> <span class="s2">"joining..."</span>
+    
+    <span class="n">d</span><span class="p">.</span><span class="nf">mac</span><span class="p">.</span><span class="nf">join</span>
+    
+    <span class="nb">puts</span> <span class="s2">"join complete"</span>
+
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">port</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="kp">loop</span> <span class="k">do</span>
+    
+      <span class="no">SystemTime</span><span class="p">.</span><span class="nf">wait</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="nf">mac</span><span class="p">.</span><span class="nf">ticksUntilNextChannel</span><span class="p">)</span>
+      
+      <span class="nb">puts</span> <span class="s2">"sending message '</span><span class="si">#{</span><span class="n">counter</span><span class="si">}</span><span class="s2">' to port </span><span class="si">#{</span><span class="n">port</span><span class="si">}</span><span class="s2">..."</span>
+  
+      <span class="n">d</span><span class="p">.</span><span class="nf">mac</span><span class="p">.</span><span class="nf">data</span> <span class="n">port</span><span class="p">,</span> <span class="n">counter</span><span class="p">.</span><span class="nf">to_s</span>
+      
+      <span class="nb">puts</span> <span class="s2">"send complete"</span>
+      
+      <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+    <span class="k">end</span>
+      
+  <span class="k">rescue</span> <span class="no">JoinTimeout</span>            
+  
+    <span class="nb">puts</span> <span class="s2">"join failed"</span>
+      
+  <span class="k">end</span>
+    
+<span class="k">end</span>
+
+<span class="p">[</span><span class="no">LDL</span><span class="o">::</span><span class="no">SystemTime</span><span class="p">,</span> <span class="n">gateway</span><span class="p">,</span> <span class="n">device</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:start</span><span class="p">)</span>
+    
+<span class="k">begin</span>
+  <span class="nb">sleep</span> 
+<span class="k">rescue</span> <span class="no">Interrupt</span>
+<span class="k">end</span>
+
+<span class="p">[</span><span class="no">LDL</span><span class="o">::</span><span class="no">SystemTime</span><span class="p">,</span> <span class="n">gateway</span><span class="p">,</span> <span class="n">device</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:stop</span><span class="p">)</span>
+
+<span class="nb">exit</span></code></pre></figure>
+
+<p>Running the scenario for a few seconds produces the following lines on the terminal:</p>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> bundle <span class="nb">exec </span>ruby <span class="nt">-Ilib</span> examples/one_device_one_gateway.rb
+<span class="go">joining...
+INFO  [2018-03-10 00:16:37]        231 gateway: sending PullData (keep alive)
+INFO  [2018-03-10 00:16:37]       2263 gateway: received PullAck
+INFO  [2018-03-10 00:16:37]       5780 gateway: received frame
+INFO  [2018-03-10 00:16:37]       5836 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:37]       5836 gateway: received PushAck
+INFO  [2018-03-10 00:16:41]     100014 gateway: received PullResp
+INFO  [2018-03-10 00:16:41]     100014 gateway: transmit frame in 4057660us (tmst=5057800)
+INFO  [2018-03-10 00:16:41]     100014 gateway: send up TXAck (error=NONE)
+INFO  [2018-03-10 00:16:42]     505780 gateway: transmitting frame
+INFO  [2018-03-10 00:16:42]     512460 device: received message
+join complete
+sending message '0' to port 1...
+INFO  [2018-03-10 00:16:42]     516707 gateway: received frame
+INFO  [2018-03-10 00:16:42]     516796 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:42]     516796 gateway: received PushAck
+INFO  [2018-03-10 00:16:42]     516796 gateway: received PullResp
+INFO  [2018-03-10 00:16:42]     516796 gateway: transmit frame in 999110us (tmst=6167070)
+INFO  [2018-03-10 00:16:42]     516796 gateway: send up TXAck (error=NONE)
+INFO  [2018-03-10 00:16:43]     616707 gateway: transmitting frame
+INFO  [2018-03-10 00:16:43]     621340 device: received message
+port1: hello
+send complete
+sending message '1' to port 1...
+INFO  [2018-03-10 00:16:43]     625547 gateway: received frame
+INFO  [2018-03-10 00:16:43]     625617 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:43]     625617 gateway: received PushAck
+send complete
+sending message '2' to port 1...
+INFO  [2018-03-10 00:16:46]     928837 gateway: received frame
+INFO  [2018-03-10 00:16:46]     928897 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:46]     928897 gateway: received PushAck
+send complete
+sending message '3' to port 1...
+INFO  [2018-03-10 00:16:48]    1133042 gateway: received frame
+INFO  [2018-03-10 00:16:48]    1133125 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:48]    1133125 gateway: received PushAck
+send complete
+sending message '4' to port 1...
+INFO  [2018-03-10 00:16:50]    1340969 gateway: received frame
+INFO  [2018-03-10 00:16:50]    1341054 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:50]    1341054 gateway: received PushAck
+send complete
+sending message '5' to port 1...
+INFO  [2018-03-10 00:16:52]    1545174 gateway: received frame
+INFO  [2018-03-10 00:16:52]    1545245 gateway: sending PushData (forward)
+INFO  [2018-03-10 00:16:52]    1545245 gateway: received PushAck
+send complete</span></code></pre></figure>
+
+<p>The following CSV format lines are logged by FrameLogger:</p>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> <span class="nb">cat </span>frame.log
+<span class="go">system_time, eui, message_type, frequency, spreading_factor, bandwidth, power, air_time, size, message
+0.00123, 75-0A-FA-1F-8F-01-57-8C, JoinReq, 868300000, 7, 125, 0, 0.05657, 23, AJRFAPB+1bNwjFcBjx/6CnUhYsMTQI8=
+5.0578, EA-15-79-3E-11-2C-7F-93, JoinAccept, 868300000, 7, 125, 0, 0.06681, 33, IN7FEkE2/DzEr4ofNWbrMAiSxmxW7LdiGwzQWW3pcUqI
+5.12586, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 867700000, 7, 125, 0, 0.04121, 14, QBknASYAAAABU523sLo=
+6.16707, EA-15-79-3E-11-2C-7F-93, UnconfirmedDataDown, 867700000, 7, 125, 0, 0.04633, 18, YBknASYAAAABA/v+WucSM4Z1
+6.21426, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 868500000, 7, 125, 0, 0.04121, 14, QBknASYAAQABtYpgU6Q=
+9.24716, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 867900000, 7, 125, 0, 0.04121, 14, QBknASYAAgABrhd/ihw=
+11.28921, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 868300000, 7, 125, 0, 0.04121, 14, QBknASYAAwABwOB/BJo=
+13.36848, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 867100000, 7, 125, 0, 0.04121, 14, QBknASYABAABK/zPSX4=
+15.41053, 75-0A-FA-1F-8F-01-57-8C, UnconfirmedDataUp, 868100000, 7, 125, 0, 0.04121, 14, QBknASYABQAB4PZJfdY=</span></code></pre></figure>
+
+<p>We can see the same thing on the TTN data console:</p>
+
+<p><img src="http://localhost:4000/assets/ttn_console.png" alt="emulator classes" class="center-image" /></p>
+
+<h1 id="was-it-worth-the-trouble">Was It Worth The Trouble?</h1>
+
+<p>Yes. It’s just as useful as I thought it would be.</p>
+
+<p>The emulator helps me to:</p>
+
+<ul>
+  <li>Try out complete instances of LDL against TTN without any physical setup</li>
+  <li>Iterate through development/debug cycles just as quickly as a non-embedded software project</li>
+  <li>Conserve the ISM band by not blasting out useless “hello world” messages</li>
+  <li>Run LDL in different regions (LoRaWAN works differently in EU compared to US, for example)</li>
+  <li>Setup automated end-to-end tests</li>
+</ul>
+
+<p>It’s not perfect. There are plenty of wrinkles and missing features, the most obvious being that the emulator doesn’t simulate the effect of distance and obstacles on radio signals. 
+This means that at this time it’s not useful for debugging ADR or for observing the effect of many devices and gateways operating in the same space.</p>
+
+  </div>
+
+  
+
+  <a class="u-url" href="/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" hidden></a>
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          
+            
+            <li><a class="u-email" href="mailto:contact@cjh.id.au">contact@cjh.id.au</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <ul class="social-media-list">
+  
+  
+  
+  <li><a href="https://github.com/cjhdev"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">cjhdev</span></a></li>
+  
+  <li><a href="https://www.linkedin.com/in/cameronisanengineer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">cameronisanengineer</span></a></li>
+  
+  
+  
+  
+  
+  
+</ul>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

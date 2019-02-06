@@ -12,3 +12,5 @@ linkedin_username: cameronisanengineer
 
 plugins:
   - jekyll-toc
+
+destination: docs

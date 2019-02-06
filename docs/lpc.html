@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>LoRa Pulse Counter Demo | Cameron Harper</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="LoRa Pulse Counter Demo" />
+<meta name="author" content="Cameron Harper" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/lpc" />
+<meta property="og:url" content="http://localhost:4000/lpc" />
+<meta property="og:site_name" content="Cameron Harper" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-02-05T00:00:00+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"LoRa Pulse Counter Demo","dateModified":"2019-02-05T00:00:00+00:00","datePublished":"2019-02-05T00:00:00+00:00","url":"http://localhost:4000/lpc","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/lpc"},"author":{"@type":"Person","name":"Cameron Harper"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cameron Harper" />
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" rel="author" href="/">Cameron Harper</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">LoRa Pulse Counter Demo</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-02-05T00:00:00+00:00" itemprop="datePublished">
+        
+        Feb 5, 2019
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#application">Application</a></li>
+<li class="toc-entry toc-h2"><a href="#features">Features</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#lorawan">LoRaWAN</a></li>
+<li class="toc-entry toc-h3"><a href="#digital-inputs">Digital Inputs</a></li>
+<li class="toc-entry toc-h3"><a href="#external-pickup-power-supply">External Pickup Power Supply</a></li>
+<li class="toc-entry toc-h3"><a href="#status-button-and-led">Status Button and LED</a></li>
+<li class="toc-entry toc-h3"><a href="#uart-connection">UART Connection</a></li>
+<li class="toc-entry toc-h3"><a href="#battery-voltage-sensor">Battery Voltage Sensor</a></li>
+<li class="toc-entry toc-h3"><a href="#ambient-temperature-sensor">Ambient Temperature Sensor</a></li>
+<li class="toc-entry toc-h3"><a href="#field-serviceable-primary-cell">Field Serviceable Primary Cell</a></li>
+<li class="toc-entry toc-h3"><a href="#configurable">Configurable</a></li>
+<li class="toc-entry toc-h3"><a href="#low-power-design">Low Power Design</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#hardware-revisions">Hardware Revisions</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#020">0.2.0</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#problems">Problems</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#011">0.1.1</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#problems-1">Problems</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#communication-protocol">Communication Protocol</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#uart-settings">UART Settings</a></li>
+<li class="toc-entry toc-h3"><a href="#framing">Framing</a></li>
+<li class="toc-entry toc-h3"><a href="#message-encoding-rules">Message Encoding Rules</a></li>
+<li class="toc-entry toc-h3"><a href="#commands">Commands</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#commission">Commission</a></li>
+<li class="toc-entry toc-h4"><a href="#join">Join</a></li>
+<li class="toc-entry toc-h4"><a href="#forget">Forget</a></li>
+<li class="toc-entry toc-h4"><a href="#get-device-eui">Get-Device-EUI</a></li>
+<li class="toc-entry toc-h4"><a href="#get-application-eui">Get-Application-EUI</a></li>
+<li class="toc-entry toc-h4"><a href="#get-encrypted-application-key">Get-Encrypted-Application-Key</a></li>
+<li class="toc-entry toc-h4"><a href="#set-log-severity-level">Set-Log-Severity-Level</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#alerts">Alerts</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#log-alert">Log-Alert</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#message-structure">Message Structure</a></li>
+</ul>
+</li>
+</ul><p><img src="http://localhost:4000/assets/first_pass_assembled.jpg" alt="assembled board" class="center-image"></p>
+
+<p>Above is version <a href="#011">0.1.1</a> of my LoRa Pulse Counter demonstration platform.</p>
+
+<p>I put this together to demonstrate an end-to-end hardware/firmware/software project.
+Also I wanted to evaluate Kicad after not making a PCB for almost a decade.</p>
+
+<h2 id="application">
+<a id="application" class="anchor" href="#application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application</h2>
+
+<p>The LoRa Pulse Counter can be used to count electrical pulses produced by flow meters 
+and/or detect level changes from switch based sensors. 
+The count and level state is sent to a remote application over LoRaWAN.</p>
+
+<p>This is useful for:</p>
+
+<ul>
+  <li>counting output produced by electricity meters, water meters, and other types of flow meters</li>
+  <li>tamper detection</li>
+  <li>storage tank monitoring</li>
+</ul>
+
+<h2 id="features">
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<h3 id="lorawan">
+<a id="lorawan" class="anchor" href="#lorawan" aria-hidden="true"><span class="octicon octicon-link"></span></a>LoRaWAN</h3>
+
+<p>The device uses LoRaWAN to send data to a remote application.</p>
+
+<p>The implementation is my own. Features include:</p>
+
+<ul>
+  <li>low-resource design suitable for constrained devices</li>
+  <li>
+<a href="https://cjhdev.github.io/lora_device_lib_api/">API</a> documentation</li>
+  <li>OTAA only with full support for all network configurable parameters</li>
+  <li>runtime multi-region support</li>
+  <li>hardware emulator for debugging against network implementations</li>
+</ul>
+
+<h3 id="digital-inputs">
+<a id="digital-inputs" class="anchor" href="#digital-inputs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Digital Inputs</h3>
+
+<p>The device has two inputs suitable for interfacing with open-collector or
+dry-contact outputs.</p>
+
+<h3 id="external-pickup-power-supply">
+<a id="external-pickup-power-supply" class="anchor" href="#external-pickup-power-supply" aria-hidden="true"><span class="octicon octicon-link"></span></a>External Pickup Power Supply</h3>
+
+<p>The device can supply power to external pickups required to interface
+with different equipment. Typical external pickups include:</p>
+
+<ul>
+  <li>photodiode to detect a flashing LED</li>
+  <li>hall-effect sensor to detect a rotating magnet</li>
+</ul>
+
+<h3 id="status-button-and-led">
+<a id="status-button-and-led" class="anchor" href="#status-button-and-led" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status Button and LED</h3>
+
+<p>The device has a button which when pressed enables a status LED which
+makes it possible to quickly inspect the status of the device.</p>
+
+<p>The status codes are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>number of flashes</th>
+      <th>status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>dead</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>not-joined</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>joining</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>joined but no downlink received in interval</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>joined and downlink received in interval</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="uart-connection">
+<a id="uart-connection" class="anchor" href="#uart-connection" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Connection</h3>
+
+<p>The device has a level-converted UART connection to support:</p>
+
+<ul>
+  <li>commissioning</li>
+  <li>firmware update</li>
+  <li>fault finding</li>
+</ul>
+
+<p>The connector used is a 6 pin header with the following configuration:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>pin</th>
+      <th>signal</th>
+      <th>comment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>GND</td>
+      <td>mandatory</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>CTS</td>
+      <td>connected to GND</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>VCC</td>
+      <td>mandatory 3V3 or 5V; battery is still required</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>TXD</td>
+      <td>transmit line</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>RXD</td>
+      <td>receive line</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>DTR</td>
+      <td>not connected</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This configuration is compatible with USB to serial converters
+made by FTDI, Sparkfun, and many others.</p>
+
+<h3 id="battery-voltage-sensor">
+<a id="battery-voltage-sensor" class="anchor" href="#battery-voltage-sensor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Battery Voltage Sensor</h3>
+
+<p>The device is able to sample battery voltage through a switched resistive
+divider. This information is made available to the remote application.</p>
+
+<h3 id="ambient-temperature-sensor">
+<a id="ambient-temperature-sensor" class="anchor" href="#ambient-temperature-sensor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ambient Temperature Sensor</h3>
+
+<p>The device is able to monitor ambient temperature. This information is made available to 
+the remote application.</p>
+
+<h3 id="field-serviceable-primary-cell">
+<a id="field-serviceable-primary-cell" class="anchor" href="#field-serviceable-primary-cell" aria-hidden="true"><span class="octicon octicon-link"></span></a>Field Serviceable Primary Cell</h3>
+
+<p>The device is powered by a CR123A (Li-MnO2) primary cell which
+is installed in a PCB mounted holder.</p>
+
+<p>Having the cell easily replaceable is useful for shipping, and for 
+allowing the device to be used in applications which require high frequency
+reporting.</p>
+
+<h3 id="configurable">
+<a id="configurable" class="anchor" href="#configurable" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configurable</h3>
+
+<p>The following characteristics can be reconfigured:</p>
+
+<ul>
+  <li>input behaviour
+    <ul>
+      <li>rising/falling/both edges</li>
+      <li>alerting</li>
+    </ul>
+  </li>
+  <li>reporting interval and alerting strategy</li>
+  <li>link-check interval</li>
+  <li>no-downlink-error interval</li>
+</ul>
+
+<h3 id="low-power-design">
+<a id="low-power-design" class="anchor" href="#low-power-design" aria-hidden="true"><span class="octicon octicon-link"></span></a>Low Power Design</h3>
+
+<p>The device is designed for low power consumption:</p>
+
+<ul>
+  <li>direct unregulated power supply</li>
+  <li>switched battery voltage divider</li>
+  <li>status LED active only when user button is pressed</li>
+  <li>UART level converter powered by the USB to serial converter and not by the device</li>
+  <li>event driven firmware</li>
+</ul>
+
+<p>Average power consumption depends upon:</p>
+
+<ul>
+  <li>resting state of digital inputs (active-low will produce longest battery life)</li>
+  <li>frequency of pulse signals</li>
+  <li>frequency of pulse count reporting</li>
+  <li>alerting strategy</li>
+  <li>link-check strategy</li>
+</ul>
+
+<h2 id="hardware-revisions">
+<a id="hardware-revisions" class="anchor" href="#hardware-revisions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware Revisions</h2>
+
+<h3 id="020">
+<a id="020" class="anchor" href="#020" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.2.0</h3>
+
+<p>Changes from last revision:</p>
+
+<ul>
+  <li>U.FL replaced with dual SMA/U.FL footprint</li>
+  <li>removed DIO4 and DIO5 routing</li>
+  <li>using single inverter for UART transmit line</li>
+  <li>removed reset button</li>
+  <li>using larger footprints for easy soldering</li>
+  <li>enlarged M2 mounting holes to M3</li>
+</ul>
+
+<p><img src="http://localhost:4000/assets/second_pass_design.png" alt="schematic" class="center-image"></p>
+
+<p><img src="http://localhost:4000/assets/second_pass_model.png" alt="3d model" class="center-image"></p>
+
+<h4 id="problems">
+<a id="problems" class="anchor" href="#problems" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems</h4>
+
+<ul>
+  <li>There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity</li>
+</ul>
+
+<h3 id="011">
+<a id="011" class="anchor" href="#011" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.1.1</h3>
+
+<p>First revision.</p>
+
+<p><img src="http://localhost:4000/assets/first_pass_design.png" alt="schematic" class="center-image"></p>
+
+<p><img src="http://localhost:4000/assets/first_pass_model.png" alt="3d model" class="center-image"></p>
+
+<p><img src="http://localhost:4000/assets/first_pass_assembled.jpg" alt="assembled board" class="center-image"></p>
+
+<h4 id="problems-1">
+<a id="problems-1" class="anchor" href="#problems-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems</h4>
+
+<p>Thoughts I had after having this PCB made:</p>
+
+<ul>
+  <li>There should be a keepout underneath the U.FL connector</li>
+  <li>The radio module is too far away from the U.FL connector</li>
+  <li>UART pin assignment means the STM32L051K8 cannot be swapped for the lower cost STM32L010K8</li>
+  <li>The UART level converter power consumption could be improved by using the 
+MCU UART signal invert feature</li>
+  <li>It is not necessary to connect radio module DIO4 and DIO5</li>
+  <li>The reset switch is redundant</li>
+  <li>The footprints are too small for easy soldering</li>
+  <li>Double row storage capacitors are difficult to solder by hand</li>
+</ul>
+
+<h2 id="communication-protocol">
+<a id="communication-protocol" class="anchor" href="#communication-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Communication Protocol</h2>
+
+<p>A protocol is required in order to commission and manage the LoRa Pulse Counter.</p>
+
+<h3 id="uart-settings">
+<a id="uart-settings" class="anchor" href="#uart-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Settings</h3>
+
+<ul>
+  <li>38400 baud</li>
+  <li>8 data bits, 1 stop bit, no parity</li>
+</ul>
+
+<h3 id="framing">
+<a id="framing" class="anchor" href="#framing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Framing</h3>
+
+<p>The protocol uses start, end, escape, and xor characters to mark start/end of 
+messages and to remove start/end markers from the message payload.</p>
+
+<p>Special characters are as follows:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>name</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>start</td>
+      <td>0x7e</td>
+    </tr>
+    <tr>
+      <td>end</td>
+      <td>0x7f</td>
+    </tr>
+    <tr>
+      <td>escape</td>
+      <td>0x7d</td>
+    </tr>
+    <tr>
+      <td>xor</td>
+      <td>0x20</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When a start, end, or escape character appears within a message payload, it is replaced
+by an escape character followed by the original character XORed with the xor character.</p>
+
+<p>The last two bytes of a frame is a 16 bit CRC ordered most significant byte first.
+The CRC is calculated over the payload bytes as they appear on the wire (i.e. including escape characters).</p>
+
+<p>CRC parameters are as follows:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>name</td>
+      <td>CRC-16-CCITT</td>
+    </tr>
+    <tr>
+      <td>polynomial</td>
+      <td>0x1021</td>
+    </tr>
+    <tr>
+      <td>initial value</td>
+      <td>0xffff</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="message-encoding-rules">
+<a id="message-encoding-rules" class="anchor" href="#message-encoding-rules" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message Encoding Rules</h3>
+
+<p>Messages are encoded/decoded according to Octet Encoding Rules X.696.</p>
+
+<h3 id="commands">
+<a id="commands" class="anchor" href="#commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commands</h3>
+
+<h4 id="commission">
+<a id="commission" class="anchor" href="#commission" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commission</h4>
+
+<p>Device shall be commissioned by writing the following values to
+non-volatile memory:</p>
+
+<ul>
+  <li>Application EUI</li>
+  <li>Application Key</li>
+  <li>Device EUI</li>
+</ul>
+
+<p>Following this the device shall forget the network and enter a non-joining
+mode.</p>
+
+<h4 id="join">
+<a id="join" class="anchor" href="#join" aria-hidden="true"><span class="octicon octicon-link"></span></a>Join</h4>
+
+<p>Device shall forget the network and enter a joining mode.</p>
+
+<h4 id="forget">
+<a id="forget" class="anchor" href="#forget" aria-hidden="true"><span class="octicon octicon-link"></span></a>Forget</h4>
+
+<p>Device shall forget the network and enter a non-joining mode.</p>
+
+<h4 id="get-device-eui">
+<a id="get-device-eui" class="anchor" href="#get-device-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Device-EUI</h4>
+
+<p>Return the Device-EUI.</p>
+
+<h4 id="get-application-eui">
+<a id="get-application-eui" class="anchor" href="#get-application-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Application-EUI</h4>
+
+<p>Return the Application-EUI.</p>
+
+<h4 id="get-encrypted-application-key">
+<a id="get-encrypted-application-key" class="anchor" href="#get-encrypted-application-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Encrypted-Application-Key</h4>
+
+<p>Return the result of performing AES-128 encryption of a zeroed block using the Application-Key.</p>
+
+<h4 id="set-log-severity-level">
+<a id="set-log-severity-level" class="anchor" href="#set-log-severity-level" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Log-Severity-Level</h4>
+
+<p>Set the severity level for log messages pushed by Log-Message alert in accordance
+with RFC 5424.</p>
+
+<h3 id="alerts">
+<a id="alerts" class="anchor" href="#alerts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Alerts</h3>
+
+<h4 id="log-alert">
+<a id="log-alert" class="anchor" href="#log-alert" aria-hidden="true"><span class="octicon octicon-link"></span></a>Log-Alert</h4>
+
+<p>Used to push logging messages to a client depending on the severity level
+set by the Set-Log-Severity-Level command.</p>
+
+<h3 id="message-structure">
+<a id="message-structure" class="anchor" href="#message-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message Structure</h3>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Pulse-Counter-Protocol
+DEFINITIONS ::=
+BEGIN
+     
+    PDU ::= CHOICE 
+    {
+        command     Command,
+        response    Response,
+        alert       Alert
+    }
+
+    Command ::= SEQUENCE
+    {
+        type CHOICE 
+        {    
+            commission      Commission-Command,
+            join            Join-Command,
+            forget          Forget-Command,
+            get-deveui      Get-DevEUI-Command,
+            get-appeui      Get-AppEUI-Command,
+            get-encrypted-appkey    Get-Encrypted-AppKey-Command,
+            set-log-severity-level  Set-Log-Severity-Level-Command
+        }
+    }
+    
+    Response ::= SEQUENCE
+    {
+        type CHOICE
+        {
+            commission      Commission-Response,
+            join            Join-Response,
+            forget          Forget-Response,
+            get-deveui      Get-DevEUI-Response,
+            get-appeui      Get-AppEUI-Response,
+            get-encrypted-appkey     Get-Encrypted-AppKey-Response,
+            set-log-severity-level   Set-Log-severity-Level-Response
+        }
+    }
+    
+    Alert ::= SEQUENCE
+    {
+        type CHOICE
+        {
+            log     Log-Alert
+        }
+    }
+
+    # 
+    # Commands, Response, Alert
+    #
+
+    Commission-Command  ::= SEQUENCE
+    {        
+        counter Invocation-Counter,
+        app-eui EUI,
+        dev-eui EUI,
+        app-key Key
+    }
+    Commission-Response ::= Empty-Response
+    
+    Join-Command    ::= Empty-Command
+    Join-Response   ::= Empty-Response
+    
+    Forget-Command  ::= Empty-Command
+    Forget-Response ::= Empty-Response
+    
+    Get-AppEUI-Command  ::= Empty-Command
+    Get-AppEUI-Response ::= SEQUENCE
+    {
+        counter Invocation-Counter,
+        eui     EUI
+    }
+    
+    Get-DevEUI-Command  ::= Empty-Command
+    Get-DevEUI-Response ::= SEQUENCE
+    {
+        counter Invocation-Counter,
+        eui     EUI
+    }
+    
+    Get-Encrypted-AppKey-Command    ::= Empty-Command
+    Get-Encrypted-AppKey-Response   ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        encrypted-key   Key
+    }
+
+    Set-Log-Severity-Level-Command ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        severity-level  INTEGER (0..7)
+    }
+    Set-Log-Severity-Level-Response ::= Empty-Response
+    
+    #
+    # useful definitions
+    #
+    
+    Empty-Command ::= Empty-Response
+    Empty-Response ::= SEQUENCE
+    {
+        counter Invocation-Counter
+    }
+    
+    Log-Alert ::= VisibleString
+    
+    Invocation-Counter ::= INTEGER (0..max-uint8)
+    EUI ::= OCTET STRING (SIZE(8))
+    Key ::= OCTET STRING (SIZE(16))
+    
+    max-uint32 Integer ::= 4294967295
+    max-uint16 Integer ::= 65535
+    
+END</code></pre></figure>
+
+
+  </div>
+
+  
+
+  <a class="u-url" href="/lpc" hidden></a>
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          
+            
+            <li><a class="u-email" href="mailto:contact@cjh.id.au">contact@cjh.id.au</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <ul class="social-media-list">
+  
+  
+  
+  <li><a href="https://github.com/cjhdev"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">cjhdev</span></a></li>
+  
+  <li><a href="https://www.linkedin.com/in/cameronisanengineer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">cameronisanengineer</span></a></li>
+  
+  
+  
+  
+  
+  
+</ul>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

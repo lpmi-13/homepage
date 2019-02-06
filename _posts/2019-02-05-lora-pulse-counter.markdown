@@ -13,12 +13,8 @@ toc: true
 
 Above is version [0.1.1](#011) of my LoRa Pulse Counter demonstration platform.
 
-I put this together for a few reasons:
-
-1. To demonstrate an end-to-end hardware/firmware/software project
-2. To demonstrate my LoRaWAN solution
-3. To evaluate [Kicad](http://kicad-pcb.org/)
-4. Because making stuff is fun
+I put this together to demonstrate an end-to-end hardware/firmware/software project.
+Also I wanted to evaluate Kicad after not making a PCB for almost a decade.
 
 ## Application
 
