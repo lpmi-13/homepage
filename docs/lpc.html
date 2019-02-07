@@ -141,7 +141,7 @@
 <p>Above is version <a href="#011">0.1.1</a> of my LoRa Pulse Counter demonstration platform.</p>
 
 <p>I put this together to demonstrate an end-to-end hardware/firmware/software project.
-Also I wanted to evaluate Kicad after not making a PCB for almost a decade.</p>
+Also I wanted to evaluate <a href="http://kicad-pcb.org/">Kicad</a> after not making a PCB for almost a decade.</p>
 
 <h2 id="application">
 <a id="application" class="anchor" href="#application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application</h2>
@@ -563,11 +563,11 @@ BEGIN
     {
         type CHOICE 
         {    
-            commission      Commission-Command,
-            join            Join-Command,
-            forget          Forget-Command,
-            get-deveui      Get-DevEUI-Command,
-            get-appeui      Get-AppEUI-Command,
+            commission              Commission-Command,
+            join                    Join-Command,
+            forget                  Forget-Command,
+            get-deveui              Get-DevEUI-Command,
+            get-appeui              Get-AppEUI-Command,
             get-encrypted-appkey    Get-Encrypted-AppKey-Command,
             set-log-severity-level  Set-Log-Severity-Level-Command
         }
@@ -577,13 +577,13 @@ BEGIN
     {
         type CHOICE
         {
-            commission      Commission-Response,
-            join            Join-Response,
-            forget          Forget-Response,
-            get-deveui      Get-DevEUI-Response,
-            get-appeui      Get-AppEUI-Response,
-            get-encrypted-appkey     Get-Encrypted-AppKey-Response,
-            set-log-severity-level   Set-Log-severity-Level-Response
+            commission              Commission-Response,
+            join                    Join-Response,
+            forget                  Forget-Response,
+            get-deveui              Get-DevEUI-Response,
+            get-appeui              Get-AppEUI-Response,
+            get-encrypted-appkey    Get-Encrypted-AppKey-Response,
+            set-log-severity-level  Set-Log-severity-Level-Response
         }
     }
     
@@ -591,7 +591,7 @@ BEGIN
     {
         type CHOICE
         {
-            log     Log-Alert
+            log                     Log-Alert
         }
     }
 
@@ -641,7 +641,9 @@ BEGIN
         severity-level  INTEGER (0..7)
     }
     Set-Log-Severity-Level-Response ::= Empty-Response
-    
+
+    Log-Alert ::= VisibleString
+
     #
     # useful definitions
     #
@@ -651,8 +653,6 @@ BEGIN
     {
         counter Invocation-Counter
     }
-    
-    Log-Alert ::= VisibleString
     
     Invocation-Counter ::= INTEGER (0..max-uint8)
     EUI ::= OCTET STRING (SIZE(8))

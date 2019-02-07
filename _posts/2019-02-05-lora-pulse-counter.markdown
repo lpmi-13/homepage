@@ -14,7 +14,7 @@ toc: true
 Above is version [0.1.1](#011) of my LoRa Pulse Counter demonstration platform.
 
 I put this together to demonstrate an end-to-end hardware/firmware/software project.
-Also I wanted to evaluate Kicad after not making a PCB for almost a decade.
+Also I wanted to evaluate [Kicad](http://kicad-pcb.org/) after not making a PCB for almost a decade.
 
 ## Application
 
@@ -288,11 +288,11 @@ BEGIN
     {
         type CHOICE 
         {    
-            commission      Commission-Command,
-            join            Join-Command,
-            forget          Forget-Command,
-            get-deveui      Get-DevEUI-Command,
-            get-appeui      Get-AppEUI-Command,
+            commission              Commission-Command,
+            join                    Join-Command,
+            forget                  Forget-Command,
+            get-deveui              Get-DevEUI-Command,
+            get-appeui              Get-AppEUI-Command,
             get-encrypted-appkey    Get-Encrypted-AppKey-Command,
             set-log-severity-level  Set-Log-Severity-Level-Command
         }
@@ -302,13 +302,13 @@ BEGIN
     {
         type CHOICE
         {
-            commission      Commission-Response,
-            join            Join-Response,
-            forget          Forget-Response,
-            get-deveui      Get-DevEUI-Response,
-            get-appeui      Get-AppEUI-Response,
-            get-encrypted-appkey     Get-Encrypted-AppKey-Response,
-            set-log-severity-level   Set-Log-severity-Level-Response
+            commission              Commission-Response,
+            join                    Join-Response,
+            forget                  Forget-Response,
+            get-deveui              Get-DevEUI-Response,
+            get-appeui              Get-AppEUI-Response,
+            get-encrypted-appkey    Get-Encrypted-AppKey-Response,
+            set-log-severity-level  Set-Log-severity-Level-Response
         }
     }
     
@@ -316,7 +316,7 @@ BEGIN
     {
         type CHOICE
         {
-            log     Log-Alert
+            log                     Log-Alert
         }
     }
 
@@ -366,7 +366,9 @@ BEGIN
         severity-level  INTEGER (0..7)
     }
     Set-Log-Severity-Level-Response ::= Empty-Response
-    
+
+    Log-Alert ::= VisibleString
+
     #
     # useful definitions
     #
@@ -376,8 +378,6 @@ BEGIN
     {
         counter Invocation-Counter
     }
-    
-    Log-Alert ::= VisibleString
     
     Invocation-Counter ::= INTEGER (0..max-uint8)
     EUI ::= OCTET STRING (SIZE(8))

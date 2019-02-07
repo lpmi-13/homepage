@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-02-06T13:29:07+00:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-02-07T15:49:04+00:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Above is version &lt;a href=&quot;#011&quot;&gt;0.1.1&lt;/a&gt; of my LoRa Pulse Counter demonstration platform.&lt;/p&gt;
 
 &lt;p&gt;I put this together to demonstrate an end-to-end hardware/firmware/software project.
-Also I wanted to evaluate Kicad after not making a PCB for almost a decade.&lt;/p&gt;
+Also I wanted to evaluate &lt;a href=&quot;http://kicad-pcb.org/&quot;&gt;Kicad&lt;/a&gt; after not making a PCB for almost a decade.&lt;/p&gt;
 
 &lt;h2 id=&quot;application&quot;&gt;Application&lt;/h2&gt;
 
@@ -392,11 +392,11 @@ BEGIN
     {
         type CHOICE 
         {    
-            commission      Commission-Command,
-            join            Join-Command,
-            forget          Forget-Command,
-            get-deveui      Get-DevEUI-Command,
-            get-appeui      Get-AppEUI-Command,
+            commission              Commission-Command,
+            join                    Join-Command,
+            forget                  Forget-Command,
+            get-deveui              Get-DevEUI-Command,
+            get-appeui              Get-AppEUI-Command,
             get-encrypted-appkey    Get-Encrypted-AppKey-Command,
             set-log-severity-level  Set-Log-Severity-Level-Command
         }
@@ -406,13 +406,13 @@ BEGIN
     {
         type CHOICE
         {
-            commission      Commission-Response,
-            join            Join-Response,
-            forget          Forget-Response,
-            get-deveui      Get-DevEUI-Response,
-            get-appeui      Get-AppEUI-Response,
-            get-encrypted-appkey     Get-Encrypted-AppKey-Response,
-            set-log-severity-level   Set-Log-severity-Level-Response
+            commission              Commission-Response,
+            join                    Join-Response,
+            forget                  Forget-Response,
+            get-deveui              Get-DevEUI-Response,
+            get-appeui              Get-AppEUI-Response,
+            get-encrypted-appkey    Get-Encrypted-AppKey-Response,
+            set-log-severity-level  Set-Log-severity-Level-Response
         }
     }
     
@@ -420,7 +420,7 @@ BEGIN
     {
         type CHOICE
         {
-            log     Log-Alert
+            log                     Log-Alert
         }
     }
 
@@ -470,7 +470,9 @@ BEGIN
         severity-level  INTEGER (0..7)
     }
     Set-Log-Severity-Level-Response ::= Empty-Response
-    
+
+    Log-Alert ::= VisibleString
+
     #
     # useful definitions
     #
@@ -480,8 +482,6 @@ BEGIN
     {
         counter Invocation-Counter
     }
-    
-    Log-Alert ::= VisibleString
     
     Invocation-Counter ::= INTEGER (0..max-uint8)
     EUI ::= OCTET STRING (SIZE(8))
