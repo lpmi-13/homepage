@@ -222,7 +222,7 @@ CRC parameters are as follows:
 
 ### Message Encoding Rules
 
-Messages are encoded/decoded according to Octet Encoding Rules X.696.
+Messages are encoded/decoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
 
 ### Commands
 
