@@ -166,6 +166,8 @@ Changes from last revision:
 - Pin assignments mean I don't have enough external interrupts; still learning about STM32
 - I want to replace the LED and schottky diodes with SOT23 footprints so that it becomes impossible to get them backwards
 - Need to add speed up capacitors to UART level converter
+- I should use a 25.4mm pin header for the SWD header instead of a special miniature header (and build my own adapter)
+- The terminal block layout should really be two sets of power+signal+ground
 
 ### 0.1.1
 
