@@ -102,12 +102,12 @@
 <ul>
 <li class="toc-entry toc-h3"><a href="#020">0.2.0</a>
 <ul>
-<li class="toc-entry toc-h4"><a href="#problems">Problems</a></li>
+<li class="toc-entry toc-h4"><a href="#problemssecond-thoughts">Problems/Second Thoughts</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h3"><a href="#011">0.1.1</a>
 <ul>
-<li class="toc-entry toc-h4"><a href="#problems-1">Problems</a></li>
+<li class="toc-entry toc-h4"><a href="#problemssecond-thoughts-1">Problems/Second Thoughts</a></li>
 </ul>
 </li>
 </ul>
@@ -136,9 +136,10 @@
 <li class="toc-entry toc-h3"><a href="#message-structure">Message Structure</a></li>
 </ul>
 </li>
-</ul><p><img src="/assets/first_pass_assembled.jpg" alt="assembled board" class="center-image"></p>
+</ul><p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
 
-<p>Above is version <a href="#011">0.1.1</a> of my LoRa Pulse Counter demonstration platform.</p>
+<p>Above is version <a href="#020">0.2.0</a> of my LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
+for debug.</p>
 
 <p>I put this together to demonstrate an end-to-end hardware/firmware/software project.
 Also I wanted to evaluate <a href="http://kicad-pcb.org/">Kicad</a> after not making a PCB for almost a decade.</p>
@@ -216,19 +217,19 @@ makes it possible to quickly inspect the status of the device.</p>
     </tr>
     <tr>
       <td>1</td>
-      <td>not-joined</td>
+      <td>joined and downlink received in interval</td>
     </tr>
     <tr>
       <td>2</td>
-      <td>joining</td>
-    </tr>
-    <tr>
-      <td>3</td>
       <td>joined but no downlink received in interval</td>
     </tr>
     <tr>
+      <td>3</td>
+      <td>joining</td>
+    </tr>
+    <tr>
       <td>4</td>
-      <td>joined and downlink received in interval</td>
+      <td>not-joined</td>
     </tr>
   </tbody>
 </table>
@@ -374,11 +375,16 @@ reporting.</p>
 
 <p><img src="/assets/second_pass_model.png" alt="3d model" class="center-image"></p>
 
-<h4 id="problems">
-<a id="problems" class="anchor" href="#problems" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems</h4>
+<p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
+
+<h4 id="problemssecond-thoughts">
+<a id="problemssecond-thoughts" class="anchor" href="#problemssecond-thoughts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems/Second Thoughts</h4>
 
 <ul>
   <li>There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity</li>
+  <li>Pin assignments mean I don’t have enough external interrupts; still learning about STM32</li>
+  <li>I want to replace the LED and schottky diodes with SOT23 footprints so that it becomes impossible to get them backwards</li>
+  <li>Need to add speed up capacitors to UART level converter</li>
 </ul>
 
 <h3 id="011">
@@ -392,10 +398,8 @@ reporting.</p>
 
 <p><img src="/assets/first_pass_assembled.jpg" alt="assembled board" class="center-image"></p>
 
-<h4 id="problems-1">
-<a id="problems-1" class="anchor" href="#problems-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems</h4>
-
-<p>Thoughts I had after having this PCB made:</p>
+<h4 id="problemssecond-thoughts-1">
+<a id="problemssecond-thoughts-1" class="anchor" href="#problemssecond-thoughts-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems/Second Thoughts</h4>
 
 <ul>
   <li>There should be a keepout underneath the U.FL connector</li>
@@ -534,7 +538,7 @@ mode.</p>
 <a id="set-log-severity-level" class="anchor" href="#set-log-severity-level" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Log-Severity-Level</h4>
 
 <p>Set the severity level for log messages pushed by Log-Message alert in accordance
-with RFC 5424.</p>
+with <a href="https://tools.ietf.org/html/rfc5424">RFC 5424</a>.</p>
 
 <h3 id="alerts">
 <a id="alerts" class="anchor" href="#alerts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Alerts</h3>

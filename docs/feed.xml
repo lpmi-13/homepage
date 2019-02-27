@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-02-07T15:51:57+00:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-02-27T18:27:11+00:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Above is version &lt;a href=&quot;#011&quot;&gt;0.1.1&lt;/a&gt; of my LoRa Pulse Counter demonstration platform.&lt;/p&gt;
+&lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt; of my LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
+for debug.&lt;/p&gt;
 
 &lt;p&gt;I put this together to demonstrate an end-to-end hardware/firmware/software project.
 Also I wanted to evaluate &lt;a href=&quot;http://kicad-pcb.org/&quot;&gt;Kicad&lt;/a&gt; after not making a PCB for almost a decade.&lt;/p&gt;
@@ -71,19 +72,19 @@ makes it possible to quickly inspect the status of the device.&lt;/p&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;1&lt;/td&gt;
-      &lt;td&gt;not-joined&lt;/td&gt;
+      &lt;td&gt;joined and downlink received in interval&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;2&lt;/td&gt;
-      &lt;td&gt;joining&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;3&lt;/td&gt;
       &lt;td&gt;joined but no downlink received in interval&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
+      &lt;td&gt;3&lt;/td&gt;
+      &lt;td&gt;joining&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
       &lt;td&gt;4&lt;/td&gt;
-      &lt;td&gt;joined and downlink received in interval&lt;/td&gt;
+      &lt;td&gt;not-joined&lt;/td&gt;
     &lt;/tr&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
@@ -221,10 +222,15 @@ reporting.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/second_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;h4 id=&quot;problems&quot;&gt;Problems&lt;/h4&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;problemssecond-thoughts&quot;&gt;Problems/Second Thoughts&lt;/h4&gt;
 
 &lt;ul&gt;
   &lt;li&gt;There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity&lt;/li&gt;
+  &lt;li&gt;Pin assignments mean I don’t have enough external interrupts; still learning about STM32&lt;/li&gt;
+  &lt;li&gt;I want to replace the LED and schottky diodes with SOT23 footprints so that it becomes impossible to get them backwards&lt;/li&gt;
+  &lt;li&gt;Need to add speed up capacitors to UART level converter&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&quot;011&quot;&gt;0.1.1&lt;/h3&gt;
@@ -237,9 +243,7 @@ reporting.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;h4 id=&quot;problems-1&quot;&gt;Problems&lt;/h4&gt;
-
-&lt;p&gt;Thoughts I had after having this PCB made:&lt;/p&gt;
+&lt;h4 id=&quot;problemssecond-thoughts-1&quot;&gt;Problems/Second Thoughts&lt;/h4&gt;
 
 &lt;ul&gt;
   &lt;li&gt;There should be a keepout underneath the U.FL connector&lt;/li&gt;
@@ -366,7 +370,7 @@ mode.&lt;/p&gt;
 &lt;h4 id=&quot;set-log-severity-level&quot;&gt;Set-Log-Severity-Level&lt;/h4&gt;
 
 &lt;p&gt;Set the severity level for log messages pushed by Log-Message alert in accordance
-with RFC 5424.&lt;/p&gt;
+with &lt;a href=&quot;https://tools.ietf.org/html/rfc5424&quot;&gt;RFC 5424&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h3 id=&quot;alerts&quot;&gt;Alerts&lt;/h3&gt;
 

@@ -7,11 +7,12 @@ permalink: lpc
 toc: true
 ---
 
-![assembled board]({{ "/assets/first_pass_assembled.jpg" | absolute_url }}){: .center-image }
+![assembled board]({{ "/assets/lpc_0.2.0.jpg" | absolute_url }}){: .center-image }
 
 {{ table_of_contents }}
 
-Above is version [0.1.1](#011) of my LoRa Pulse Counter demonstration platform.
+Above is version [0.2.0](#020) of my LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
+for debug.
 
 I put this together to demonstrate an end-to-end hardware/firmware/software project.
 Also I wanted to evaluate [Kicad](http://kicad-pcb.org/) after not making a PCB for almost a decade.
@@ -65,10 +66,10 @@ The status codes are:
 number of flashes | status 
 ------------------|-----------------------------------------------------
 0                 | dead
-1                 | not-joined
-2                 | joining
-3                 | joined but no downlink received in interval
-4                 | joined and downlink received in interval
+1                 | joined and downlink received in interval
+2                 | joined but no downlink received in interval
+3                 | joining
+4                 | not-joined
 
 ### UART Connection
 
@@ -157,9 +158,14 @@ Changes from last revision:
 
 ![3d model]({{ "/assets/second_pass_model.png" | absolute_url }}){: .center-image }
 
-#### Problems
+![assembled board]({{ "/assets/lpc_0.2.0.jpg" | absolute_url }}){: .center-image }
+
+#### Problems/Second Thoughts
 
 - There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity
+- Pin assignments mean I don't have enough external interrupts; still learning about STM32
+- I want to replace the LED and schottky diodes with SOT23 footprints so that it becomes impossible to get them backwards
+- Need to add speed up capacitors to UART level converter
 
 ### 0.1.1
 
@@ -171,9 +177,7 @@ First revision.
 
 ![assembled board]({{ "/assets/first_pass_assembled.jpg" | absolute_url }}){: .center-image }
 
-#### Problems
-
-Thoughts I had after having this PCB made:
+#### Problems/Second Thoughts
 
 - There should be a keepout underneath the U.FL connector
 - The radio module is too far away from the U.FL connector
@@ -261,7 +265,7 @@ Return the result of performing AES-128 encryption of a zeroed block using the A
 #### Set-Log-Severity-Level
 
 Set the severity level for log messages pushed by Log-Message alert in accordance
-with RFC 5424.
+with [RFC 5424](https://tools.ietf.org/html/rfc5424).
 
 ### Alerts
 
