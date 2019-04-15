@@ -1,23 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-02-27T18:51:46+00:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-04-15T15:25:57+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt; of my LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
+&lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt; of the LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
 for debug.&lt;/p&gt;
 
-&lt;p&gt;I put this together to demonstrate an end-to-end hardware/firmware/software project.
-Also I wanted to evaluate &lt;a href=&quot;http://kicad-pcb.org/&quot;&gt;Kicad&lt;/a&gt; after not making a PCB for almost a decade.&lt;/p&gt;
+&lt;p&gt;This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
+also an opportunity to evaluate &lt;a href=&quot;http://kicad-pcb.org/&quot;&gt;Kicad&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;application&quot;&gt;Application&lt;/h2&gt;
 
-&lt;p&gt;The LoRa Pulse Counter can be used to count electrical pulses produced by flow meters 
-and/or detect level changes from switch based sensors. 
+&lt;p&gt;The LoRa Pulse Counter can be used to count electrical pulses produced by 
+instruments and/or detect level changes from switch based sensors. 
 The count and level state is sent to a remote application over LoRaWAN.&lt;/p&gt;
 
-&lt;p&gt;This is useful for:&lt;/p&gt;
+&lt;p&gt;This might seem dull but it is useful for things like:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;counting output produced by electricity meters, water meters, and other types of flow meters&lt;/li&gt;
+  &lt;li&gt;connecting electricity and water meters to the internet&lt;/li&gt;
   &lt;li&gt;tamper detection&lt;/li&gt;
-  &lt;li&gt;storage tank monitoring&lt;/li&gt;
+  &lt;li&gt;storage tank level monitoring&lt;/li&gt;
+  &lt;li&gt;interactive demonstration of LoRaWAN (push a button, see a result)&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;features&quot;&gt;Features&lt;/h2&gt;
@@ -26,15 +27,19 @@ The count and level state is sent to a remote application over LoRaWAN.&lt;/p&gt
 
 &lt;p&gt;The device uses LoRaWAN to send data to a remote application.&lt;/p&gt;
 
-&lt;p&gt;The implementation is my own. Features include:&lt;/p&gt;
+&lt;p&gt;The implementation used in this project is bespoke and not based
+on any of the existing permissively licensed projects. It has a few features
+that differentiate it from other implementations:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;low-resource design suitable for constrained devices&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://cjhdev.github.io/lora_device_lib_api/&quot;&gt;API&lt;/a&gt; documentation&lt;/li&gt;
-  &lt;li&gt;OTAA only with full support for all network configurable parameters&lt;/li&gt;
-  &lt;li&gt;runtime multi-region support&lt;/li&gt;
-  &lt;li&gt;hardware emulator for debugging against network implementations&lt;/li&gt;
+  &lt;li&gt;low-resource requirements&lt;/li&gt;
+  &lt;li&gt;portable design intended to work with low-power modes&lt;/li&gt;
+  &lt;li&gt;MISRA 2012 style&lt;/li&gt;
+  &lt;li&gt;hardware emulator for testing directly against network implementations&lt;/li&gt;
+  &lt;li&gt;sensible interfaces&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;The API documentation is available &lt;a href=&quot;https://cjhdev.github.io/lora_device_lib_api/&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h3 id=&quot;digital-inputs&quot;&gt;Digital Inputs&lt;/h3&gt;
 
@@ -44,19 +49,18 @@ dry-contact outputs.&lt;/p&gt;
 &lt;h3 id=&quot;external-pickup-power-supply&quot;&gt;External Pickup Power Supply&lt;/h3&gt;
 
 &lt;p&gt;The device can supply power to external pickups required to interface
-with different equipment. Typical external pickups include:&lt;/p&gt;
+with different equipment.&lt;/p&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;photodiode to detect a flashing LED&lt;/li&gt;
-  &lt;li&gt;hall-effect sensor to detect a rotating magnet&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;You will, for example, need to power a photodiode circuit in order to 
+detect flashing LEDs commonly found on the front panel of electricity 
+meters.&lt;/p&gt;
 
 &lt;h3 id=&quot;status-button-and-led&quot;&gt;Status Button and LED&lt;/h3&gt;
 
 &lt;p&gt;The device has a button which when pressed enables a status LED which
 makes it possible to quickly inspect the status of the device.&lt;/p&gt;
 
-&lt;p&gt;The status codes are:&lt;/p&gt;
+&lt;p&gt;The status codes are as follows:&lt;/p&gt;
 
 &lt;table&gt;
   &lt;thead&gt;
@@ -91,12 +95,12 @@ makes it possible to quickly inspect the status of the device.&lt;/p&gt;
 
 &lt;h3 id=&quot;uart-connection&quot;&gt;UART Connection&lt;/h3&gt;
 
-&lt;p&gt;The device has a level-converted UART connection to support:&lt;/p&gt;
+&lt;p&gt;The device has a level-converted UART connection to support activities like:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;commissioning&lt;/li&gt;
   &lt;li&gt;firmware update&lt;/li&gt;
-  &lt;li&gt;fault finding&lt;/li&gt;
+  &lt;li&gt;test automation&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;The connector used is a 6 pin header with the following configuration:&lt;/p&gt;
@@ -123,7 +127,7 @@ makes it possible to quickly inspect the status of the device.&lt;/p&gt;
     &lt;tr&gt;
       &lt;td&gt;3&lt;/td&gt;
       &lt;td&gt;VCC&lt;/td&gt;
-      &lt;td&gt;mandatory 3V3 or 5V; battery is still required&lt;/td&gt;
+      &lt;td&gt;mandatory 3V3 or 5V (this powers the level converter)&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;4&lt;/td&gt;
@@ -146,14 +150,17 @@ makes it possible to quickly inspect the status of the device.&lt;/p&gt;
 &lt;p&gt;This configuration is compatible with USB to serial converters
 made by FTDI, Sparkfun, and many others.&lt;/p&gt;
 
+&lt;p&gt;The &lt;a href=&quot;#uart-communication-protocol&quot;&gt;UART Communication Protocol&lt;/a&gt; runs
+over this connection.&lt;/p&gt;
+
 &lt;h3 id=&quot;battery-voltage-sensor&quot;&gt;Battery Voltage Sensor&lt;/h3&gt;
 
-&lt;p&gt;The device is able to sample battery voltage through a switched resistive
-divider. This information is made available to the remote application.&lt;/p&gt;
+&lt;p&gt;The device is able to sample battery voltage. This information is made
+available to the remote application.&lt;/p&gt;
 
 &lt;h3 id=&quot;ambient-temperature-sensor&quot;&gt;Ambient Temperature Sensor&lt;/h3&gt;
 
-&lt;p&gt;The device is able to monitor ambient temperature. This information is made available to 
+&lt;p&gt;The device is able to sample ambient temperature. This information is made available to 
 the remote application.&lt;/p&gt;
 
 &lt;h3 id=&quot;field-serviceable-primary-cell&quot;&gt;Field Serviceable Primary Cell&lt;/h3&gt;
@@ -161,107 +168,88 @@ the remote application.&lt;/p&gt;
 &lt;p&gt;The device is powered by a CR123A (Li-MnO2) primary cell which
 is installed in a PCB mounted holder.&lt;/p&gt;
 
-&lt;p&gt;Having the cell easily replaceable is useful for shipping, and for 
-allowing the device to be used in applications which require high frequency
-reporting.&lt;/p&gt;
-
-&lt;h3 id=&quot;configurable&quot;&gt;Configurable&lt;/h3&gt;
-
-&lt;p&gt;The following characteristics can be reconfigured:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;input behaviour
-    &lt;ul&gt;
-      &lt;li&gt;rising/falling/both edges&lt;/li&gt;
-      &lt;li&gt;alerting&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;reporting interval and alerting strategy&lt;/li&gt;
-  &lt;li&gt;link-check interval&lt;/li&gt;
-  &lt;li&gt;no-downlink-error interval&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;The hardware includes reverse polarity protection just in case the cell is
+installed backwards.&lt;/p&gt;
 
 &lt;h3 id=&quot;low-power-design&quot;&gt;Low Power Design&lt;/h3&gt;
 
-&lt;p&gt;The device is designed for low power consumption:&lt;/p&gt;
+&lt;p&gt;Power consumption (and battery life) depends on three things: hardware implementation,
+firmware implementation, and application requirements.&lt;/p&gt;
+
+&lt;p&gt;The hardware is designed to produce the lowest possible power consumption during active
+and sleep modes. To achieve this the following decisions were made:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;direct unregulated power supply&lt;/li&gt;
-  &lt;li&gt;switched battery voltage divider&lt;/li&gt;
-  &lt;li&gt;status LED active only when user button is pressed&lt;/li&gt;
-  &lt;li&gt;UART level converter powered by the USB to serial converter and not by the device&lt;/li&gt;
-  &lt;li&gt;event driven firmware&lt;/li&gt;
+  &lt;li&gt;UART level converter is powered by&lt;/li&gt;
+  &lt;li&gt;status LED is active only when the user requests it via the user button&lt;/li&gt;
+  &lt;li&gt;STM32L051 MCU (using LSE + HSI oscillators)&lt;/li&gt;
+  &lt;li&gt;4MHz system clock (HSI/4)&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Average power consumption depends upon:&lt;/p&gt;
+&lt;p&gt;The firmware implementation is event driven and takes advantage of the MCU “wake from stop mode”
+features. The MCU will wake from:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;external interrupts&lt;/li&gt;
+  &lt;li&gt;LPTIM backed application timer&lt;/li&gt;
+  &lt;li&gt;UART start bit&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Average power consumption then depends on the demands of the application:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;resting state of digital inputs (active-low will produce longest battery life)&lt;/li&gt;
   &lt;li&gt;frequency of pulse signals&lt;/li&gt;
-  &lt;li&gt;frequency of pulse count reporting&lt;/li&gt;
-  &lt;li&gt;alerting strategy&lt;/li&gt;
-  &lt;li&gt;link-check strategy&lt;/li&gt;
+  &lt;li&gt;frequency of pulse count reporting (configurable)&lt;/li&gt;
+  &lt;li&gt;alerting strategy (configurable)&lt;/li&gt;
+  &lt;li&gt;link-check strategy (configurable)&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;hardware-revisions&quot;&gt;Hardware Revisions&lt;/h2&gt;
+&lt;h3 id=&quot;configurable&quot;&gt;Configurable&lt;/h3&gt;
 
-&lt;h3 id=&quot;020&quot;&gt;0.2.0&lt;/h3&gt;
-
-&lt;p&gt;Changes from last revision:&lt;/p&gt;
+&lt;p&gt;While incomplete at this stage, the following characteristics are 
+intended to be configurable:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;U.FL replaced with dual SMA/U.FL footprint&lt;/li&gt;
-  &lt;li&gt;removed DIO4 and DIO5 routing&lt;/li&gt;
-  &lt;li&gt;using single inverter for UART transmit line&lt;/li&gt;
-  &lt;li&gt;removed reset button&lt;/li&gt;
-  &lt;li&gt;using larger footprints for easy soldering&lt;/li&gt;
-  &lt;li&gt;enlarged M2 mounting holes to M3&lt;/li&gt;
+  &lt;li&gt;input channel mode
+    &lt;ul&gt;
+      &lt;li&gt;counter&lt;/li&gt;
+      &lt;li&gt;alert&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;message formats
+    &lt;ul&gt;
+      &lt;li&gt;two counters&lt;/li&gt;
+      &lt;li&gt;one counter per message&lt;/li&gt;
+      &lt;li&gt;counter(s) plus alert status field&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;counter push interval&lt;/li&gt;
+  &lt;li&gt;alert notification strategy&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/second_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;lorawan-message-format&quot;&gt;LoRaWAN Message Format&lt;/h2&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/second_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;LoRaWAN messages are differentiated by port number.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;device-to-application&quot;&gt;Device-to-Application&lt;/h3&gt;
 
-&lt;h4 id=&quot;problemssecond-thoughts&quot;&gt;Problems/Second Thoughts&lt;/h4&gt;
+&lt;h4 id=&quot;two-counters-port-1&quot;&gt;Two-Counters (port 1)&lt;/h4&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity&lt;/li&gt;
-  &lt;li&gt;Pin assignments mean I don’t have enough external interrupts; still learning about STM32&lt;/li&gt;
-  &lt;li&gt;I want to replace the LED and schottky diodes with SOT23 footprints so that it becomes impossible to get them backwards&lt;/li&gt;
-  &lt;li&gt;Need to add speed up capacitors to UART level converter&lt;/li&gt;
-  &lt;li&gt;I should use a 25.4mm pin header for the SWD header instead of a special miniature header (and build my own adapter)&lt;/li&gt;
-  &lt;li&gt;The terminal block layout should really be two sets of power+signal+ground&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.itu.int/rec/T-REC-X.696/en&quot;&gt;Octet Encoding Rules X.696&lt;/a&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;011&quot;&gt;0.1.1&lt;/h3&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Two-Counters ::= SEQUENCE
+{
+    channel1    INTEGER (0..max-uint32),
+    channel2    INTEGER (0..max-uint32)
+}
 
-&lt;p&gt;First revision.&lt;/p&gt;
+max-uint32 Integer ::= 4294967295&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/first_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;uart-communication-protocol&quot;&gt;UART Communication Protocol&lt;/h2&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/first_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;problemssecond-thoughts-1&quot;&gt;Problems/Second Thoughts&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;There should be a keepout underneath the U.FL connector&lt;/li&gt;
-  &lt;li&gt;The radio module is too far away from the U.FL connector&lt;/li&gt;
-  &lt;li&gt;UART pin assignment means the STM32L051K8 cannot be swapped for the lower cost STM32L010K8&lt;/li&gt;
-  &lt;li&gt;The UART level converter power consumption could be improved by using the 
-MCU UART signal invert feature&lt;/li&gt;
-  &lt;li&gt;It is not necessary to connect radio module DIO4 and DIO5&lt;/li&gt;
-  &lt;li&gt;The reset switch is redundant&lt;/li&gt;
-  &lt;li&gt;The footprints are too small for easy soldering&lt;/li&gt;
-  &lt;li&gt;Double row storage capacitors are difficult to solder by hand&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;communication-protocol&quot;&gt;Communication Protocol&lt;/h2&gt;
-
-&lt;p&gt;A protocol is required in order to commission and manage the LoRa Pulse Counter.&lt;/p&gt;
+&lt;p&gt;The following protocol allows the device to managed over the UART connection.&lt;/p&gt;
 
 &lt;h3 id=&quot;uart-settings&quot;&gt;UART Settings&lt;/h3&gt;
 
@@ -308,7 +296,7 @@ messages and to remove start/end markers from the message payload.&lt;/p&gt;
 by an escape character followed by the original character XORed with the xor character.&lt;/p&gt;
 
 &lt;p&gt;The last two bytes of a frame is a 16 bit CRC ordered most significant byte first.
-The CRC is calculated over the payload bytes as they appear on the wire (i.e. including escape characters).&lt;/p&gt;
+The CRC is calculated over the payload bytes prior to any escaping.&lt;/p&gt;
 
 &lt;p&gt;CRC parameters are as follows:&lt;/p&gt;
 
@@ -374,6 +362,30 @@ mode.&lt;/p&gt;
 &lt;p&gt;Set the severity level for log messages pushed by Log-Message alert in accordance
 with &lt;a href=&quot;https://tools.ietf.org/html/rfc5424&quot;&gt;RFC 5424&lt;/a&gt;.&lt;/p&gt;
 
+&lt;h4 id=&quot;get-vbat-and-ambient&quot;&gt;Get-VBAT-And-Ambient&lt;/h4&gt;
+
+&lt;p&gt;Return the battery voltage and ambient temperature.&lt;/p&gt;
+
+&lt;h4 id=&quot;get-counter-one-and-get-counter-two&quot;&gt;Get-Counter-One and Get-Counter-Two&lt;/h4&gt;
+
+&lt;p&gt;Return the counter register(s).&lt;/p&gt;
+
+&lt;h4 id=&quot;clear-counter-one-and-clear-counter-two&quot;&gt;Clear-Counter-One and Clear-Counter-Two&lt;/h4&gt;
+
+&lt;p&gt;Zero the counter register(s).&lt;/p&gt;
+
+&lt;h4 id=&quot;goto-boot&quot;&gt;Goto-Boot&lt;/h4&gt;
+
+&lt;p&gt;Put device into bootloader mode.&lt;/p&gt;
+
+&lt;h4 id=&quot;goto-app&quot;&gt;Goto-App&lt;/h4&gt;
+
+&lt;p&gt;Put device into application mode.&lt;/p&gt;
+
+&lt;h4 id=&quot;boot-or-app&quot;&gt;Boot-Or-App&lt;/h4&gt;
+
+&lt;p&gt;Indicate whether device is in bootloader or application mode.&lt;/p&gt;
+
 &lt;h3 id=&quot;alerts&quot;&gt;Alerts&lt;/h3&gt;
 
 &lt;h4 id=&quot;log-alert&quot;&gt;Log-Alert&lt;/h4&gt;
@@ -404,9 +416,28 @@ BEGIN
             get-deveui              Get-DevEUI-Command,
             get-appeui              Get-AppEUI-Command,
             get-encrypted-appkey    Get-Encrypted-AppKey-Command,
-            set-log-severity-level  Set-Log-Severity-Level-Command
+            get-device-name         Get-Device-Name-Command,
+            get-device-name-max-len Get-Device-Name-Max-Len-Command,
+            set-device-name         Set-Device-Name-Command,
+            set-log-severity-level  Set-Log-Severity-Level-Command,
+            get-vbat-and-ambient    Get-VBat-And-Ambient-Command,
+            reset                   Reset-Command,
+            get-firmware-version    Get-Firmware-Version-Command,
+            
+            get-counter-one         Get-Counter-One-Command,
+            get-counter-two         Get-Counter-Two-Command,
+            
+            clear-counter-one       Clear-Counter-One-Command,
+            clear-counter-two       Clear-Counter-Two-Command,            
+        
+            erase-flash             Erase-Flash-Command,
+            write-flash             Write-Flash-Command,
+            
+            goto-boot
+            goto-app
+            boot-or-app             
         }
-    }
+    }   
     
     Response ::= SEQUENCE
     {
@@ -418,7 +449,19 @@ BEGIN
             get-deveui              Get-DevEUI-Response,
             get-appeui              Get-AppEUI-Response,
             get-encrypted-appkey    Get-Encrypted-AppKey-Response,
-            set-log-severity-level  Set-Log-severity-Level-Response
+            get-device-name         Get-Device-Name-Response,
+            get-device-name-max-len Get-Device-Name-Max-Len-Response,
+            set-device-name         Get-Device-Name-Response,
+            set-log-severity-level  Set-Log-severity-Level-Response,
+            get-vbat-and-ambient    Get-VBat-And-Ambient-Response,
+            reset                   Reset-Response,
+            get-firmware-version    Get-Firmware-Version-Response,
+            
+            get-counter-one         Get-Counter-One-Response,
+            get-counter-two         Get-Counter-Two-Response,            
+            
+            clear-counter-one       Clear-Counter-One-Response,
+            clear-counter-two       Clear-Counter-Two-Response,            
         }
     }
     
@@ -426,7 +469,25 @@ BEGIN
     {
         type CHOICE
         {
-            log                     Log-Alert
+            invalid                 Invalid-Alert,
+            not-implemented         Not-Implemented-Alert,
+              
+            log                     Log-Alert,
+            
+            reset                   Reset-Alert,
+            startup                 Startup-Alert,
+            chip-error              Chip-Error-Alert,
+            link-status             Link-Status-Alert,
+            tx-begin                TX-Begin-Alert,
+            tx-complete             TX-Complete-Alert,
+            rx1-slot                RX-Slot-Alert,
+            rx2-slot                RX-Slot-Alert,
+            downstream              Downstream-Alert,
+            join-timeout            Join-Timeout-Alert,
+            rx                      RX-Alert,
+            data-complete           Data-Complete-Alert,
+            data-timeout            Data-Timeout-Alert,
+            data-nak                Data-NAK-Alert                       
         }
     }
 
@@ -470,6 +531,34 @@ BEGIN
         encrypted-key   Key
     }
 
+    Get-Device-Name-Command         ::= Empty-Command
+    Get-Device-Name-Response        ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        device-name     VisibleString
+    }
+    
+    Get-Device-Name-Max-Len-Command     ::= Empty-Command
+    Get-Device-Name-Max-Len-Response    ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        len             INTEGER
+    }
+    
+    Set-Device-Name-Command         ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        device-name     VisibleString (SIZE(0..36)) 
+    }
+    Set-Device-Name-Response        ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        result          CHOICE {
+            ok          NULL,
+            too-long    NULL
+        }
+    }
+    
     Set-Log-Severity-Level-Command ::= SEQUENCE
     {
         counter         Invocation-Counter,
@@ -477,8 +566,122 @@ BEGIN
     }
     Set-Log-Severity-Level-Response ::= Empty-Response
 
+    Get-VBat-And-Ambient-Command ::= Empty-Command
+    Get-VBat-And-Ambient-Response ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        vbat            INTEGER,
+        ambient         INTEGER
+    }
+    
+    Reset-Command ::= Empty-Command
+    Reset-Response ::= Empty-Response
+    
+    Get-Firmware-Version-Command ::= Empty-Command
+    Get-Firmware-Version-Response ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        version         VisibleString,
+    }
+    
+    Get-Counter-One-Command ::= Empty-Command
+    Get-Counter-One-Response ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        value       INTEGER
+    }
+    
+    Get-Counter-Two-Command ::= Empty-Command
+    Get-Counter-Two-Response ::= Get-Counter-One-Response
+    
+    Clear-Counter-One-Command ::= Empty-Command
+    Clear-Counter-One-Response ::= Empty-Response
+    
+    Clear-Counter-Two-Command ::= Empty-Command
+    Clear-Counter-Two-Response ::= Empty-Response
+    
+    Erase-Flash-Command ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        password    OCTET STRING
+    }
+    Erase-Flash-Response ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        result      ENUMERATION
+        {
+            success,
+            failure
+        }
+    }
+    
+    Write-Flash-Command ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        address     INTEGER,
+        data        OCTET STRING
+    }
+    Write-Flash-Response ::= Empty-Response
+    
+    Invalid-Alert ::= NULL
+    Not-Implemented-Alert ::= Invocation-Counter
+    
     Log-Alert ::= VisibleString
-
+    
+    Reset-Alert ::= System-Time
+    Chip-Error-Alert ::= System-Time    
+    TX-Complete-Alert ::= System-Time
+    Join-Timeout-Alert ::= System-Time
+    Data-Complete-Alert ::= System-Time    
+    Data-Timeout-Alert ::= System-Time    
+    Data-NAK-Alert ::= System-Time
+    
+    Startup-Alert ::= SEQUENCE
+    {
+        time    System-Time,
+        integer entropy
+    }
+    
+    Link-Status-Alert ::= SEQUENCE
+    {
+        time    System-Time,
+        gw      INTEGER (0..255),
+        margin  INTEGER (0..255)
+    }
+    
+    TX-Begin-Alert ::= SEQUENCE
+    {
+        time    System-Time,
+        size    INTEGER (0..255),
+        freq    INTEGER (0..max-uint32),
+        sf      INTEGER,
+        bw      INTEGER,
+        power   INTEGER        
+    }
+    
+    RX1-Slot ::= SEQUENCE
+    {
+        time System-Time,        
+    }
+    
+    RX-Slot-Alert :: SEQUENCE    
+    
+    Downstream-Alert ::= SEQUENCE
+    {
+        time System-Time,
+        size    INTEGER,
+        rssi    INTEGER,
+        snr     INTEGER,        
+    }
+    
+    RX-Alert ::= SEQUENCE
+    {
+        time System-Time,
+        port INTEGER,
+        count INTEGER,
+        size INTEGER,        
+    }
+    
     #
     # useful definitions
     #
@@ -493,10 +696,65 @@ BEGIN
     EUI ::= OCTET STRING (SIZE(8))
     Key ::= OCTET STRING (SIZE(16))
     
+    System-Time ::= INTEGER (0 .. max-uint32)
+    
     max-uint32 Integer ::= 4294967295
     max-uint16 Integer ::= 65535
     
-END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
+END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;hardware-revisions&quot;&gt;Hardware Revisions&lt;/h2&gt;
+
+&lt;h3 id=&quot;020&quot;&gt;0.2.0&lt;/h3&gt;
+
+&lt;p&gt;Second revision. Changes from the last revision include:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;U.FL replaced with dual SMA/U.FL footprint&lt;/li&gt;
+  &lt;li&gt;removed DIO4 and DIO5 routing&lt;/li&gt;
+  &lt;li&gt;using single inverter for UART transmit line&lt;/li&gt;
+  &lt;li&gt;removed reset button&lt;/li&gt;
+  &lt;li&gt;using larger footprints for easy soldering&lt;/li&gt;
+  &lt;li&gt;enlarged M2 mounting holes to M3&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This revision has been used to develop the firmware. A number of 
+problems were discovered during the course of development:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity&lt;/li&gt;
+  &lt;li&gt;Pin assignments don’t take into account external interrupt multiplexing of the STM32&lt;/li&gt;
+  &lt;li&gt;The design needs speed up capacitors on the level converter&lt;/li&gt;
+  &lt;li&gt;ADC result is measured against VDD and not the reference (therefore the VDD resistor divider is not required)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/second_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/second_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;011&quot;&gt;0.1.1&lt;/h3&gt;
+
+&lt;p&gt;This was the first revision. A number of mistakes were made, namely:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There was copper (and a via!) underneath the U.FL connector&lt;/li&gt;
+  &lt;li&gt;Pin assignments mean STM32L051K8 cannot be swapped for the new lower cost STM32L010K8&lt;/li&gt;
+  &lt;li&gt;The UART level converter power consumption could be improved by using the 
+MCU UART signal invert feature&lt;/li&gt;
+  &lt;li&gt;The reset switch is redundant&lt;/li&gt;
+  &lt;li&gt;Standard footprints are too small for easy hand soldering&lt;/li&gt;
+  &lt;li&gt;Double row storage capacitors are difficult to solder by hand&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This revision was swiftly replaced with &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_design.png&quot; alt=&quot;schematic&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Yesterday I finished a &lt;a href=&quot;https://github.com/cjhdev/ruby_olm&quot;&gt;Ruby wrapper&lt;/a&gt; for Olm. 
 &lt;a href=&quot;https://git.matrix.org/git/olm/&quot;&gt;Olm&lt;/a&gt; is a protocol agnostic 

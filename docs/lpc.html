@@ -21,6 +21,20 @@
   <link rel="stylesheet" href="/assets/main.css">
   <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Cameron Harper" />
   
+    <script>
+if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-39608896-1', 'auto');
+  ga('send', 'pageview');
+}
+</script>
+  
+
+  
 </head>
 
 
@@ -94,25 +108,20 @@
 <li class="toc-entry toc-h3"><a href="#battery-voltage-sensor">Battery Voltage Sensor</a></li>
 <li class="toc-entry toc-h3"><a href="#ambient-temperature-sensor">Ambient Temperature Sensor</a></li>
 <li class="toc-entry toc-h3"><a href="#field-serviceable-primary-cell">Field Serviceable Primary Cell</a></li>
-<li class="toc-entry toc-h3"><a href="#configurable">Configurable</a></li>
 <li class="toc-entry toc-h3"><a href="#low-power-design">Low Power Design</a></li>
+<li class="toc-entry toc-h3"><a href="#configurable">Configurable</a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h2"><a href="#hardware-revisions">Hardware Revisions</a>
+<li class="toc-entry toc-h2"><a href="#lorawan-message-format">LoRaWAN Message Format</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#020">0.2.0</a>
+<li class="toc-entry toc-h3"><a href="#device-to-application">Device-to-Application</a>
 <ul>
-<li class="toc-entry toc-h4"><a href="#problemssecond-thoughts">Problems/Second Thoughts</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h3"><a href="#011">0.1.1</a>
-<ul>
-<li class="toc-entry toc-h4"><a href="#problemssecond-thoughts-1">Problems/Second Thoughts</a></li>
+<li class="toc-entry toc-h4"><a href="#two-counters-port-1">Two-Counters (port 1)</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-entry toc-h2"><a href="#communication-protocol">Communication Protocol</a>
+<li class="toc-entry toc-h2"><a href="#uart-communication-protocol">UART Communication Protocol</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#uart-settings">UART Settings</a></li>
 <li class="toc-entry toc-h3"><a href="#framing">Framing</a></li>
@@ -126,6 +135,12 @@
 <li class="toc-entry toc-h4"><a href="#get-application-eui">Get-Application-EUI</a></li>
 <li class="toc-entry toc-h4"><a href="#get-encrypted-application-key">Get-Encrypted-Application-Key</a></li>
 <li class="toc-entry toc-h4"><a href="#set-log-severity-level">Set-Log-Severity-Level</a></li>
+<li class="toc-entry toc-h4"><a href="#get-vbat-and-ambient">Get-VBAT-And-Ambient</a></li>
+<li class="toc-entry toc-h4"><a href="#get-counter-one-and-get-counter-two">Get-Counter-One and Get-Counter-Two</a></li>
+<li class="toc-entry toc-h4"><a href="#clear-counter-one-and-clear-counter-two">Clear-Counter-One and Clear-Counter-Two</a></li>
+<li class="toc-entry toc-h4"><a href="#goto-boot">Goto-Boot</a></li>
+<li class="toc-entry toc-h4"><a href="#goto-app">Goto-App</a></li>
+<li class="toc-entry toc-h4"><a href="#boot-or-app">Boot-Or-App</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h3"><a href="#alerts">Alerts</a>
@@ -136,27 +151,34 @@
 <li class="toc-entry toc-h3"><a href="#message-structure">Message Structure</a></li>
 </ul>
 </li>
+<li class="toc-entry toc-h2"><a href="#hardware-revisions">Hardware Revisions</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#020">0.2.0</a></li>
+<li class="toc-entry toc-h3"><a href="#011">0.1.1</a></li>
+</ul>
+</li>
 </ul><p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
 
-<p>Above is version <a href="#020">0.2.0</a> of my LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
+<p>Above is version <a href="#020">0.2.0</a> of the LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
 for debug.</p>
 
-<p>I put this together to demonstrate an end-to-end hardware/firmware/software project.
-Also I wanted to evaluate <a href="http://kicad-pcb.org/">Kicad</a> after not making a PCB for almost a decade.</p>
+<p>This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
+also an opportunity to evaluate <a href="http://kicad-pcb.org/">Kicad</a>.</p>
 
 <h2 id="application">
 <a id="application" class="anchor" href="#application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application</h2>
 
-<p>The LoRa Pulse Counter can be used to count electrical pulses produced by flow meters 
-and/or detect level changes from switch based sensors. 
+<p>The LoRa Pulse Counter can be used to count electrical pulses produced by 
+instruments and/or detect level changes from switch based sensors. 
 The count and level state is sent to a remote application over LoRaWAN.</p>
 
-<p>This is useful for:</p>
+<p>This might seem dull but it is useful for things like:</p>
 
 <ul>
-  <li>counting output produced by electricity meters, water meters, and other types of flow meters</li>
+  <li>connecting electricity and water meters to the internet</li>
   <li>tamper detection</li>
-  <li>storage tank monitoring</li>
+  <li>storage tank level monitoring</li>
+  <li>interactive demonstration of LoRaWAN (push a button, see a result)</li>
 </ul>
 
 <h2 id="features">
@@ -167,16 +189,19 @@ The count and level state is sent to a remote application over LoRaWAN.</p>
 
 <p>The device uses LoRaWAN to send data to a remote application.</p>
 
-<p>The implementation is my own. Features include:</p>
+<p>The implementation used in this project is bespoke and not based
+on any of the existing permissively licensed projects. It has a few features
+that differentiate it from other implementations:</p>
 
 <ul>
-  <li>low-resource design suitable for constrained devices</li>
-  <li>
-<a href="https://cjhdev.github.io/lora_device_lib_api/">API</a> documentation</li>
-  <li>OTAA only with full support for all network configurable parameters</li>
-  <li>runtime multi-region support</li>
-  <li>hardware emulator for debugging against network implementations</li>
+  <li>low-resource requirements</li>
+  <li>portable design intended to work with low-power modes</li>
+  <li>MISRA 2012 style</li>
+  <li>hardware emulator for testing directly against network implementations</li>
+  <li>sensible interfaces</li>
 </ul>
+
+<p>The API documentation is available <a href="https://cjhdev.github.io/lora_device_lib_api/">here</a>.</p>
 
 <h3 id="digital-inputs">
 <a id="digital-inputs" class="anchor" href="#digital-inputs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Digital Inputs</h3>
@@ -188,12 +213,11 @@ dry-contact outputs.</p>
 <a id="external-pickup-power-supply" class="anchor" href="#external-pickup-power-supply" aria-hidden="true"><span class="octicon octicon-link"></span></a>External Pickup Power Supply</h3>
 
 <p>The device can supply power to external pickups required to interface
-with different equipment. Typical external pickups include:</p>
+with different equipment.</p>
 
-<ul>
-  <li>photodiode to detect a flashing LED</li>
-  <li>hall-effect sensor to detect a rotating magnet</li>
-</ul>
+<p>You will, for example, need to power a photodiode circuit in order to 
+detect flashing LEDs commonly found on the front panel of electricity 
+meters.</p>
 
 <h3 id="status-button-and-led">
 <a id="status-button-and-led" class="anchor" href="#status-button-and-led" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status Button and LED</h3>
@@ -201,7 +225,7 @@ with different equipment. Typical external pickups include:</p>
 <p>The device has a button which when pressed enables a status LED which
 makes it possible to quickly inspect the status of the device.</p>
 
-<p>The status codes are:</p>
+<p>The status codes are as follows:</p>
 
 <table>
   <thead>
@@ -237,12 +261,12 @@ makes it possible to quickly inspect the status of the device.</p>
 <h3 id="uart-connection">
 <a id="uart-connection" class="anchor" href="#uart-connection" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Connection</h3>
 
-<p>The device has a level-converted UART connection to support:</p>
+<p>The device has a level-converted UART connection to support activities like:</p>
 
 <ul>
   <li>commissioning</li>
   <li>firmware update</li>
-  <li>fault finding</li>
+  <li>test automation</li>
 </ul>
 
 <p>The connector used is a 6 pin header with the following configuration:</p>
@@ -269,7 +293,7 @@ makes it possible to quickly inspect the status of the device.</p>
     <tr>
       <td>3</td>
       <td>VCC</td>
-      <td>mandatory 3V3 or 5V; battery is still required</td>
+      <td>mandatory 3V3 or 5V (this powers the level converter)</td>
     </tr>
     <tr>
       <td>4</td>
@@ -292,16 +316,19 @@ makes it possible to quickly inspect the status of the device.</p>
 <p>This configuration is compatible with USB to serial converters
 made by FTDI, Sparkfun, and many others.</p>
 
+<p>The <a href="#uart-communication-protocol">UART Communication Protocol</a> runs
+over this connection.</p>
+
 <h3 id="battery-voltage-sensor">
 <a id="battery-voltage-sensor" class="anchor" href="#battery-voltage-sensor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Battery Voltage Sensor</h3>
 
-<p>The device is able to sample battery voltage through a switched resistive
-divider. This information is made available to the remote application.</p>
+<p>The device is able to sample battery voltage. This information is made
+available to the remote application.</p>
 
 <h3 id="ambient-temperature-sensor">
 <a id="ambient-temperature-sensor" class="anchor" href="#ambient-temperature-sensor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ambient Temperature Sensor</h3>
 
-<p>The device is able to monitor ambient temperature. This information is made available to 
+<p>The device is able to sample ambient temperature. This information is made available to 
 the remote application.</p>
 
 <h3 id="field-serviceable-primary-cell">
@@ -310,115 +337,94 @@ the remote application.</p>
 <p>The device is powered by a CR123A (Li-MnO2) primary cell which
 is installed in a PCB mounted holder.</p>
 
-<p>Having the cell easily replaceable is useful for shipping, and for 
-allowing the device to be used in applications which require high frequency
-reporting.</p>
-
-<h3 id="configurable">
-<a id="configurable" class="anchor" href="#configurable" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configurable</h3>
-
-<p>The following characteristics can be reconfigured:</p>
-
-<ul>
-  <li>input behaviour
-    <ul>
-      <li>rising/falling/both edges</li>
-      <li>alerting</li>
-    </ul>
-  </li>
-  <li>reporting interval and alerting strategy</li>
-  <li>link-check interval</li>
-  <li>no-downlink-error interval</li>
-</ul>
+<p>The hardware includes reverse polarity protection just in case the cell is
+installed backwards.</p>
 
 <h3 id="low-power-design">
 <a id="low-power-design" class="anchor" href="#low-power-design" aria-hidden="true"><span class="octicon octicon-link"></span></a>Low Power Design</h3>
 
-<p>The device is designed for low power consumption:</p>
+<p>Power consumption (and battery life) depends on three things: hardware implementation,
+firmware implementation, and application requirements.</p>
+
+<p>The hardware is designed to produce the lowest possible power consumption during active
+and sleep modes. To achieve this the following decisions were made:</p>
 
 <ul>
   <li>direct unregulated power supply</li>
-  <li>switched battery voltage divider</li>
-  <li>status LED active only when user button is pressed</li>
-  <li>UART level converter powered by the USB to serial converter and not by the device</li>
-  <li>event driven firmware</li>
+  <li>UART level converter is powered by</li>
+  <li>status LED is active only when the user requests it via the user button</li>
+  <li>STM32L051 MCU (using LSE + HSI oscillators)</li>
+  <li>4MHz system clock (HSI/4)</li>
 </ul>
 
-<p>Average power consumption depends upon:</p>
+<p>The firmware implementation is event driven and takes advantage of the MCU “wake from stop mode”
+features. The MCU will wake from:</p>
+
+<ul>
+  <li>external interrupts</li>
+  <li>LPTIM backed application timer</li>
+  <li>UART start bit</li>
+</ul>
+
+<p>Average power consumption then depends on the demands of the application:</p>
 
 <ul>
   <li>resting state of digital inputs (active-low will produce longest battery life)</li>
   <li>frequency of pulse signals</li>
-  <li>frequency of pulse count reporting</li>
-  <li>alerting strategy</li>
-  <li>link-check strategy</li>
+  <li>frequency of pulse count reporting (configurable)</li>
+  <li>alerting strategy (configurable)</li>
+  <li>link-check strategy (configurable)</li>
 </ul>
 
-<h2 id="hardware-revisions">
-<a id="hardware-revisions" class="anchor" href="#hardware-revisions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware Revisions</h2>
+<h3 id="configurable">
+<a id="configurable" class="anchor" href="#configurable" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configurable</h3>
 
-<h3 id="020">
-<a id="020" class="anchor" href="#020" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.2.0</h3>
-
-<p>Changes from last revision:</p>
+<p>While incomplete at this stage, the following characteristics are 
+intended to be configurable:</p>
 
 <ul>
-  <li>U.FL replaced with dual SMA/U.FL footprint</li>
-  <li>removed DIO4 and DIO5 routing</li>
-  <li>using single inverter for UART transmit line</li>
-  <li>removed reset button</li>
-  <li>using larger footprints for easy soldering</li>
-  <li>enlarged M2 mounting holes to M3</li>
+  <li>input channel mode
+    <ul>
+      <li>counter</li>
+      <li>alert</li>
+    </ul>
+  </li>
+  <li>message formats
+    <ul>
+      <li>two counters</li>
+      <li>one counter per message</li>
+      <li>counter(s) plus alert status field</li>
+    </ul>
+  </li>
+  <li>counter push interval</li>
+  <li>alert notification strategy</li>
 </ul>
 
-<p><img src="/assets/second_pass_design.png" alt="schematic" class="center-image"></p>
+<h2 id="lorawan-message-format">
+<a id="lorawan-message-format" class="anchor" href="#lorawan-message-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>LoRaWAN Message Format</h2>
 
-<p><img src="/assets/second_pass_model.png" alt="3d model" class="center-image"></p>
+<p>LoRaWAN messages are differentiated by port number.</p>
 
-<p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
+<h3 id="device-to-application">
+<a id="device-to-application" class="anchor" href="#device-to-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Device-to-Application</h3>
 
-<h4 id="problemssecond-thoughts">
-<a id="problemssecond-thoughts" class="anchor" href="#problemssecond-thoughts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems/Second Thoughts</h4>
+<h4 id="two-counters-port-1">
+<a id="two-counters-port-1" class="anchor" href="#two-counters-port-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Two-Counters (port 1)</h4>
 
-<ul>
-  <li>There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity</li>
-  <li>Pin assignments mean I don’t have enough external interrupts; still learning about STM32</li>
-  <li>I want to replace the LED and schottky diodes with SOT23 footprints so that it becomes impossible to get them backwards</li>
-  <li>Need to add speed up capacitors to UART level converter</li>
-  <li>I should use a 25.4mm pin header for the SWD header instead of a special miniature header (and build my own adapter)</li>
-  <li>The terminal block layout should really be two sets of power+signal+ground</li>
-</ul>
+<p><a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a></p>
 
-<h3 id="011">
-<a id="011" class="anchor" href="#011" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.1.1</h3>
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Two-Counters ::= SEQUENCE
+{
+    channel1    INTEGER (0..max-uint32),
+    channel2    INTEGER (0..max-uint32)
+}
 
-<p>First revision.</p>
+max-uint32 Integer ::= 4294967295</code></pre></figure>
 
-<p><img src="/assets/first_pass_design.png" alt="schematic" class="center-image"></p>
+<h2 id="uart-communication-protocol">
+<a id="uart-communication-protocol" class="anchor" href="#uart-communication-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Communication Protocol</h2>
 
-<p><img src="/assets/first_pass_model.png" alt="3d model" class="center-image"></p>
-
-<p><img src="/assets/first_pass_assembled.jpg" alt="assembled board" class="center-image"></p>
-
-<h4 id="problemssecond-thoughts-1">
-<a id="problemssecond-thoughts-1" class="anchor" href="#problemssecond-thoughts-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problems/Second Thoughts</h4>
-
-<ul>
-  <li>There should be a keepout underneath the U.FL connector</li>
-  <li>The radio module is too far away from the U.FL connector</li>
-  <li>UART pin assignment means the STM32L051K8 cannot be swapped for the lower cost STM32L010K8</li>
-  <li>The UART level converter power consumption could be improved by using the 
-MCU UART signal invert feature</li>
-  <li>It is not necessary to connect radio module DIO4 and DIO5</li>
-  <li>The reset switch is redundant</li>
-  <li>The footprints are too small for easy soldering</li>
-  <li>Double row storage capacitors are difficult to solder by hand</li>
-</ul>
-
-<h2 id="communication-protocol">
-<a id="communication-protocol" class="anchor" href="#communication-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Communication Protocol</h2>
-
-<p>A protocol is required in order to commission and manage the LoRa Pulse Counter.</p>
+<p>The following protocol allows the device to managed over the UART connection.</p>
 
 <h3 id="uart-settings">
 <a id="uart-settings" class="anchor" href="#uart-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Settings</h3>
@@ -467,7 +473,7 @@ messages and to remove start/end markers from the message payload.</p>
 by an escape character followed by the original character XORed with the xor character.</p>
 
 <p>The last two bytes of a frame is a 16 bit CRC ordered most significant byte first.
-The CRC is calculated over the payload bytes as they appear on the wire (i.e. including escape characters).</p>
+The CRC is calculated over the payload bytes prior to any escaping.</p>
 
 <p>CRC parameters are as follows:</p>
 
@@ -542,6 +548,36 @@ mode.</p>
 <p>Set the severity level for log messages pushed by Log-Message alert in accordance
 with <a href="https://tools.ietf.org/html/rfc5424">RFC 5424</a>.</p>
 
+<h4 id="get-vbat-and-ambient">
+<a id="get-vbat-and-ambient" class="anchor" href="#get-vbat-and-ambient" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-VBAT-And-Ambient</h4>
+
+<p>Return the battery voltage and ambient temperature.</p>
+
+<h4 id="get-counter-one-and-get-counter-two">
+<a id="get-counter-one-and-get-counter-two" class="anchor" href="#get-counter-one-and-get-counter-two" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Counter-One and Get-Counter-Two</h4>
+
+<p>Return the counter register(s).</p>
+
+<h4 id="clear-counter-one-and-clear-counter-two">
+<a id="clear-counter-one-and-clear-counter-two" class="anchor" href="#clear-counter-one-and-clear-counter-two" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clear-Counter-One and Clear-Counter-Two</h4>
+
+<p>Zero the counter register(s).</p>
+
+<h4 id="goto-boot">
+<a id="goto-boot" class="anchor" href="#goto-boot" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goto-Boot</h4>
+
+<p>Put device into bootloader mode.</p>
+
+<h4 id="goto-app">
+<a id="goto-app" class="anchor" href="#goto-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goto-App</h4>
+
+<p>Put device into application mode.</p>
+
+<h4 id="boot-or-app">
+<a id="boot-or-app" class="anchor" href="#boot-or-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Boot-Or-App</h4>
+
+<p>Indicate whether device is in bootloader or application mode.</p>
+
 <h3 id="alerts">
 <a id="alerts" class="anchor" href="#alerts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Alerts</h3>
 
@@ -575,9 +611,28 @@ BEGIN
             get-deveui              Get-DevEUI-Command,
             get-appeui              Get-AppEUI-Command,
             get-encrypted-appkey    Get-Encrypted-AppKey-Command,
-            set-log-severity-level  Set-Log-Severity-Level-Command
+            get-device-name         Get-Device-Name-Command,
+            get-device-name-max-len Get-Device-Name-Max-Len-Command,
+            set-device-name         Set-Device-Name-Command,
+            set-log-severity-level  Set-Log-Severity-Level-Command,
+            get-vbat-and-ambient    Get-VBat-And-Ambient-Command,
+            reset                   Reset-Command,
+            get-firmware-version    Get-Firmware-Version-Command,
+            
+            get-counter-one         Get-Counter-One-Command,
+            get-counter-two         Get-Counter-Two-Command,
+            
+            clear-counter-one       Clear-Counter-One-Command,
+            clear-counter-two       Clear-Counter-Two-Command,            
+        
+            erase-flash             Erase-Flash-Command,
+            write-flash             Write-Flash-Command,
+            
+            goto-boot
+            goto-app
+            boot-or-app             
         }
-    }
+    }   
     
     Response ::= SEQUENCE
     {
@@ -589,7 +644,19 @@ BEGIN
             get-deveui              Get-DevEUI-Response,
             get-appeui              Get-AppEUI-Response,
             get-encrypted-appkey    Get-Encrypted-AppKey-Response,
-            set-log-severity-level  Set-Log-severity-Level-Response
+            get-device-name         Get-Device-Name-Response,
+            get-device-name-max-len Get-Device-Name-Max-Len-Response,
+            set-device-name         Get-Device-Name-Response,
+            set-log-severity-level  Set-Log-severity-Level-Response,
+            get-vbat-and-ambient    Get-VBat-And-Ambient-Response,
+            reset                   Reset-Response,
+            get-firmware-version    Get-Firmware-Version-Response,
+            
+            get-counter-one         Get-Counter-One-Response,
+            get-counter-two         Get-Counter-Two-Response,            
+            
+            clear-counter-one       Clear-Counter-One-Response,
+            clear-counter-two       Clear-Counter-Two-Response,            
         }
     }
     
@@ -597,7 +664,25 @@ BEGIN
     {
         type CHOICE
         {
-            log                     Log-Alert
+            invalid                 Invalid-Alert,
+            not-implemented         Not-Implemented-Alert,
+              
+            log                     Log-Alert,
+            
+            reset                   Reset-Alert,
+            startup                 Startup-Alert,
+            chip-error              Chip-Error-Alert,
+            link-status             Link-Status-Alert,
+            tx-begin                TX-Begin-Alert,
+            tx-complete             TX-Complete-Alert,
+            rx1-slot                RX-Slot-Alert,
+            rx2-slot                RX-Slot-Alert,
+            downstream              Downstream-Alert,
+            join-timeout            Join-Timeout-Alert,
+            rx                      RX-Alert,
+            data-complete           Data-Complete-Alert,
+            data-timeout            Data-Timeout-Alert,
+            data-nak                Data-NAK-Alert                       
         }
     }
 
@@ -641,6 +726,34 @@ BEGIN
         encrypted-key   Key
     }
 
+    Get-Device-Name-Command         ::= Empty-Command
+    Get-Device-Name-Response        ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        device-name     VisibleString
+    }
+    
+    Get-Device-Name-Max-Len-Command     ::= Empty-Command
+    Get-Device-Name-Max-Len-Response    ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        len             INTEGER
+    }
+    
+    Set-Device-Name-Command         ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        device-name     VisibleString (SIZE(0..36)) 
+    }
+    Set-Device-Name-Response        ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        result          CHOICE {
+            ok          NULL,
+            too-long    NULL
+        }
+    }
+    
     Set-Log-Severity-Level-Command ::= SEQUENCE
     {
         counter         Invocation-Counter,
@@ -648,8 +761,122 @@ BEGIN
     }
     Set-Log-Severity-Level-Response ::= Empty-Response
 
+    Get-VBat-And-Ambient-Command ::= Empty-Command
+    Get-VBat-And-Ambient-Response ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        vbat            INTEGER,
+        ambient         INTEGER
+    }
+    
+    Reset-Command ::= Empty-Command
+    Reset-Response ::= Empty-Response
+    
+    Get-Firmware-Version-Command ::= Empty-Command
+    Get-Firmware-Version-Response ::= SEQUENCE
+    {
+        counter         Invocation-Counter,
+        version         VisibleString,
+    }
+    
+    Get-Counter-One-Command ::= Empty-Command
+    Get-Counter-One-Response ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        value       INTEGER
+    }
+    
+    Get-Counter-Two-Command ::= Empty-Command
+    Get-Counter-Two-Response ::= Get-Counter-One-Response
+    
+    Clear-Counter-One-Command ::= Empty-Command
+    Clear-Counter-One-Response ::= Empty-Response
+    
+    Clear-Counter-Two-Command ::= Empty-Command
+    Clear-Counter-Two-Response ::= Empty-Response
+    
+    Erase-Flash-Command ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        password    OCTET STRING
+    }
+    Erase-Flash-Response ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        result      ENUMERATION
+        {
+            success,
+            failure
+        }
+    }
+    
+    Write-Flash-Command ::= SEQUENCE
+    {
+        counter     Invocation-Counter,
+        address     INTEGER,
+        data        OCTET STRING
+    }
+    Write-Flash-Response ::= Empty-Response
+    
+    Invalid-Alert ::= NULL
+    Not-Implemented-Alert ::= Invocation-Counter
+    
     Log-Alert ::= VisibleString
-
+    
+    Reset-Alert ::= System-Time
+    Chip-Error-Alert ::= System-Time    
+    TX-Complete-Alert ::= System-Time
+    Join-Timeout-Alert ::= System-Time
+    Data-Complete-Alert ::= System-Time    
+    Data-Timeout-Alert ::= System-Time    
+    Data-NAK-Alert ::= System-Time
+    
+    Startup-Alert ::= SEQUENCE
+    {
+        time    System-Time,
+        integer entropy
+    }
+    
+    Link-Status-Alert ::= SEQUENCE
+    {
+        time    System-Time,
+        gw      INTEGER (0..255),
+        margin  INTEGER (0..255)
+    }
+    
+    TX-Begin-Alert ::= SEQUENCE
+    {
+        time    System-Time,
+        size    INTEGER (0..255),
+        freq    INTEGER (0..max-uint32),
+        sf      INTEGER,
+        bw      INTEGER,
+        power   INTEGER        
+    }
+    
+    RX1-Slot ::= SEQUENCE
+    {
+        time System-Time,        
+    }
+    
+    RX-Slot-Alert :: SEQUENCE    
+    
+    Downstream-Alert ::= SEQUENCE
+    {
+        time System-Time,
+        size    INTEGER,
+        rssi    INTEGER,
+        snr     INTEGER,        
+    }
+    
+    RX-Alert ::= SEQUENCE
+    {
+        time System-Time,
+        port INTEGER,
+        count INTEGER,
+        size INTEGER,        
+    }
+    
     #
     # useful definitions
     #
@@ -664,11 +891,68 @@ BEGIN
     EUI ::= OCTET STRING (SIZE(8))
     Key ::= OCTET STRING (SIZE(16))
     
+    System-Time ::= INTEGER (0 .. max-uint32)
+    
     max-uint32 Integer ::= 4294967295
     max-uint16 Integer ::= 65535
     
 END</code></pre></figure>
 
+<h2 id="hardware-revisions">
+<a id="hardware-revisions" class="anchor" href="#hardware-revisions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware Revisions</h2>
+
+<h3 id="020">
+<a id="020" class="anchor" href="#020" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.2.0</h3>
+
+<p>Second revision. Changes from the last revision include:</p>
+
+<ul>
+  <li>U.FL replaced with dual SMA/U.FL footprint</li>
+  <li>removed DIO4 and DIO5 routing</li>
+  <li>using single inverter for UART transmit line</li>
+  <li>removed reset button</li>
+  <li>using larger footprints for easy soldering</li>
+  <li>enlarged M2 mounting holes to M3</li>
+</ul>
+
+<p>This revision has been used to develop the firmware. A number of 
+problems were discovered during the course of development:</p>
+
+<ul>
+  <li>There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity</li>
+  <li>Pin assignments don’t take into account external interrupt multiplexing of the STM32</li>
+  <li>The design needs speed up capacitors on the level converter</li>
+  <li>ADC result is measured against VDD and not the reference (therefore the VDD resistor divider is not required)</li>
+</ul>
+
+<p><img src="/assets/second_pass_design.png" alt="schematic" class="center-image"></p>
+
+<p><img src="/assets/second_pass_model.png" alt="3d model" class="center-image"></p>
+
+<p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
+
+<h3 id="011">
+<a id="011" class="anchor" href="#011" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.1.1</h3>
+
+<p>This was the first revision. A number of mistakes were made, namely:</p>
+
+<ul>
+  <li>There was copper (and a via!) underneath the U.FL connector</li>
+  <li>Pin assignments mean STM32L051K8 cannot be swapped for the new lower cost STM32L010K8</li>
+  <li>The UART level converter power consumption could be improved by using the 
+MCU UART signal invert feature</li>
+  <li>The reset switch is redundant</li>
+  <li>Standard footprints are too small for easy hand soldering</li>
+  <li>Double row storage capacitors are difficult to solder by hand</li>
+</ul>
+
+<p>This revision was swiftly replaced with <a href="#020">0.2.0</a>.</p>
+
+<p><img src="/assets/first_pass_design.png" alt="schematic" class="center-image"></p>
+
+<p><img src="/assets/first_pass_model.png" alt="3d model" class="center-image"></p>
+
+<p><img src="/assets/first_pass_assembled.jpg" alt="assembled board" class="center-image"></p>
 
   </div>
 
