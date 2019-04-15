@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-04-15T15:25:57+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-04-15T15:39:27+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt; of the LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
 for debug.&lt;/p&gt;
@@ -431,11 +431,7 @@ BEGIN
             clear-counter-two       Clear-Counter-Two-Command,            
         
             erase-flash             Erase-Flash-Command,
-            write-flash             Write-Flash-Command,
-            
-            goto-boot
-            goto-app
-            boot-or-app             
+            write-flash             Write-Flash-Command
         }
     }   
     
@@ -461,7 +457,7 @@ BEGIN
             get-counter-two         Get-Counter-Two-Response,            
             
             clear-counter-one       Clear-Counter-One-Response,
-            clear-counter-two       Clear-Counter-Two-Response,            
+            clear-counter-two       Clear-Counter-Two-Response            
         }
     }
     
@@ -491,9 +487,7 @@ BEGIN
         }
     }
 
-    # 
-    # Commands, Response, Alert
-    #
+    /* Commands, Response, Alert */
 
     Commission-Command  ::= SEQUENCE
     {        
@@ -581,7 +575,7 @@ BEGIN
     Get-Firmware-Version-Response ::= SEQUENCE
     {
         counter         Invocation-Counter,
-        version         VisibleString,
+        version         VisibleString
     }
     
     Get-Counter-One-Command ::= Empty-Command
@@ -638,8 +632,8 @@ BEGIN
     
     Startup-Alert ::= SEQUENCE
     {
-        time    System-Time,
-        integer entropy
+        time        System-Time,
+        entropy     INTEGER
     }
     
     Link-Status-Alert ::= SEQUENCE
@@ -661,17 +655,20 @@ BEGIN
     
     RX1-Slot ::= SEQUENCE
     {
-        time System-Time,        
+        time System-Time        
     }
     
-    RX-Slot-Alert :: SEQUENCE    
+    RX-Slot-Alert ::= SEQUENCE    
+    {
+        time System-Time        
+    }
     
     Downstream-Alert ::= SEQUENCE
     {
         time System-Time,
         size    INTEGER,
         rssi    INTEGER,
-        snr     INTEGER,        
+        snr     INTEGER        
     }
     
     RX-Alert ::= SEQUENCE
@@ -679,12 +676,10 @@ BEGIN
         time System-Time,
         port INTEGER,
         count INTEGER,
-        size INTEGER,        
+        size INTEGER        
     }
     
-    #
-    # useful definitions
-    #
+    /* useful definitions */
     
     Empty-Command ::= Empty-Response
     Empty-Response ::= SEQUENCE

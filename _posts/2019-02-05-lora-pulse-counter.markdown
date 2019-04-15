@@ -334,11 +334,7 @@ BEGIN
             clear-counter-two       Clear-Counter-Two-Command,            
         
             erase-flash             Erase-Flash-Command,
-            write-flash             Write-Flash-Command,
-            
-            goto-boot
-            goto-app
-            boot-or-app             
+            write-flash             Write-Flash-Command
         }
     }   
     
@@ -364,7 +360,7 @@ BEGIN
             get-counter-two         Get-Counter-Two-Response,            
             
             clear-counter-one       Clear-Counter-One-Response,
-            clear-counter-two       Clear-Counter-Two-Response,            
+            clear-counter-two       Clear-Counter-Two-Response            
         }
     }
     
@@ -394,9 +390,7 @@ BEGIN
         }
     }
 
-    # 
-    # Commands, Response, Alert
-    #
+    /* Commands, Response, Alert */
 
     Commission-Command  ::= SEQUENCE
     {        
@@ -484,7 +478,7 @@ BEGIN
     Get-Firmware-Version-Response ::= SEQUENCE
     {
         counter         Invocation-Counter,
-        version         VisibleString,
+        version         VisibleString
     }
     
     Get-Counter-One-Command ::= Empty-Command
@@ -541,8 +535,8 @@ BEGIN
     
     Startup-Alert ::= SEQUENCE
     {
-        time    System-Time,
-        integer entropy
+        time        System-Time,
+        entropy     INTEGER
     }
     
     Link-Status-Alert ::= SEQUENCE
@@ -564,17 +558,20 @@ BEGIN
     
     RX1-Slot ::= SEQUENCE
     {
-        time System-Time,        
+        time System-Time        
     }
     
-    RX-Slot-Alert :: SEQUENCE    
+    RX-Slot-Alert ::= SEQUENCE    
+    {
+        time System-Time        
+    }
     
     Downstream-Alert ::= SEQUENCE
     {
         time System-Time,
         size    INTEGER,
         rssi    INTEGER,
-        snr     INTEGER,        
+        snr     INTEGER        
     }
     
     RX-Alert ::= SEQUENCE
@@ -582,12 +579,10 @@ BEGIN
         time System-Time,
         port INTEGER,
         count INTEGER,
-        size INTEGER,        
+        size INTEGER        
     }
     
-    #
-    # useful definitions
-    #
+    /* useful definitions */
     
     Empty-Command ::= Empty-Response
     Empty-Response ::= SEQUENCE
