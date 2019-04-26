@@ -19,33 +19,28 @@ also an opportunity to evaluate [Kicad](http://kicad-pcb.org/).
 
 ## Application
 
-The LoRa Pulse Counter can be used to count electrical pulses produced by 
+The device can be used to count electrical pulses produced by 
 instruments and/or detect level changes from switch based sensors. 
 The count and level state is sent to a remote application over LoRaWAN.
 
-This might seem dull but it is useful for things like:
+This might seem dull but it turns out to be useful for things like:
 
 - connecting electricity and water meters to the internet
-- tamper detection
-- storage tank level monitoring
-- interactive demonstration of LoRaWAN (push a button, see a result)
+- tamper detection (e.g. someone opened a door)
+- storage tank level monitoring (e.g. float switches)
+- interactive demonstrations
 
 ## Features
 
 ### LoRaWAN
 
 The device uses LoRaWAN to send data to a remote application. 
+The stack makes use of over-the-air-activation (OTAA)
+and adapative data rate (ADR) to keep setup and operation of the device
+as simple as possible.
 
 The implementation used in this project is bespoke and not based
-on any of the existing permissively licensed projects. It has a few features
-that differentiate it from other implementations:
-
-- low-resource requirements
-- portable design intended to work with low-power modes
-- MISRA 2012 style
-- hardware emulator for testing directly against network implementations
-- sensible interfaces
-
+on any of the existing permissively licensed projects.
 The API documentation is available [here](https://cjhdev.github.io/lora_device_lib_api/).
 
 ### Digital Inputs
@@ -58,7 +53,7 @@ dry-contact outputs.
 The device can supply power to external pickups required to interface
 with different equipment.
 
-You will, for example, need to power a photodiode circuit in order to 
+You will, for example, need to power a photodiode sensor in order to 
 detect flashing LEDs commonly found on the front panel of electricity 
 meters.
 
@@ -79,13 +74,12 @@ number of flashes | status
 
 ### UART Connection
 
-The device has a level-converted UART connection to support activities like:
+The device has a level-converted UART connection for the purpose of
+performing configuration and applying updates. The level converter
+is implemented in such a way that it doesn't consume any energy from
+the battery.
 
-- commissioning
-- firmware update
-- test automation
-
-The connector used is a 6 pin header with the following configuration:
+The connector pin assignment is as follows:
 
 pin | signal    | comment
 ----|-----------|-------------------------------------------------------
@@ -96,7 +90,7 @@ pin | signal    | comment
 5   | RXD       | receive line
 6   | DTR       | not connected
 
-This configuration is compatible with USB to serial converters
+This connector is compatible with USB-to-serial converters
 made by FTDI, Sparkfun, and many others.
 
 The [UART Communication Protocol](#uart-communication-protocol) runs

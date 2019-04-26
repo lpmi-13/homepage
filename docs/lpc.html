@@ -168,17 +168,17 @@ also an opportunity to evaluate <a href="http://kicad-pcb.org/">Kicad</a>.</p>
 <h2 id="application">
 <a id="application" class="anchor" href="#application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application</h2>
 
-<p>The LoRa Pulse Counter can be used to count electrical pulses produced by 
+<p>The device can be used to count electrical pulses produced by 
 instruments and/or detect level changes from switch based sensors. 
 The count and level state is sent to a remote application over LoRaWAN.</p>
 
-<p>This might seem dull but it is useful for things like:</p>
+<p>This might seem dull but it turns out to be useful for things like:</p>
 
 <ul>
   <li>connecting electricity and water meters to the internet</li>
-  <li>tamper detection</li>
-  <li>storage tank level monitoring</li>
-  <li>interactive demonstration of LoRaWAN (push a button, see a result)</li>
+  <li>tamper detection (e.g. someone opened a door)</li>
+  <li>storage tank level monitoring (e.g. float switches)</li>
+  <li>interactive demonstrations</li>
 </ul>
 
 <h2 id="features">
@@ -187,21 +187,14 @@ The count and level state is sent to a remote application over LoRaWAN.</p>
 <h3 id="lorawan">
 <a id="lorawan" class="anchor" href="#lorawan" aria-hidden="true"><span class="octicon octicon-link"></span></a>LoRaWAN</h3>
 
-<p>The device uses LoRaWAN to send data to a remote application.</p>
+<p>The device uses LoRaWAN to send data to a remote application. 
+The stack makes use of over-the-air-activation (OTAA)
+and adapative data rate (ADR) to keep setup and operation of the device
+as simple as possible.</p>
 
 <p>The implementation used in this project is bespoke and not based
-on any of the existing permissively licensed projects. It has a few features
-that differentiate it from other implementations:</p>
-
-<ul>
-  <li>low-resource requirements</li>
-  <li>portable design intended to work with low-power modes</li>
-  <li>MISRA 2012 style</li>
-  <li>hardware emulator for testing directly against network implementations</li>
-  <li>sensible interfaces</li>
-</ul>
-
-<p>The API documentation is available <a href="https://cjhdev.github.io/lora_device_lib_api/">here</a>.</p>
+on any of the existing permissively licensed projects.
+The API documentation is available <a href="https://cjhdev.github.io/lora_device_lib_api/">here</a>.</p>
 
 <h3 id="digital-inputs">
 <a id="digital-inputs" class="anchor" href="#digital-inputs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Digital Inputs</h3>
@@ -215,7 +208,7 @@ dry-contact outputs.</p>
 <p>The device can supply power to external pickups required to interface
 with different equipment.</p>
 
-<p>You will, for example, need to power a photodiode circuit in order to 
+<p>You will, for example, need to power a photodiode sensor in order to 
 detect flashing LEDs commonly found on the front panel of electricity 
 meters.</p>
 
@@ -261,15 +254,12 @@ makes it possible to quickly inspect the status of the device.</p>
 <h3 id="uart-connection">
 <a id="uart-connection" class="anchor" href="#uart-connection" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Connection</h3>
 
-<p>The device has a level-converted UART connection to support activities like:</p>
+<p>The device has a level-converted UART connection for the purpose of
+performing configuration and applying updates. The level converter
+is implemented in such a way that it doesn’t consume any energy from
+the battery.</p>
 
-<ul>
-  <li>commissioning</li>
-  <li>firmware update</li>
-  <li>test automation</li>
-</ul>
-
-<p>The connector used is a 6 pin header with the following configuration:</p>
+<p>The connector pin assignment is as follows:</p>
 
 <table>
   <thead>
@@ -313,7 +303,7 @@ makes it possible to quickly inspect the status of the device.</p>
   </tbody>
 </table>
 
-<p>This configuration is compatible with USB to serial converters
+<p>This connector is compatible with USB-to-serial converters
 made by FTDI, Sparkfun, and many others.</p>
 
 <p>The <a href="#uart-communication-protocol">UART Communication Protocol</a> runs

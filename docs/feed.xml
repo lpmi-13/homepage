@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-04-15T15:39:27+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-04-26T17:49:00+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt; of the LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
 for debug.&lt;/p&gt;
@@ -8,38 +8,31 @@ also an opportunity to evaluate &lt;a href=&quot;http://kicad-pcb.org/&quot;&gt;
 
 &lt;h2 id=&quot;application&quot;&gt;Application&lt;/h2&gt;
 
-&lt;p&gt;The LoRa Pulse Counter can be used to count electrical pulses produced by 
+&lt;p&gt;The device can be used to count electrical pulses produced by 
 instruments and/or detect level changes from switch based sensors. 
 The count and level state is sent to a remote application over LoRaWAN.&lt;/p&gt;
 
-&lt;p&gt;This might seem dull but it is useful for things like:&lt;/p&gt;
+&lt;p&gt;This might seem dull but it turns out to be useful for things like:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;connecting electricity and water meters to the internet&lt;/li&gt;
-  &lt;li&gt;tamper detection&lt;/li&gt;
-  &lt;li&gt;storage tank level monitoring&lt;/li&gt;
-  &lt;li&gt;interactive demonstration of LoRaWAN (push a button, see a result)&lt;/li&gt;
+  &lt;li&gt;tamper detection (e.g. someone opened a door)&lt;/li&gt;
+  &lt;li&gt;storage tank level monitoring (e.g. float switches)&lt;/li&gt;
+  &lt;li&gt;interactive demonstrations&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;features&quot;&gt;Features&lt;/h2&gt;
 
 &lt;h3 id=&quot;lorawan&quot;&gt;LoRaWAN&lt;/h3&gt;
 
-&lt;p&gt;The device uses LoRaWAN to send data to a remote application.&lt;/p&gt;
+&lt;p&gt;The device uses LoRaWAN to send data to a remote application. 
+The stack makes use of over-the-air-activation (OTAA)
+and adapative data rate (ADR) to keep setup and operation of the device
+as simple as possible.&lt;/p&gt;
 
 &lt;p&gt;The implementation used in this project is bespoke and not based
-on any of the existing permissively licensed projects. It has a few features
-that differentiate it from other implementations:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;low-resource requirements&lt;/li&gt;
-  &lt;li&gt;portable design intended to work with low-power modes&lt;/li&gt;
-  &lt;li&gt;MISRA 2012 style&lt;/li&gt;
-  &lt;li&gt;hardware emulator for testing directly against network implementations&lt;/li&gt;
-  &lt;li&gt;sensible interfaces&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The API documentation is available &lt;a href=&quot;https://cjhdev.github.io/lora_device_lib_api/&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+on any of the existing permissively licensed projects.
+The API documentation is available &lt;a href=&quot;https://cjhdev.github.io/lora_device_lib_api/&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h3 id=&quot;digital-inputs&quot;&gt;Digital Inputs&lt;/h3&gt;
 
@@ -51,7 +44,7 @@ dry-contact outputs.&lt;/p&gt;
 &lt;p&gt;The device can supply power to external pickups required to interface
 with different equipment.&lt;/p&gt;
 
-&lt;p&gt;You will, for example, need to power a photodiode circuit in order to 
+&lt;p&gt;You will, for example, need to power a photodiode sensor in order to 
 detect flashing LEDs commonly found on the front panel of electricity 
 meters.&lt;/p&gt;
 
@@ -95,15 +88,12 @@ makes it possible to quickly inspect the status of the device.&lt;/p&gt;
 
 &lt;h3 id=&quot;uart-connection&quot;&gt;UART Connection&lt;/h3&gt;
 
-&lt;p&gt;The device has a level-converted UART connection to support activities like:&lt;/p&gt;
+&lt;p&gt;The device has a level-converted UART connection for the purpose of
+performing configuration and applying updates. The level converter
+is implemented in such a way that it doesn’t consume any energy from
+the battery.&lt;/p&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;commissioning&lt;/li&gt;
-  &lt;li&gt;firmware update&lt;/li&gt;
-  &lt;li&gt;test automation&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The connector used is a 6 pin header with the following configuration:&lt;/p&gt;
+&lt;p&gt;The connector pin assignment is as follows:&lt;/p&gt;
 
 &lt;table&gt;
   &lt;thead&gt;
@@ -147,7 +137,7 @@ makes it possible to quickly inspect the status of the device.&lt;/p&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;p&gt;This configuration is compatible with USB to serial converters
+&lt;p&gt;This connector is compatible with USB-to-serial converters
 made by FTDI, Sparkfun, and many others.&lt;/p&gt;
 
 &lt;p&gt;The &lt;a href=&quot;#uart-communication-protocol&quot;&gt;UART Communication Protocol&lt;/a&gt; runs
