@@ -23,9 +23,9 @@ The device can be used to count electrical pulses produced by
 instruments and/or detect level changes from switch based sensors. 
 The count and level state is sent to a remote application over LoRaWAN.
 
-This might seem dull but it turns out to be useful for things like:
+This might seem dull but it is useful for things like:
 
-- connecting electricity and water meters to the internet
+- retrofitting remote reading to existing electricity and water meters
 - tamper detection (e.g. someone opened a door)
 - storage tank level monitoring (e.g. float switches)
 - interactive demonstrations
@@ -41,21 +41,29 @@ as simple as possible.
 
 The implementation used in this project is bespoke and not based
 on any of the existing permissively licensed projects.
-The API documentation is available [here](https://cjhdev.github.io/lora_device_lib_api/).
+You can have a peek at the API documentation [here](https://cjhdev.github.io/lora_device_lib_api/).
 
 ### Digital Inputs
 
 The device has two inputs suitable for interfacing with open-collector or
 dry-contact outputs. 
 
+Each input has a configurable filter which allows the device to work with different
+types of outputs (e.g. slow bouncy contacts vs. fast digital switches). 
+
+There are three rise-time settings:
+
+1. 0.250ms (2KHz)
+2. 12.5ms (40Hz)
+3. 125ms (4Hz)
+
 ### External Pickup Power Supply
 
-The device can supply power to external pickups required to interface
-with different equipment.
+The device can supply a small amount of power to external pickups 
+required to interface with different equipment.
 
-You will, for example, need to power a photodiode sensor in order to 
-detect flashing LEDs commonly found on the front panel of electricity 
-meters.
+You may, for example, need to power a hall effect sensor in order to detect a 
+rotating magnet.
 
 ### Status Button and LED
 
@@ -148,6 +156,7 @@ Average power consumption then depends on the demands of the application:
 While incomplete at this stage, the following characteristics are 
 intended to be configurable:
 
+- input filter mode
 - input channel mode
     - counter
     - alert
@@ -597,6 +606,21 @@ END
 {% endhighlight %}
 
 ## Hardware Revisions
+
+### 0.3.0
+
+Third revision. Changes from last revision include:
+
+- clamp diodes added to UART level converter
+- mounting holes now via reinforced
+- one mounting hole can be tied to ground via resistor
+- using spring loaded terminals instead of pluggable screw type
+- keepout underneath radio module
+- improved input circuit with configurable filter and surge protection
+- 0805 packages replaced with 0603
+
+
+![3d model]({{ "/assets/third_pass_model.png" | absolute_url }}){: .center-image }
 
 ### 0.2.0
 

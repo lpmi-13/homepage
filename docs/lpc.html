@@ -153,6 +153,7 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
 </li>
 <li class="toc-entry toc-h2"><a href="#hardware-revisions">Hardware Revisions</a>
 <ul>
+<li class="toc-entry toc-h3"><a href="#030">0.3.0</a></li>
 <li class="toc-entry toc-h3"><a href="#020">0.2.0</a></li>
 <li class="toc-entry toc-h3"><a href="#011">0.1.1</a></li>
 </ul>
@@ -172,10 +173,10 @@ also an opportunity to evaluate <a href="http://kicad-pcb.org/">Kicad</a>.</p>
 instruments and/or detect level changes from switch based sensors. 
 The count and level state is sent to a remote application over LoRaWAN.</p>
 
-<p>This might seem dull but it turns out to be useful for things like:</p>
+<p>This might seem dull but it is useful for things like:</p>
 
 <ul>
-  <li>connecting electricity and water meters to the internet</li>
+  <li>retrofitting remote reading to existing electricity and water meters</li>
   <li>tamper detection (e.g. someone opened a door)</li>
   <li>storage tank level monitoring (e.g. float switches)</li>
   <li>interactive demonstrations</li>
@@ -194,7 +195,7 @@ as simple as possible.</p>
 
 <p>The implementation used in this project is bespoke and not based
 on any of the existing permissively licensed projects.
-The API documentation is available <a href="https://cjhdev.github.io/lora_device_lib_api/">here</a>.</p>
+You can have a peek at the API documentation <a href="https://cjhdev.github.io/lora_device_lib_api/">here</a>.</p>
 
 <h3 id="digital-inputs">
 <a id="digital-inputs" class="anchor" href="#digital-inputs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Digital Inputs</h3>
@@ -202,15 +203,25 @@ The API documentation is available <a href="https://cjhdev.github.io/lora_device
 <p>The device has two inputs suitable for interfacing with open-collector or
 dry-contact outputs.</p>
 
+<p>Each input has a configurable filter which allows the device to work with different
+types of outputs (e.g. slow bouncy contacts vs. fast digital switches).</p>
+
+<p>There are three rise-time settings:</p>
+
+<ol>
+  <li>0.250ms (2KHz)</li>
+  <li>12.5ms (40Hz)</li>
+  <li>125ms (4Hz)</li>
+</ol>
+
 <h3 id="external-pickup-power-supply">
 <a id="external-pickup-power-supply" class="anchor" href="#external-pickup-power-supply" aria-hidden="true"><span class="octicon octicon-link"></span></a>External Pickup Power Supply</h3>
 
-<p>The device can supply power to external pickups required to interface
-with different equipment.</p>
+<p>The device can supply a small amount of power to external pickups 
+required to interface with different equipment.</p>
 
-<p>You will, for example, need to power a photodiode sensor in order to 
-detect flashing LEDs commonly found on the front panel of electricity 
-meters.</p>
+<p>You may, for example, need to power a hall effect sensor in order to detect a 
+rotating magnet.</p>
 
 <h3 id="status-button-and-led">
 <a id="status-button-and-led" class="anchor" href="#status-button-and-led" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status Button and LED</h3>
@@ -373,6 +384,7 @@ features. The MCU will wake from:</p>
 intended to be configurable:</p>
 
 <ul>
+  <li>input filter mode</li>
   <li>input channel mode
     <ul>
       <li>counter</li>
@@ -885,6 +897,23 @@ END</code></pre></figure>
 
 <h2 id="hardware-revisions">
 <a id="hardware-revisions" class="anchor" href="#hardware-revisions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware Revisions</h2>
+
+<h3 id="030">
+<a id="030" class="anchor" href="#030" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.3.0</h3>
+
+<p>Third revision. Changes from last revision include:</p>
+
+<ul>
+  <li>clamp diodes added to UART level converter</li>
+  <li>mounting holes now via reinforced</li>
+  <li>one mounting hole can be tied to ground via resistor</li>
+  <li>using spring loaded terminals instead of pluggable screw type</li>
+  <li>keepout underneath radio module</li>
+  <li>improved input circuit with configurable filter and surge protection</li>
+  <li>0805 packages replaced with 0603</li>
+</ul>
+
+<p><img src="/assets/third_pass_model.png" alt="3d model" class="center-image"></p>
 
 <h3 id="020">
 <a id="020" class="anchor" href="#020" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.2.0</h3>
