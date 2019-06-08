@@ -116,6 +116,7 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
 <ul>
 <li class="toc-entry toc-h3"><a href="#device-to-application">Device-to-Application</a>
 <ul>
+<li class="toc-entry toc-h4"><a href="#one-counter1-port-1">One-Counter1 (port 1)</a></li>
 <li class="toc-entry toc-h4"><a href="#two-counters-port-1">Two-Counters (port 1)</a></li>
 </ul>
 </li>
@@ -125,43 +126,52 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
 <ul>
 <li class="toc-entry toc-h3"><a href="#uart-settings">UART Settings</a></li>
 <li class="toc-entry toc-h3"><a href="#framing">Framing</a></li>
-<li class="toc-entry toc-h3"><a href="#message-encoding-rules">Message Encoding Rules</a></li>
 <li class="toc-entry toc-h3"><a href="#commands">Commands</a>
 <ul>
-<li class="toc-entry toc-h4"><a href="#commission">Commission</a></li>
-<li class="toc-entry toc-h4"><a href="#join">Join</a></li>
-<li class="toc-entry toc-h4"><a href="#forget">Forget</a></li>
-<li class="toc-entry toc-h4"><a href="#get-device-eui">Get-Device-EUI</a></li>
-<li class="toc-entry toc-h4"><a href="#get-application-eui">Get-Application-EUI</a></li>
-<li class="toc-entry toc-h4"><a href="#get-encrypted-application-key">Get-Encrypted-Application-Key</a></li>
+<li class="toc-entry toc-h4"><a href="#set-dev-eui">Set-Dev-EUI</a></li>
+<li class="toc-entry toc-h4"><a href="#set-app-eui">Set-App-EUI</a></li>
+<li class="toc-entry toc-h4"><a href="#set-app-key">Set-App-Key</a></li>
+<li class="toc-entry toc-h4"><a href="#get-dev-eui">Get-Dev-EUI</a></li>
+<li class="toc-entry toc-h4"><a href="#get-app-eui">Get-App-EUI</a></li>
+<li class="toc-entry toc-h4"><a href="#get-encrypted-app-key">Get-Encrypted-App-Key</a></li>
+<li class="toc-entry toc-h4"><a href="#join-network">Join-Network</a></li>
+<li class="toc-entry toc-h4"><a href="#forget-network">Forget-Network</a></li>
 <li class="toc-entry toc-h4"><a href="#set-log-severity-level">Set-Log-Severity-Level</a></li>
 <li class="toc-entry toc-h4"><a href="#get-vbat-and-ambient">Get-VBAT-And-Ambient</a></li>
-<li class="toc-entry toc-h4"><a href="#get-counter-one-and-get-counter-two">Get-Counter-One and Get-Counter-Two</a></li>
-<li class="toc-entry toc-h4"><a href="#clear-counter-one-and-clear-counter-two">Clear-Counter-One and Clear-Counter-Two</a></li>
+<li class="toc-entry toc-h4"><a href="#get-counter">Get-Counter</a></li>
+<li class="toc-entry toc-h4"><a href="#clear-counter">Clear-Counter</a></li>
+<li class="toc-entry toc-h4"><a href="#set-pull">Set-Pull</a></li>
+<li class="toc-entry toc-h4"><a href="#set-filter">Set-Filter</a></li>
 <li class="toc-entry toc-h4"><a href="#goto-boot">Goto-Boot</a></li>
 <li class="toc-entry toc-h4"><a href="#goto-app">Goto-App</a></li>
 <li class="toc-entry toc-h4"><a href="#boot-or-app">Boot-Or-App</a></li>
+<li class="toc-entry toc-h4"><a href="#get-boot-version">Get-Boot-Version</a></li>
+<li class="toc-entry toc-h4"><a href="#get-app-version">Get-App-Version</a></li>
+<li class="toc-entry toc-h4"><a href="#restart">Restart</a></li>
+<li class="toc-entry toc-h4"><a href="#get-device-name">Get-Device-Name</a></li>
+<li class="toc-entry toc-h4"><a href="#set-device-name">Set-Device-Name</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h3"><a href="#alerts">Alerts</a>
 <ul>
-<li class="toc-entry toc-h4"><a href="#log-alert">Log-Alert</a></li>
+<li class="toc-entry toc-h4"><a href="#unknown-message">Unknown-Message</a></li>
+<li class="toc-entry toc-h4"><a href="#unknown-command">Unknown-Command</a></li>
+<li class="toc-entry toc-h4"><a href="#invalid-command-argument">Invalid-Command-Argument</a></li>
+<li class="toc-entry toc-h4"><a href="#log">Log</a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h3"><a href="#message-structure">Message Structure</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#hardware-revisions">Hardware Revisions</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#030">0.3.0</a></li>
+<li class="toc-entry toc-h3"><a href="#040">0.4.0</a></li>
 <li class="toc-entry toc-h3"><a href="#020">0.2.0</a></li>
 <li class="toc-entry toc-h3"><a href="#011">0.1.1</a></li>
 </ul>
 </li>
 </ul><p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
 
-<p>Above is version <a href="#020">0.2.0</a> of the LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
-for debug.</p>
+<p>Above is version <a href="#020">0.4.0</a> of the LoRa Pulse Counter demonstration platform.</p>
 
 <p>This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
 also an opportunity to evaluate <a href="http://kicad-pcb.org/">Kicad</a>.</p>
@@ -200,28 +210,32 @@ You can have a peek at the API documentation <a href="https://cjhdev.github.io/l
 <h3 id="digital-inputs">
 <a id="digital-inputs" class="anchor" href="#digital-inputs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Digital Inputs</h3>
 
-<p>The device has two inputs suitable for interfacing with open-collector or
-dry-contact outputs.</p>
+<p>The device has four inputs suitable for interfacing with open-collector, 
+dry-contact, or push-pull outputs. In the case of push-pull, the voltage applied
+must not exceed the battery voltage, which can be referenced from the “V+” terminals.</p>
 
-<p>Each input has a configurable filter which allows the device to work with different
-types of outputs (e.g. slow bouncy contacts vs. fast digital switches).</p>
+<p>All inputs implement the same circuit:</p>
 
-<p>There are three rise-time settings:</p>
+<p>«circuit»</p>
 
-<ol>
-  <li>0.250ms (2KHz)</li>
-  <li>12.5ms (40Hz)</li>
-  <li>125ms (4Hz)</li>
-</ol>
+<p>Rise-time of the active signal is limited to 250us the RC filter. The fall-time
+will be around 500us for open-collector outputs.</p>
+
+<p>The rise-time can be further limited by a configurable software filter. This allows
+each input to be adapted to different types of outputs (e.g. slow bouncy contacts vs. fast digital switches).</p>
+
+<p>Each input has a configurable pull up/down resistor. This is useful
+for adapting the average energy consumption to the resting state of the input
+signal.</p>
 
 <h3 id="external-pickup-power-supply">
 <a id="external-pickup-power-supply" class="anchor" href="#external-pickup-power-supply" aria-hidden="true"><span class="octicon octicon-link"></span></a>External Pickup Power Supply</h3>
 
-<p>The device can supply a small amount of power to external pickups 
-required to interface with different equipment.</p>
+<p>The device can supply a small amount of power to external sensors through
+the “V+” terminals.</p>
 
-<p>You may, for example, need to power a hall effect sensor in order to detect a 
-rotating magnet.</p>
+<p>You may, for example, need to power a photodiode detector circuit in order
+to detect a flashing LED.</p>
 
 <h3 id="status-button-and-led">
 <a id="status-button-and-led" class="anchor" href="#status-button-and-led" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status Button and LED</h3>
@@ -370,7 +384,7 @@ features. The MCU will wake from:</p>
 <p>Average power consumption then depends on the demands of the application:</p>
 
 <ul>
-  <li>resting state of digital inputs (active-low will produce longest battery life)</li>
+  <li>resting state of digital inputs (vs. the pull up/down configuration)</li>
   <li>frequency of pulse signals</li>
   <li>frequency of pulse count reporting (configurable)</li>
   <li>alerting strategy (configurable)</li>
@@ -385,10 +399,17 @@ intended to be configurable:</p>
 
 <ul>
   <li>input filter mode</li>
-  <li>input channel mode
+  <li>input trigger mode
     <ul>
-      <li>counter</li>
-      <li>alert</li>
+      <li>rising</li>
+      <li>falling</li>
+      <li>both</li>
+    </ul>
+  </li>
+  <li>input pullup/pulldown mode</li>
+  <li>alert mode
+    <ul>
+      <li>active high/low</li>
     </ul>
   </li>
   <li>message formats
@@ -410,15 +431,20 @@ intended to be configurable:</p>
 <h3 id="device-to-application">
 <a id="device-to-application" class="anchor" href="#device-to-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Device-to-Application</h3>
 
+<p><a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a></p>
+
+<h4 id="one-counter1-port-1">
+<a id="one-counter1-port-1" class="anchor" href="#one-counter1-port-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>One-Counter1 (port 1)</h4>
+
 <h4 id="two-counters-port-1">
 <a id="two-counters-port-1" class="anchor" href="#two-counters-port-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Two-Counters (port 1)</h4>
-
-<p><a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a></p>
 
 <figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Two-Counters ::= SEQUENCE
 {
     channel1    INTEGER (0..max-uint32),
     channel2    INTEGER (0..max-uint32)
+    channel3    INTEGER (0..max-uint32)
+    channel4    INTEGER (0..max-uint32)
 }
 
 max-uint32 Integer ::= 4294967295</code></pre></figure>
@@ -493,56 +519,222 @@ The CRC is calculated over the payload bytes prior to any escaping.</p>
       <td>initial value</td>
       <td>0xffff</td>
     </tr>
+    <tr>
+      <td>reflect input</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>reflect output</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>xor output</td>
+      <td>no</td>
+    </tr>
   </tbody>
 </table>
-
-<h3 id="message-encoding-rules">
-<a id="message-encoding-rules" class="anchor" href="#message-encoding-rules" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message Encoding Rules</h3>
-
-<p>Messages are encoded/decoded according to <a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a>.</p>
 
 <h3 id="commands">
 <a id="commands" class="anchor" href="#commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commands</h3>
 
-<h4 id="commission">
-<a id="commission" class="anchor" href="#commission" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commission</h4>
+<p>Commands are constructed as a sequence of a Command-Header
+followed by a command specific argument. Similarly Responses
+are constructed as a sequence of a Command-Header followed by
+a response specific Argument.</p>
 
-<p>Device shall be commissioned by writing the following values to
-non-volatile memory:</p>
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Header ::= [0] SEQUENCE 
+{
+    token   INTEGER (0..255),
+    c-id    INTEGER (0..65535)
+}
 
-<ul>
-  <li>Application EUI</li>
-  <li>Application Key</li>
-  <li>Device EUI</li>
-</ul>
+Response-Header ::= [1] SEQUENCE 
+{
+    token   INTEGER (0..255),
+    c-id    INTEGER (0..65535)
+}</code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>c-id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0x0000</td>
+      <td><a href="#boot-or-app">Boot-Or-App</a></td>
+    </tr>
+    <tr>
+      <td>0x0001</td>
+      <td><a href="#goto-boot">Goto-Boot</a></td>
+    </tr>
+    <tr>
+      <td>0x0002</td>
+      <td><a href="#goto-app">Goto-App</a></td>
+    </tr>
+    <tr>
+      <td>0x0003</td>
+      <td><a href="#restart">Restart</a></td>
+    </tr>
+    <tr>
+      <td>0x0004</td>
+      <td><a href="#get-boot-version">Get-Boot-Version</a></td>
+    </tr>
+    <tr>
+      <td>0x0005</td>
+      <td><a href="#get-app-version">Get-App-Version</a></td>
+    </tr>
+    <tr>
+      <td>0x0010</td>
+      <td><a href="#set-dev-eui">Set-Dev-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0011</td>
+      <td><a href="#set-app-eui">Set-App-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0012</td>
+      <td><a href="#set-app-key">Set-App-Key</a></td>
+    </tr>
+    <tr>
+      <td>0x0013</td>
+      <td><a href="#get-dev-eui">Get-Dev-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0014</td>
+      <td><a href="#get-app-eui">Get-App-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0015</td>
+      <td><a href="#get-encrypted-app-key">Get-Encrypted-App-Key</a></td>
+    </tr>
+    <tr>
+      <td>0x0016</td>
+      <td><a href="#join-network">Join-Network</a></td>
+    </tr>
+    <tr>
+      <td>0x0017</td>
+      <td><a href="#forget-network">Forget-Network</a></td>
+    </tr>
+    <tr>
+      <td>0x0018</td>
+      <td><a href="#get-counter">Get-Counter</a></td>
+    </tr>
+    <tr>
+      <td>0x0019</td>
+      <td><a href="#clear-counter">Clear-Counter</a></td>
+    </tr>
+    <tr>
+      <td>0x001a</td>
+      <td><a href="#set-pull">Set-Pull</a></td>
+    </tr>
+    <tr>
+      <td>0x001b</td>
+      <td><a href="#set-filter">Set-Filter</a></td>
+    </tr>
+    <tr>
+      <td>0x001c</td>
+      <td><a href="#get-device-name">Get-Device-Name</a></td>
+    </tr>
+    <tr>
+      <td>0x001d</td>
+      <td><a href="#set-device-name">Set-Device-Name</a></td>
+    </tr>
+    <tr>
+      <td>0x001e</td>
+      <td><a href="#set-log-severity-level">Set-Log-Severity-Level</a></td>
+    </tr>
+    <tr>
+      <td>0x001f</td>
+      <td><a href="#get-vbat-and-ambient">Get-Vbat-And-Ambient</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Command/Response arguments are encoded according to <a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a>.</p>
+
+<h4 id="set-dev-eui">
+<a id="set-dev-eui" class="anchor" href="#set-dev-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Dev-EUI</h4>
+
+<p>Write Dev-EUI to non-volatile memory.</p>
 
 <p>Following this the device shall forget the network and enter a non-joining
 mode.</p>
 
-<h4 id="join">
-<a id="join" class="anchor" href="#join" aria-hidden="true"><span class="octicon octicon-link"></span></a>Join</h4>
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Dev-EUI ::= OCTET STRING (SIZE(8))
+
+Response-Set-Dev-EUI ::= NULL</code></pre></figure>
+
+<h4 id="set-app-eui">
+<a id="set-app-eui" class="anchor" href="#set-app-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-App-EUI</h4>
+
+<p>Write App-EUI to non-volatile memory.</p>
+
+<p>Following this the device shall forget the network and enter a non-joining
+mode.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-App-EUI ::= OCTET STRING (SIZE(8))
+
+Response-Set-App-EUI- ::= NULL</code></pre></figure>
+
+<h4 id="set-app-key">
+<a id="set-app-key" class="anchor" href="#set-app-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-App-Key</h4>
+
+<p>Write App-Key to non-volatile memory.</p>
+
+<p>Following this the device shall forget the network and enter a non-joining
+mode.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-App-Key ::= OCTET STRING (SIZE(16))
+
+Response-Set-App-Key ::= NULL</code></pre></figure>
+
+<h4 id="get-dev-eui">
+<a id="get-dev-eui" class="anchor" href="#get-dev-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Dev-EUI</h4>
+
+<p>Return the Dev-EUI.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Dev-EUI ::= NULL
+
+Response-Get-Dev-EUI ::= OCTET STRING (SIZE(8))</code></pre></figure>
+
+<h4 id="get-app-eui">
+<a id="get-app-eui" class="anchor" href="#get-app-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-App-EUI</h4>
+
+<p>Return the App-EUI.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-App-EUI ::= NULL
+
+Response-Get-App-EUI ::= OCTET STRING (SIZE(8))</code></pre></figure>
+
+<h4 id="get-encrypted-app-key">
+<a id="get-encrypted-app-key" class="anchor" href="#get-encrypted-app-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Encrypted-App-Key</h4>
+
+<p>Return the result of performing AES-128 encryption of a zeroed block using the App-Key.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Encrypted-App-Key ::= NULL
+
+Response-Get-Encrypted-App-Key ::= OCTET STRING (SIZE(16))</code></pre></figure>
+
+<h4 id="join-network">
+<a id="join-network" class="anchor" href="#join-network" aria-hidden="true"><span class="octicon octicon-link"></span></a>Join-Network</h4>
 
 <p>Device shall forget the network and enter a joining mode.</p>
 
-<h4 id="forget">
-<a id="forget" class="anchor" href="#forget" aria-hidden="true"><span class="octicon octicon-link"></span></a>Forget</h4>
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Join ::= NULL
+
+Response-Join ::= NULL</code></pre></figure>
+
+<h4 id="forget-network">
+<a id="forget-network" class="anchor" href="#forget-network" aria-hidden="true"><span class="octicon octicon-link"></span></a>Forget-Network</h4>
 
 <p>Device shall forget the network and enter a non-joining mode.</p>
 
-<h4 id="get-device-eui">
-<a id="get-device-eui" class="anchor" href="#get-device-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Device-EUI</h4>
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Forget ::= NULL
 
-<p>Return the Device-EUI.</p>
-
-<h4 id="get-application-eui">
-<a id="get-application-eui" class="anchor" href="#get-application-eui" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Application-EUI</h4>
-
-<p>Return the Application-EUI.</p>
-
-<h4 id="get-encrypted-application-key">
-<a id="get-encrypted-application-key" class="anchor" href="#get-encrypted-application-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Encrypted-Application-Key</h4>
-
-<p>Return the result of performing AES-128 encryption of a zeroed block using the Application-Key.</p>
+Response-Forget ::= NULL</code></pre></figure>
 
 <h4 id="set-log-severity-level">
 <a id="set-log-severity-level" class="anchor" href="#set-log-severity-level" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Log-Severity-Level</h4>
@@ -550,370 +742,278 @@ mode.</p>
 <p>Set the severity level for log messages pushed by Log-Message alert in accordance
 with <a href="https://tools.ietf.org/html/rfc5424">RFC 5424</a>.</p>
 
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Log-Severity-Level ::= INTEGER (0..255)
+
+Response-Set-Log-Severity-Level ::= NULL</code></pre></figure>
+
 <h4 id="get-vbat-and-ambient">
 <a id="get-vbat-and-ambient" class="anchor" href="#get-vbat-and-ambient" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-VBAT-And-Ambient</h4>
 
 <p>Return the battery voltage and ambient temperature.</p>
 
-<h4 id="get-counter-one-and-get-counter-two">
-<a id="get-counter-one-and-get-counter-two" class="anchor" href="#get-counter-one-and-get-counter-two" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Counter-One and Get-Counter-Two</h4>
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Vbat-And-Ambient ::= NULL
 
-<p>Return the counter register(s).</p>
+Response-Get-Vbat-And-Ambient ::= SEQUENCE
+{
+    vbat INTEGER (0..65535),
+    ambient INTEGER (0..65535)
+}</code></pre></figure>
 
-<h4 id="clear-counter-one-and-clear-counter-two">
-<a id="clear-counter-one-and-clear-counter-two" class="anchor" href="#clear-counter-one-and-clear-counter-two" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clear-Counter-One and Clear-Counter-Two</h4>
+<h4 id="get-counter">
+<a id="get-counter" class="anchor" href="#get-counter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Counter</h4>
 
-<p>Zero the counter register(s).</p>
+<p>Return a counter register.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Counter ::= SEQUENCE
+{
+    index INTEGER (0..255)
+}
+
+Response-Get-Counter ::= CHOICE
+{
+    success                 INTEGER (0..4294967295),
+    index-out-of-range      NULL    
+}</code></pre></figure>
+
+<h4 id="clear-counter">
+<a id="clear-counter" class="anchor" href="#clear-counter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clear-Counter</h4>
+
+<p>Zero a counter register.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Clear-Counter ::= SEQUENCE
+{
+    index INTEGER (0..255)
+}
+
+Response-Clear-Counter ::= CHOICE
+{
+    success                 NULL,
+    index-out-of-range      NULL    
+}</code></pre></figure>
+
+<h4 id="set-pull">
+<a id="set-pull" class="anchor" href="#set-pull" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Pull</h4>
+
+<p>Set a pull-resistor.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Pull ::= SEQUENCE
+{
+    index   INTEGER (0..255),
+    setting ENUMERATED {
+    
+        pull-up,
+        pull-down    
+    }
+}
+
+Response-Set-Pull ::= CHOICE
+{
+    success                 NULL,
+    index-out-of-range      NULL,
+    setting-out-of-range    NULL    
+}</code></pre></figure>
+
+<h4 id="set-filter">
+<a id="set-filter" class="anchor" href="#set-filter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Filter</h4>
+
+<p>Set an input filter.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Filter ::= SEQUENCE
+{
+    index   INTEGER (0..255),
+    setting ENUMERATED {
+    
+        none
+    }
+}
+
+Response-Set-Filter ::= CHOICE
+{
+    success                 NULL,
+    index-out-of-range      NULL,
+    setting-out-of-range    NULL    
+}</code></pre></figure>
 
 <h4 id="goto-boot">
 <a id="goto-boot" class="anchor" href="#goto-boot" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goto-Boot</h4>
 
 <p>Put device into bootloader mode.</p>
 
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Goto-Boot ::= NULL
+
+Response-Goto-Boot ::= NULL</code></pre></figure>
+
 <h4 id="goto-app">
 <a id="goto-app" class="anchor" href="#goto-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goto-App</h4>
 
 <p>Put device into application mode.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Goto-App ::= NULL
+
+Response-Goto-App ::= NULL</code></pre></figure>
 
 <h4 id="boot-or-app">
 <a id="boot-or-app" class="anchor" href="#boot-or-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Boot-Or-App</h4>
 
 <p>Indicate whether device is in bootloader or application mode.</p>
 
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Boot-Or-App ::= NULL
+
+Response-Boot-Or-App ::= ENUMERATED { boot (0), app (1) }</code></pre></figure>
+
+<h4 id="get-boot-version">
+<a id="get-boot-version" class="anchor" href="#get-boot-version" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Boot-Version</h4>
+
+<p>Get bootloader version string.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Boot-Version ::= NULL
+
+Response-Get-Boot-Version ::= VisibleString</code></pre></figure>
+
+<h4 id="get-app-version">
+<a id="get-app-version" class="anchor" href="#get-app-version" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-App-Version</h4>
+
+<p>Get application version string.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-App-Version ::= NULL
+
+Response-Get-App-Version ::= VisibleString</code></pre></figure>
+
+<h4 id="restart">
+<a id="restart" class="anchor" href="#restart" aria-hidden="true"><span class="octicon octicon-link"></span></a>Restart</h4>
+
+<p>User request to restart the device.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Restart ::= NULL
+
+Response-Restart ::= NULL</code></pre></figure>
+
+<h4 id="get-device-name">
+<a id="get-device-name" class="anchor" href="#get-device-name" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Device-Name</h4>
+
+<p>Get the unique device name string.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Device-Name ::= NULL
+
+Response-Get-Device-Name ::= VisibleString (SIZE(0..36))</code></pre></figure>
+
+<h4 id="set-device-name">
+<a id="set-device-name" class="anchor" href="#set-device-name" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Device-Name</h4>
+
+<p>Set the unique device name string.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Device-Name ::= VisibleString (SIZE(0..36))
+
+Response-Set-Device-Name ::= CHOICE 
+{
+    success,
+    too-long
+}</code></pre></figure>
+
 <h3 id="alerts">
 <a id="alerts" class="anchor" href="#alerts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Alerts</h3>
 
-<h4 id="log-alert">
-<a id="log-alert" class="anchor" href="#log-alert" aria-hidden="true"><span class="octicon octicon-link"></span></a>Log-Alert</h4>
+<p>Alerts are constructed as a sequence of a Alert-Header
+followed by an alert specific argument</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Alert-Header ::= [2] SEQUENCE 
+{
+    a-id    INTEGER (0..65535)
+}</code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>a-id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0x0000</td>
+      <td><a href="#unknown-message">Unknown-Message</a></td>
+    </tr>
+    <tr>
+      <td>0x0001</td>
+      <td><a href="#unknown-command">Unknown-Command</a></td>
+    </tr>
+    <tr>
+      <td>0x0002</td>
+      <td><a href="#invalid-command-argument">Invalid-Command-Argument</a></td>
+    </tr>
+    <tr>
+      <td>0x0010</td>
+      <td><a href="#log">Log</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Alert arguments are encoded according to <a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a>.</p>
+
+<h4 id="unknown-message">
+<a id="unknown-message" class="anchor" href="#unknown-message" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unknown-Message</h4>
+
+<p>Pushed by device which has received a series of bytes which do
+not match any expected patterns.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Alert-Unkown-Message ::= NULL</code></pre></figure>
+
+<h4 id="unknown-command">
+<a id="unknown-command" class="anchor" href="#unknown-command" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unknown-Command</h4>
+
+<p>Pushed by a device which has decoded an unimplemented c-id.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Alert-Unknown-Command ::= SEQUENCE
+{
+    token INTEGER (0..255),
+    c-id  INTEGER (0..65535)
+}</code></pre></figure>
+
+<h4 id="invalid-command-argument">
+<a id="invalid-command-argument" class="anchor" href="#invalid-command-argument" aria-hidden="true"><span class="octicon octicon-link"></span></a>Invalid-Command-Argument</h4>
+
+<p>Pushed by a device which has decoded an invalid c-id specific argument.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Alert-Invalid-Command-Argument ::= SEQUENCE 
+{
+    token INTEGER (0..255),
+    c-id  INTEGER (0..65535)
+}</code></pre></figure>
+
+<h4 id="log">
+<a id="log" class="anchor" href="#log" aria-hidden="true"><span class="octicon octicon-link"></span></a>Log</h4>
 
 <p>Used to push logging messages to a client depending on the severity level
-set by the Set-Log-Severity-Level command.</p>
+set by <a href="#set-log-severity-level">Set-Log-Severity-Level</a> command.</p>
 
-<h3 id="message-structure">
-<a id="message-structure" class="anchor" href="#message-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message Structure</h3>
-
-<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Pulse-Counter-Protocol
-DEFINITIONS ::=
-BEGIN
-     
-    PDU ::= CHOICE 
-    {
-        command     Command,
-        response    Response,
-        alert       Alert
-    }
-
-    Command ::= SEQUENCE
-    {
-        type CHOICE 
-        {    
-            commission              Commission-Command,
-            join                    Join-Command,
-            forget                  Forget-Command,
-            get-deveui              Get-DevEUI-Command,
-            get-appeui              Get-AppEUI-Command,
-            get-encrypted-appkey    Get-Encrypted-AppKey-Command,
-            get-device-name         Get-Device-Name-Command,
-            get-device-name-max-len Get-Device-Name-Max-Len-Command,
-            set-device-name         Set-Device-Name-Command,
-            set-log-severity-level  Set-Log-Severity-Level-Command,
-            get-vbat-and-ambient    Get-VBat-And-Ambient-Command,
-            reset                   Reset-Command,
-            get-firmware-version    Get-Firmware-Version-Command,
-            
-            get-counter-one         Get-Counter-One-Command,
-            get-counter-two         Get-Counter-Two-Command,
-            
-            clear-counter-one       Clear-Counter-One-Command,
-            clear-counter-two       Clear-Counter-Two-Command,            
-        
-            erase-flash             Erase-Flash-Command,
-            write-flash             Write-Flash-Command
-        }
-    }   
-    
-    Response ::= SEQUENCE
-    {
-        type CHOICE
-        {
-            commission              Commission-Response,
-            join                    Join-Response,
-            forget                  Forget-Response,
-            get-deveui              Get-DevEUI-Response,
-            get-appeui              Get-AppEUI-Response,
-            get-encrypted-appkey    Get-Encrypted-AppKey-Response,
-            get-device-name         Get-Device-Name-Response,
-            get-device-name-max-len Get-Device-Name-Max-Len-Response,
-            set-device-name         Get-Device-Name-Response,
-            set-log-severity-level  Set-Log-severity-Level-Response,
-            get-vbat-and-ambient    Get-VBat-And-Ambient-Response,
-            reset                   Reset-Response,
-            get-firmware-version    Get-Firmware-Version-Response,
-            
-            get-counter-one         Get-Counter-One-Response,
-            get-counter-two         Get-Counter-Two-Response,            
-            
-            clear-counter-one       Clear-Counter-One-Response,
-            clear-counter-two       Clear-Counter-Two-Response            
-        }
-    }
-    
-    Alert ::= SEQUENCE
-    {
-        type CHOICE
-        {
-            invalid                 Invalid-Alert,
-            not-implemented         Not-Implemented-Alert,
-              
-            log                     Log-Alert,
-            
-            reset                   Reset-Alert,
-            startup                 Startup-Alert,
-            chip-error              Chip-Error-Alert,
-            link-status             Link-Status-Alert,
-            tx-begin                TX-Begin-Alert,
-            tx-complete             TX-Complete-Alert,
-            rx1-slot                RX-Slot-Alert,
-            rx2-slot                RX-Slot-Alert,
-            downstream              Downstream-Alert,
-            join-timeout            Join-Timeout-Alert,
-            rx                      RX-Alert,
-            data-complete           Data-Complete-Alert,
-            data-timeout            Data-Timeout-Alert,
-            data-nak                Data-NAK-Alert                       
-        }
-    }
-
-    /* Commands, Response, Alert */
-
-    Commission-Command  ::= SEQUENCE
-    {        
-        counter Invocation-Counter,
-        app-eui EUI,
-        dev-eui EUI,
-        app-key Key
-    }
-    Commission-Response ::= Empty-Response
-    
-    Join-Command    ::= Empty-Command
-    Join-Response   ::= Empty-Response
-    
-    Forget-Command  ::= Empty-Command
-    Forget-Response ::= Empty-Response
-    
-    Get-AppEUI-Command  ::= Empty-Command
-    Get-AppEUI-Response ::= SEQUENCE
-    {
-        counter Invocation-Counter,
-        eui     EUI
-    }
-    
-    Get-DevEUI-Command  ::= Empty-Command
-    Get-DevEUI-Response ::= SEQUENCE
-    {
-        counter Invocation-Counter,
-        eui     EUI
-    }
-    
-    Get-Encrypted-AppKey-Command    ::= Empty-Command
-    Get-Encrypted-AppKey-Response   ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        encrypted-key   Key
-    }
-
-    Get-Device-Name-Command         ::= Empty-Command
-    Get-Device-Name-Response        ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        device-name     VisibleString
-    }
-    
-    Get-Device-Name-Max-Len-Command     ::= Empty-Command
-    Get-Device-Name-Max-Len-Response    ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        len             INTEGER
-    }
-    
-    Set-Device-Name-Command         ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        device-name     VisibleString (SIZE(0..36)) 
-    }
-    Set-Device-Name-Response        ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        result          CHOICE {
-            ok          NULL,
-            too-long    NULL
-        }
-    }
-    
-    Set-Log-Severity-Level-Command ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        severity-level  INTEGER (0..7)
-    }
-    Set-Log-Severity-Level-Response ::= Empty-Response
-
-    Get-VBat-And-Ambient-Command ::= Empty-Command
-    Get-VBat-And-Ambient-Response ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        vbat            INTEGER,
-        ambient         INTEGER
-    }
-    
-    Reset-Command ::= Empty-Command
-    Reset-Response ::= Empty-Response
-    
-    Get-Firmware-Version-Command ::= Empty-Command
-    Get-Firmware-Version-Response ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        version         VisibleString
-    }
-    
-    Get-Counter-One-Command ::= Empty-Command
-    Get-Counter-One-Response ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        value       INTEGER
-    }
-    
-    Get-Counter-Two-Command ::= Empty-Command
-    Get-Counter-Two-Response ::= Get-Counter-One-Response
-    
-    Clear-Counter-One-Command ::= Empty-Command
-    Clear-Counter-One-Response ::= Empty-Response
-    
-    Clear-Counter-Two-Command ::= Empty-Command
-    Clear-Counter-Two-Response ::= Empty-Response
-    
-    Erase-Flash-Command ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        password    OCTET STRING
-    }
-    Erase-Flash-Response ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        result      ENUMERATION
-        {
-            success,
-            failure
-        }
-    }
-    
-    Write-Flash-Command ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        address     INTEGER,
-        data        OCTET STRING
-    }
-    Write-Flash-Response ::= Empty-Response
-    
-    Invalid-Alert ::= NULL
-    Not-Implemented-Alert ::= Invocation-Counter
-    
-    Log-Alert ::= VisibleString
-    
-    Reset-Alert ::= System-Time
-    Chip-Error-Alert ::= System-Time    
-    TX-Complete-Alert ::= System-Time
-    Join-Timeout-Alert ::= System-Time
-    Data-Complete-Alert ::= System-Time    
-    Data-Timeout-Alert ::= System-Time    
-    Data-NAK-Alert ::= System-Time
-    
-    Startup-Alert ::= SEQUENCE
-    {
-        time        System-Time,
-        entropy     INTEGER
-    }
-    
-    Link-Status-Alert ::= SEQUENCE
-    {
-        time    System-Time,
-        gw      INTEGER (0..255),
-        margin  INTEGER (0..255)
-    }
-    
-    TX-Begin-Alert ::= SEQUENCE
-    {
-        time    System-Time,
-        size    INTEGER (0..255),
-        freq    INTEGER (0..max-uint32),
-        sf      INTEGER,
-        bw      INTEGER,
-        power   INTEGER        
-    }
-    
-    RX1-Slot ::= SEQUENCE
-    {
-        time System-Time        
-    }
-    
-    RX-Slot-Alert ::= SEQUENCE    
-    {
-        time System-Time        
-    }
-    
-    Downstream-Alert ::= SEQUENCE
-    {
-        time System-Time,
-        size    INTEGER,
-        rssi    INTEGER,
-        snr     INTEGER        
-    }
-    
-    RX-Alert ::= SEQUENCE
-    {
-        time System-Time,
-        port INTEGER,
-        count INTEGER,
-        size INTEGER        
-    }
-    
-    /* useful definitions */
-    
-    Empty-Command ::= Empty-Response
-    Empty-Response ::= SEQUENCE
-    {
-        counter Invocation-Counter
-    }
-    
-    Invocation-Counter ::= INTEGER (0..max-uint8)
-    EUI ::= OCTET STRING (SIZE(8))
-    Key ::= OCTET STRING (SIZE(16))
-    
-    System-Time ::= INTEGER (0 .. max-uint32)
-    
-    max-uint32 Integer ::= 4294967295
-    max-uint16 Integer ::= 65535
-    
-END</code></pre></figure>
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Alert-Log ::= SEQUENCE
+{
+    level   INTEGER (0..255),
+    message VisibleString
+}</code></pre></figure>
 
 <h2 id="hardware-revisions">
 <a id="hardware-revisions" class="anchor" href="#hardware-revisions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware Revisions</h2>
 
-<h3 id="030">
-<a id="030" class="anchor" href="#030" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.3.0</h3>
+<h3 id="040">
+<a id="040" class="anchor" href="#040" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.4.0</h3>
 
 <p>Third revision. Changes from last revision include:</p>
 
 <ul>
-  <li>clamp diodes added to UART level converter</li>
-  <li>mounting holes now via reinforced</li>
-  <li>one mounting hole can be tied to ground via resistor</li>
-  <li>using spring loaded terminals instead of pluggable screw type</li>
+  <li>clamp diodes and TVS surge protection added to UART level converter</li>
+  <li>via reinforced mounting holes with optional chassis ground</li>
+  <li>optional external button header</li>
+  <li>simplified input circuit with TVS diode for surge protection</li>
+  <li>four inputs (up from two) each with configurable pull up/down resistors</li>
   <li>keepout underneath radio module</li>
-  <li>improved input circuit with configurable filter and surge protection</li>
   <li>0805 packages replaced with 0603</li>
+  <li>larger pitch 6 way SWD header</li>
 </ul>
 
 <p><img src="/assets/third_pass_model.png" alt="3d model" class="center-image"></p>
+
+<p><img src="/assets/third_pass_model_back.png" alt="3d model" class="center-image"></p>
 
 <h3 id="020">
 <a id="020" class="anchor" href="#020" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.2.0</h3>
@@ -939,8 +1039,6 @@ problems were discovered during the course of development:</p>
   <li>ADC result is measured against VDD and not the reference (therefore the VDD resistor divider is not required)</li>
 </ul>
 
-<p><img src="/assets/second_pass_design.png" alt="schematic" class="center-image"></p>
-
 <p><img src="/assets/second_pass_model.png" alt="3d model" class="center-image"></p>
 
 <p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
@@ -961,8 +1059,6 @@ MCU UART signal invert feature</li>
 </ul>
 
 <p>This revision was swiftly replaced with <a href="#020">0.2.0</a>.</p>
-
-<p><img src="/assets/first_pass_design.png" alt="schematic" class="center-image"></p>
 
 <p><img src="/assets/first_pass_model.png" alt="3d model" class="center-image"></p>
 

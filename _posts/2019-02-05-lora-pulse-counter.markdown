@@ -11,8 +11,7 @@ toc: true
 
 {{ table_of_contents }}
 
-Above is version [0.2.0](#020) of the LoRa Pulse Counter demonstration platform. The red and black wires are fitted only
-for debug.
+Above is version [0.4.0](#020) of the LoRa Pulse Counter demonstration platform. 
 
 This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
 also an opportunity to evaluate [Kicad](http://kicad-pcb.org/).
@@ -45,25 +44,31 @@ You can have a peek at the API documentation [here](https://cjhdev.github.io/lor
 
 ### Digital Inputs
 
-The device has two inputs suitable for interfacing with open-collector or
-dry-contact outputs. 
+The device has four inputs suitable for interfacing with open-collector, 
+dry-contact, or push-pull outputs. In the case of push-pull, the voltage applied
+must not exceed the battery voltage, which can be referenced from the "V+" terminals.
 
-Each input has a configurable filter which allows the device to work with different
-types of outputs (e.g. slow bouncy contacts vs. fast digital switches). 
+All inputs implement the same circuit:
 
-There are three rise-time settings:
+<<circuit>>
 
-1. 0.250ms (2KHz)
-2. 12.5ms (40Hz)
-3. 125ms (4Hz)
+Rise-time of the active signal is limited to 250us the RC filter. The fall-time
+will be around 500us for open-collector outputs.
+
+The rise-time can be further limited by a configurable software filter. This allows
+each input to be adapted to different types of outputs (e.g. slow bouncy contacts vs. fast digital switches).
+
+Each input has a configurable pull up/down resistor. This is useful
+for adapting the average energy consumption to the resting state of the input
+signal. 
 
 ### External Pickup Power Supply
 
-The device can supply a small amount of power to external pickups 
-required to interface with different equipment.
+The device can supply a small amount of power to external sensors through
+the "V+" terminals. 
 
-You may, for example, need to power a hall effect sensor in order to detect a 
-rotating magnet.
+You may, for example, need to power a photodiode detector circuit in order
+to detect a flashing LED.
 
 ### Status Button and LED
 
@@ -145,7 +150,7 @@ features. The MCU will wake from:
 
 Average power consumption then depends on the demands of the application:
 
-- resting state of digital inputs (active-low will produce longest battery life)
+- resting state of digital inputs (vs. the pull up/down configuration)
 - frequency of pulse signals
 - frequency of pulse count reporting (configurable)
 - alerting strategy (configurable)
@@ -157,9 +162,13 @@ While incomplete at this stage, the following characteristics are
 intended to be configurable:
 
 - input filter mode
-- input channel mode
-    - counter
-    - alert
+- input trigger mode
+    - rising
+    - falling
+    - both
+- input pullup/pulldown mode
+- alert mode
+    - active high/low
 - message formats
     - two counters
     - one counter per message
@@ -173,15 +182,19 @@ LoRaWAN messages are differentiated by port number.
 
 ### Device-to-Application
 
-#### Two-Counters (port 1)
-
 [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en)
+
+#### One-Counter1 (port 1)
+
+#### Two-Counters (port 1)
 
 {% highlight asn1 %}
 Two-Counters ::= SEQUENCE
 {
     channel1    INTEGER (0..max-uint32),
     channel2    INTEGER (0..max-uint32)
+    channel3    INTEGER (0..max-uint32)
+    channel4    INTEGER (0..max-uint32)
 }
 
 max-uint32 Integer ::= 4294967295
@@ -223,404 +236,422 @@ CRC parameters are as follows:
 | name          | CRC-16-CCITT |
 | polynomial    | 0x1021 |
 | initial value | 0xffff |
-
-### Message Encoding Rules
-
-Messages are encoded/decoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
+| reflect input | no |
+| reflect output | no |
+| xor output | no |
 
 ### Commands
 
-#### Commission
+Commands are constructed as a sequence of a Command-Header
+followed by a command specific argument. Similarly Responses
+are constructed as a sequence of a Command-Header followed by
+a response specific Argument.
 
-Device shall be commissioned by writing the following values to
-non-volatile memory:
+{% highlight asn1 %}
+Command-Header ::= [0] SEQUENCE 
+{
+    token   INTEGER (0..255),
+    c-id    INTEGER (0..65535)
+}
 
-- Application EUI
-- Application Key
-- Device EUI
+Response-Header ::= [1] SEQUENCE 
+{
+    token   INTEGER (0..255),
+    c-id    INTEGER (0..65535)
+}
+{% endhighlight %}
+
+
+| c-id     | name
+|--------|-------
+| 0x0000 | [Boot-Or-App](#boot-or-app)
+| 0x0001 | [Goto-Boot](#goto-boot)
+| 0x0002 | [Goto-App](#goto-app)
+| 0x0003 | [Restart](#restart)
+| 0x0004 | [Get-Boot-Version](#get-boot-version)
+| 0x0005 | [Get-App-Version](#get-app-version)
+| 0x0010 | [Set-Dev-EUI](#set-dev-eui)
+| 0x0011 | [Set-App-EUI](#set-app-eui)
+| 0x0012 | [Set-App-Key](#set-app-key)
+| 0x0013 | [Get-Dev-EUI](#get-dev-eui)
+| 0x0014 | [Get-App-EUI](#get-app-eui)
+| 0x0015 | [Get-Encrypted-App-Key](#get-encrypted-app-key)
+| 0x0016 | [Join-Network](#join-network)
+| 0x0017 | [Forget-Network](#forget-network)
+| 0x0018 | [Get-Counter](#get-counter)
+| 0x0019 | [Clear-Counter](#clear-counter)
+| 0x001a | [Set-Pull](#set-pull)
+| 0x001b | [Set-Filter](#set-filter)
+| 0x001c | [Get-Device-Name](#get-device-name)
+| 0x001d | [Set-Device-Name](#set-device-name)
+| 0x001e | [Set-Log-Severity-Level](#set-log-severity-level)
+| 0x001f | [Get-Vbat-And-Ambient](#get-vbat-and-ambient)
+
+
+Command/Response arguments are encoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
+
+#### Set-Dev-EUI
+
+Write Dev-EUI to non-volatile memory. 
 
 Following this the device shall forget the network and enter a non-joining
 mode.
 
-#### Join
+{% highlight asn1 %}
+Command-Set-Dev-EUI ::= OCTET STRING (SIZE(8))
+
+Response-Set-Dev-EUI ::= NULL
+{% endhighlight %}
+
+#### Set-App-EUI
+
+Write App-EUI to non-volatile memory. 
+
+Following this the device shall forget the network and enter a non-joining
+mode.
+
+{% highlight asn1 %}
+Command-Set-App-EUI ::= OCTET STRING (SIZE(8))
+
+Response-Set-App-EUI- ::= NULL
+{% endhighlight %}
+
+#### Set-App-Key
+
+Write App-Key to non-volatile memory. 
+
+Following this the device shall forget the network and enter a non-joining
+mode.
+
+{% highlight asn1 %}
+Command-Set-App-Key ::= OCTET STRING (SIZE(16))
+
+Response-Set-App-Key ::= NULL
+{% endhighlight %}
+
+#### Get-Dev-EUI
+
+Return the Dev-EUI.
+
+{% highlight asn1 %}
+Command-Get-Dev-EUI ::= NULL
+
+Response-Get-Dev-EUI ::= OCTET STRING (SIZE(8))
+{% endhighlight %}
+
+#### Get-App-EUI
+
+Return the App-EUI.
+
+{% highlight asn1 %}
+Command-Get-App-EUI ::= NULL
+
+Response-Get-App-EUI ::= OCTET STRING (SIZE(8))
+{% endhighlight %}
+
+#### Get-Encrypted-App-Key
+
+Return the result of performing AES-128 encryption of a zeroed block using the App-Key.
+
+{% highlight asn1 %}
+Command-Get-Encrypted-App-Key ::= NULL
+
+Response-Get-Encrypted-App-Key ::= OCTET STRING (SIZE(16))
+{% endhighlight %}
+
+#### Join-Network
 
 Device shall forget the network and enter a joining mode.
 
-#### Forget
+{% highlight asn1 %}
+Command-Join ::= NULL
+
+Response-Join ::= NULL
+{% endhighlight %}
+
+#### Forget-Network
 
 Device shall forget the network and enter a non-joining mode.
 
-#### Get-Device-EUI
+{% highlight asn1 %}
+Command-Forget ::= NULL
 
-Return the Device-EUI.
-
-#### Get-Application-EUI
-
-Return the Application-EUI.
-
-#### Get-Encrypted-Application-Key
-
-Return the result of performing AES-128 encryption of a zeroed block using the Application-Key.
+Response-Forget ::= NULL
+{% endhighlight %}
 
 #### Set-Log-Severity-Level
 
 Set the severity level for log messages pushed by Log-Message alert in accordance
 with [RFC 5424](https://tools.ietf.org/html/rfc5424).
 
+{% highlight asn1 %}
+Command-Set-Log-Severity-Level ::= INTEGER (0..255)
+
+Response-Set-Log-Severity-Level ::= NULL
+{% endhighlight %}
+
 #### Get-VBAT-And-Ambient
 
 Return the battery voltage and ambient temperature.
 
-#### Get-Counter-One and Get-Counter-Two
+{% highlight asn1 %}
+Command-Get-Vbat-And-Ambient ::= NULL
 
-Return the counter register(s).
+Response-Get-Vbat-And-Ambient ::= SEQUENCE
+{
+    vbat INTEGER (0..65535),
+    ambient INTEGER (0..65535)
+}
+{% endhighlight %}
 
-#### Clear-Counter-One and Clear-Counter-Two
+#### Get-Counter
 
-Zero the counter register(s).
+Return a counter register.
+
+{% highlight asn1 %}
+Command-Get-Counter ::= SEQUENCE
+{
+    index INTEGER (0..255)
+}
+
+Response-Get-Counter ::= CHOICE
+{
+    success                 INTEGER (0..4294967295),
+    index-out-of-range      NULL    
+}
+{% endhighlight %}
+
+#### Clear-Counter
+
+Zero a counter register.
+
+{% highlight asn1 %}
+Command-Clear-Counter ::= SEQUENCE
+{
+    index INTEGER (0..255)
+}
+
+Response-Clear-Counter ::= CHOICE
+{
+    success                 NULL,
+    index-out-of-range      NULL    
+}
+{% endhighlight %}
+
+#### Set-Pull
+
+Set a pull-resistor.
+
+{% highlight asn1 %}
+Command-Set-Pull ::= SEQUENCE
+{
+    index   INTEGER (0..255),
+    setting ENUMERATED {
+    
+        pull-up,
+        pull-down    
+    }
+}
+
+Response-Set-Pull ::= CHOICE
+{
+    success                 NULL,
+    index-out-of-range      NULL,
+    setting-out-of-range    NULL    
+}
+{% endhighlight %}
+
+#### Set-Filter
+
+Set an input filter.
+
+{% highlight asn1 %}
+Command-Set-Filter ::= SEQUENCE
+{
+    index   INTEGER (0..255),
+    setting ENUMERATED {
+    
+        none
+    }
+}
+
+Response-Set-Filter ::= CHOICE
+{
+    success                 NULL,
+    index-out-of-range      NULL,
+    setting-out-of-range    NULL    
+}
+{% endhighlight %}
 
 #### Goto-Boot
 
 Put device into bootloader mode.
 
+{% highlight asn1 %}
+Command-Goto-Boot ::= NULL
+
+Response-Goto-Boot ::= NULL
+{% endhighlight %}
+
 #### Goto-App
 
 Put device into application mode.
+
+{% highlight asn1 %}
+Command-Goto-App ::= NULL
+
+Response-Goto-App ::= NULL
+{% endhighlight %}
 
 #### Boot-Or-App
 
 Indicate whether device is in bootloader or application mode.
 
-### Alerts
+{% highlight asn1 %}
+Command-Boot-Or-App ::= NULL
 
-#### Log-Alert
+Response-Boot-Or-App ::= ENUMERATED { boot (0), app (1) }
+{% endhighlight %}
 
-Used to push logging messages to a client depending on the severity level
-set by the Set-Log-Severity-Level command.
+#### Get-Boot-Version
 
-### Message Structure
+Get bootloader version string.
 
 {% highlight asn1 %}
-Pulse-Counter-Protocol
-DEFINITIONS ::=
-BEGIN
-     
-    PDU ::= CHOICE 
-    {
-        command     Command,
-        response    Response,
-        alert       Alert
-    }
+Command-Get-Boot-Version ::= NULL
 
-    Command ::= SEQUENCE
-    {
-        type CHOICE 
-        {    
-            commission              Commission-Command,
-            join                    Join-Command,
-            forget                  Forget-Command,
-            get-deveui              Get-DevEUI-Command,
-            get-appeui              Get-AppEUI-Command,
-            get-encrypted-appkey    Get-Encrypted-AppKey-Command,
-            get-device-name         Get-Device-Name-Command,
-            get-device-name-max-len Get-Device-Name-Max-Len-Command,
-            set-device-name         Set-Device-Name-Command,
-            set-log-severity-level  Set-Log-Severity-Level-Command,
-            get-vbat-and-ambient    Get-VBat-And-Ambient-Command,
-            reset                   Reset-Command,
-            get-firmware-version    Get-Firmware-Version-Command,
-            
-            get-counter-one         Get-Counter-One-Command,
-            get-counter-two         Get-Counter-Two-Command,
-            
-            clear-counter-one       Clear-Counter-One-Command,
-            clear-counter-two       Clear-Counter-Two-Command,            
-        
-            erase-flash             Erase-Flash-Command,
-            write-flash             Write-Flash-Command
-        }
-    }   
-    
-    Response ::= SEQUENCE
-    {
-        type CHOICE
-        {
-            commission              Commission-Response,
-            join                    Join-Response,
-            forget                  Forget-Response,
-            get-deveui              Get-DevEUI-Response,
-            get-appeui              Get-AppEUI-Response,
-            get-encrypted-appkey    Get-Encrypted-AppKey-Response,
-            get-device-name         Get-Device-Name-Response,
-            get-device-name-max-len Get-Device-Name-Max-Len-Response,
-            set-device-name         Get-Device-Name-Response,
-            set-log-severity-level  Set-Log-severity-Level-Response,
-            get-vbat-and-ambient    Get-VBat-And-Ambient-Response,
-            reset                   Reset-Response,
-            get-firmware-version    Get-Firmware-Version-Response,
-            
-            get-counter-one         Get-Counter-One-Response,
-            get-counter-two         Get-Counter-Two-Response,            
-            
-            clear-counter-one       Clear-Counter-One-Response,
-            clear-counter-two       Clear-Counter-Two-Response            
-        }
-    }
-    
-    Alert ::= SEQUENCE
-    {
-        type CHOICE
-        {
-            invalid                 Invalid-Alert,
-            not-implemented         Not-Implemented-Alert,
-              
-            log                     Log-Alert,
-            
-            reset                   Reset-Alert,
-            startup                 Startup-Alert,
-            chip-error              Chip-Error-Alert,
-            link-status             Link-Status-Alert,
-            tx-begin                TX-Begin-Alert,
-            tx-complete             TX-Complete-Alert,
-            rx1-slot                RX-Slot-Alert,
-            rx2-slot                RX-Slot-Alert,
-            downstream              Downstream-Alert,
-            join-timeout            Join-Timeout-Alert,
-            rx                      RX-Alert,
-            data-complete           Data-Complete-Alert,
-            data-timeout            Data-Timeout-Alert,
-            data-nak                Data-NAK-Alert                       
-        }
-    }
+Response-Get-Boot-Version ::= VisibleString
+{% endhighlight %}
 
-    /* Commands, Response, Alert */
+#### Get-App-Version
 
-    Commission-Command  ::= SEQUENCE
-    {        
-        counter Invocation-Counter,
-        app-eui EUI,
-        dev-eui EUI,
-        app-key Key
-    }
-    Commission-Response ::= Empty-Response
-    
-    Join-Command    ::= Empty-Command
-    Join-Response   ::= Empty-Response
-    
-    Forget-Command  ::= Empty-Command
-    Forget-Response ::= Empty-Response
-    
-    Get-AppEUI-Command  ::= Empty-Command
-    Get-AppEUI-Response ::= SEQUENCE
-    {
-        counter Invocation-Counter,
-        eui     EUI
-    }
-    
-    Get-DevEUI-Command  ::= Empty-Command
-    Get-DevEUI-Response ::= SEQUENCE
-    {
-        counter Invocation-Counter,
-        eui     EUI
-    }
-    
-    Get-Encrypted-AppKey-Command    ::= Empty-Command
-    Get-Encrypted-AppKey-Response   ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        encrypted-key   Key
-    }
+Get application version string.
 
-    Get-Device-Name-Command         ::= Empty-Command
-    Get-Device-Name-Response        ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        device-name     VisibleString
-    }
-    
-    Get-Device-Name-Max-Len-Command     ::= Empty-Command
-    Get-Device-Name-Max-Len-Response    ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        len             INTEGER
-    }
-    
-    Set-Device-Name-Command         ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        device-name     VisibleString (SIZE(0..36)) 
-    }
-    Set-Device-Name-Response        ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        result          CHOICE {
-            ok          NULL,
-            too-long    NULL
-        }
-    }
-    
-    Set-Log-Severity-Level-Command ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        severity-level  INTEGER (0..7)
-    }
-    Set-Log-Severity-Level-Response ::= Empty-Response
+{% highlight asn1 %}
+Command-Get-App-Version ::= NULL
 
-    Get-VBat-And-Ambient-Command ::= Empty-Command
-    Get-VBat-And-Ambient-Response ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        vbat            INTEGER,
-        ambient         INTEGER
-    }
-    
-    Reset-Command ::= Empty-Command
-    Reset-Response ::= Empty-Response
-    
-    Get-Firmware-Version-Command ::= Empty-Command
-    Get-Firmware-Version-Response ::= SEQUENCE
-    {
-        counter         Invocation-Counter,
-        version         VisibleString
-    }
-    
-    Get-Counter-One-Command ::= Empty-Command
-    Get-Counter-One-Response ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        value       INTEGER
-    }
-    
-    Get-Counter-Two-Command ::= Empty-Command
-    Get-Counter-Two-Response ::= Get-Counter-One-Response
-    
-    Clear-Counter-One-Command ::= Empty-Command
-    Clear-Counter-One-Response ::= Empty-Response
-    
-    Clear-Counter-Two-Command ::= Empty-Command
-    Clear-Counter-Two-Response ::= Empty-Response
-    
-    Erase-Flash-Command ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        password    OCTET STRING
-    }
-    Erase-Flash-Response ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        result      ENUMERATION
-        {
-            success,
-            failure
-        }
-    }
-    
-    Write-Flash-Command ::= SEQUENCE
-    {
-        counter     Invocation-Counter,
-        address     INTEGER,
-        data        OCTET STRING
-    }
-    Write-Flash-Response ::= Empty-Response
-    
-    Invalid-Alert ::= NULL
-    Not-Implemented-Alert ::= Invocation-Counter
-    
-    Log-Alert ::= VisibleString
-    
-    Reset-Alert ::= System-Time
-    Chip-Error-Alert ::= System-Time    
-    TX-Complete-Alert ::= System-Time
-    Join-Timeout-Alert ::= System-Time
-    Data-Complete-Alert ::= System-Time    
-    Data-Timeout-Alert ::= System-Time    
-    Data-NAK-Alert ::= System-Time
-    
-    Startup-Alert ::= SEQUENCE
-    {
-        time        System-Time,
-        entropy     INTEGER
-    }
-    
-    Link-Status-Alert ::= SEQUENCE
-    {
-        time    System-Time,
-        gw      INTEGER (0..255),
-        margin  INTEGER (0..255)
-    }
-    
-    TX-Begin-Alert ::= SEQUENCE
-    {
-        time    System-Time,
-        size    INTEGER (0..255),
-        freq    INTEGER (0..max-uint32),
-        sf      INTEGER,
-        bw      INTEGER,
-        power   INTEGER        
-    }
-    
-    RX1-Slot ::= SEQUENCE
-    {
-        time System-Time        
-    }
-    
-    RX-Slot-Alert ::= SEQUENCE    
-    {
-        time System-Time        
-    }
-    
-    Downstream-Alert ::= SEQUENCE
-    {
-        time System-Time,
-        size    INTEGER,
-        rssi    INTEGER,
-        snr     INTEGER        
-    }
-    
-    RX-Alert ::= SEQUENCE
-    {
-        time System-Time,
-        port INTEGER,
-        count INTEGER,
-        size INTEGER        
-    }
-    
-    /* useful definitions */
-    
-    Empty-Command ::= Empty-Response
-    Empty-Response ::= SEQUENCE
-    {
-        counter Invocation-Counter
-    }
-    
-    Invocation-Counter ::= INTEGER (0..max-uint8)
-    EUI ::= OCTET STRING (SIZE(8))
-    Key ::= OCTET STRING (SIZE(16))
-    
-    System-Time ::= INTEGER (0 .. max-uint32)
-    
-    max-uint32 Integer ::= 4294967295
-    max-uint16 Integer ::= 65535
-    
-END
+Response-Get-App-Version ::= VisibleString
+{% endhighlight %}
+
+#### Restart
+
+User request to restart the device.
+
+{% highlight asn1 %}
+Command-Restart ::= NULL
+
+Response-Restart ::= NULL
+{% endhighlight %}
+
+#### Get-Device-Name
+
+Get the unique device name string.
+
+{% highlight asn1 %}
+Command-Get-Device-Name ::= NULL
+
+Response-Get-Device-Name ::= VisibleString (SIZE(0..36))
+{% endhighlight %}
+
+#### Set-Device-Name
+
+Set the unique device name string.
+
+{% highlight asn1 %}
+Command-Set-Device-Name ::= VisibleString (SIZE(0..36))
+
+Response-Set-Device-Name ::= CHOICE 
+{
+    success,
+    too-long
+}
+{% endhighlight %}
+
+### Alerts
+
+Alerts are constructed as a sequence of a Alert-Header
+followed by an alert specific argument
+
+{% highlight asn1 %}
+Alert-Header ::= [2] SEQUENCE 
+{
+    a-id    INTEGER (0..65535)
+}
+{% endhighlight %}
+
+| a-id     | name
+|--------|-------
+| 0x0000 | [Unknown-Message](#unknown-message)
+| 0x0001 | [Unknown-Command](#unknown-command)
+| 0x0002 | [Invalid-Command-Argument](#invalid-command-argument)
+| 0x0010 | [Log](#log)
+
+Alert arguments are encoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
+
+#### Unknown-Message
+
+Pushed by device which has received a series of bytes which do
+not match any expected patterns.
+
+{% highlight asn1 %}
+Alert-Unkown-Message ::= NULL
+{% endhighlight %}
+
+#### Unknown-Command
+
+Pushed by a device which has decoded an unimplemented c-id.
+
+{% highlight asn1 %}
+Alert-Unknown-Command ::= SEQUENCE
+{
+    token INTEGER (0..255),
+    c-id  INTEGER (0..65535)
+}
+{% endhighlight %}
+
+#### Invalid-Command-Argument
+
+Pushed by a device which has decoded an invalid c-id specific argument.
+
+{% highlight asn1 %}
+Alert-Invalid-Command-Argument ::= SEQUENCE 
+{
+    token INTEGER (0..255),
+    c-id  INTEGER (0..65535)
+}
+{% endhighlight %}
+
+#### Log
+
+Used to push logging messages to a client depending on the severity level
+set by [Set-Log-Severity-Level](#set-log-severity-level) command.
+
+{% highlight asn1 %}
+Alert-Log ::= SEQUENCE
+{
+    level   INTEGER (0..255),
+    message VisibleString
+}
 {% endhighlight %}
 
 ## Hardware Revisions
 
-### 0.3.0
+### 0.4.0
 
 Third revision. Changes from last revision include:
 
-- clamp diodes added to UART level converter
-- mounting holes now via reinforced
-- one mounting hole can be tied to ground via resistor
-- using spring loaded terminals instead of pluggable screw type
+- clamp diodes and TVS surge protection added to UART level converter
+- via reinforced mounting holes with optional chassis ground
+- optional external button header
+- simplified input circuit with TVS diode for surge protection
+- four inputs (up from two) each with configurable pull up/down resistors
 - keepout underneath radio module
-- improved input circuit with configurable filter and surge protection
 - 0805 packages replaced with 0603
-
+- larger pitch 6 way SWD header
 
 ![3d model]({{ "/assets/third_pass_model.png" | absolute_url }}){: .center-image }
+
+![3d model]({{ "/assets/third_pass_model_back.png" | absolute_url }}){: .center-image }
 
 ### 0.2.0
 
@@ -641,8 +672,6 @@ problems were discovered during the course of development:
 - The design needs speed up capacitors on the level converter
 - ADC result is measured against VDD and not the reference (therefore the VDD resistor divider is not required)
 
-![schematic]({{ "/assets/second_pass_design.png" | absolute_url }}){: .center-image }
-
 ![3d model]({{ "/assets/second_pass_model.png" | absolute_url }}){: .center-image }
 
 ![assembled board]({{ "/assets/lpc_0.2.0.jpg" | absolute_url }}){: .center-image }
@@ -660,8 +689,6 @@ MCU UART signal invert feature
 - Double row storage capacitors are difficult to solder by hand
 
 This revision was swiftly replaced with [0.2.0](#020).
-
-![schematic]({{ "/assets/first_pass_design.png" | absolute_url }}){: .center-image }
 
 ![3d model]({{ "/assets/first_pass_model.png" | absolute_url }}){: .center-image }
 
