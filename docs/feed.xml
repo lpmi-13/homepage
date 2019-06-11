@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-06-08T20:31:10+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-06-11T01:39:36+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.4.0&lt;/a&gt; of the LoRa Pulse Counter demonstration platform.&lt;/p&gt;
+&lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt; of the LoRa Pulse Counter demonstration platform.&lt;/p&gt;
 
 &lt;p&gt;This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
 also an opportunity to evaluate &lt;a href=&quot;http://kicad-pcb.org/&quot;&gt;Kicad&lt;/a&gt;.&lt;/p&gt;
@@ -38,10 +38,6 @@ You can have a peek at the API documentation &lt;a href=&quot;https://cjhdev.git
 &lt;p&gt;The device has four inputs suitable for interfacing with open-collector, 
 dry-contact, or push-pull outputs. In the case of push-pull, the voltage applied
 must not exceed the battery voltage, which can be referenced from the “V+” terminals.&lt;/p&gt;
-
-&lt;p&gt;All inputs implement the same circuit:&lt;/p&gt;
-
-&lt;p&gt;«circuit»&lt;/p&gt;
 
 &lt;p&gt;Rise-time of the active signal is limited to 250us the RC filter. The fall-time
 will be around 500us for open-collector outputs.&lt;/p&gt;

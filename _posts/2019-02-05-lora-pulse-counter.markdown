@@ -11,7 +11,7 @@ toc: true
 
 {{ table_of_contents }}
 
-Above is version [0.4.0](#020) of the LoRa Pulse Counter demonstration platform. 
+Above is version [0.2.0](#020) of the LoRa Pulse Counter demonstration platform. 
 
 This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
 also an opportunity to evaluate [Kicad](http://kicad-pcb.org/).
@@ -47,10 +47,6 @@ You can have a peek at the API documentation [here](https://cjhdev.github.io/lor
 The device has four inputs suitable for interfacing with open-collector, 
 dry-contact, or push-pull outputs. In the case of push-pull, the voltage applied
 must not exceed the battery voltage, which can be referenced from the "V+" terminals.
-
-All inputs implement the same circuit:
-
-<<circuit>>
 
 Rise-time of the active signal is limited to 250us the RC filter. The fall-time
 will be around 500us for open-collector outputs.
