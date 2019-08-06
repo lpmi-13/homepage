@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Living with mbed-cli | Cameron Harper</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="Living with mbed-cli" />
+<meta name="author" content="Cameron Harper" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="MBED is neat but the mbed-cli tool is a pain (on Linux at least). This post is about how I get mbed-cli to work on my system." />
+<meta property="og:description" content="MBED is neat but the mbed-cli tool is a pain (on Linux at least). This post is about how I get mbed-cli to work on my system." />
+<meta property="og:site_name" content="Cameron Harper" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-08-06T00:00:00+01:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Living with mbed-cli","dateModified":"2019-08-06T00:00:00+01:00","datePublished":"2019-08-06T00:00:00+01:00","url":"/2019/08/06/dealing-with-mbed.html","mainEntityOfPage":{"@type":"WebPage","@id":"/2019/08/06/dealing-with-mbed.html"},"author":{"@type":"Person","name":"Cameron Harper"},"description":"MBED is neat but the mbed-cli tool is a pain (on Linux at least). This post is about how I get mbed-cli to work on my system.","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Cameron Harper" />
+  
+    <script>
+if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-39608896-1', 'auto');
+  ga('send', 'pageview');
+}
+</script>
+  
+
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" rel="author" href="/">Cameron Harper</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Living with mbed-cli</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-08-06T00:00:00+01:00" itemprop="datePublished">
+        
+        Aug 6, 2019
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>MBED is neat but the mbed-cli tool is a pain (on Linux at least). 
+This post is about how I get mbed-cli to work on my system.</p>
+
+<h1 id="install-virtualenv-and-python">Install Virtualenv and Python</h1>
+
+<p>mbed-cli at time of writing requires Python 2.7.</p>
+
+<h1 id="create-an-app-folder">Create an app folder</h1>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">mkdir my_app
+cd my_app</span></code></pre></figure>
+
+<h1 id="create-virtualenv-within-app-folder">Create virtualenv within app folder</h1>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">virualenv my_env --no-site-packages</span></code></pre></figure>
+
+<p>I found I had to use –no-site-packages because pip (later) was finding
+some of the dependencies elsewhere on my system and not installing them
+in the virtualenv, but then python doesn’t find them when it runs.</p>
+
+<h1 id="activate-the-environment">Activate the environment</h1>
+
+<p>virtualenv seems to need to be activated/deactivates, there is no “exec” type command.</p>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">source my_env/bin/activate</span></code></pre></figure>
+
+<h1 id="install-mbed-cli-in-the-environment">Install mbed-cli in the environment</h1>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">pip install mbed-cli</span></code></pre></figure>
+
+<h1 id="init-the-project">Init the project</h1>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">mbed-cli new .</span></code></pre></figure>
+
+<h1 id="install-mbeds-dependencies">Install mbed’s dependencies</h1>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">cd mbed-os
+pip install -r requirements.txt
+cd -</span></code></pre></figure>
+
+<p>This step might happen first time you “mbed-cli compile” since I seem
+to be experiencing an “auto-install” delay each time I run that command.</p>
+
+<p>The auto-install thing never seems to succeed so there is a painful delay
+each time you use the tool.</p>
+
+<h1 id="do-stuff">Do stuff</h1>
+
+<p>Like compile:</p>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">mbed-cli compile -t GCC_ARM -m NUCLEO_F429ZI</span></code></pre></figure>
+
+<h1 id="remember-to-deactivate-the-virtualenv-when-you-are-done">Remember to deactivate the virtualenv when you are done</h1>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="go">deactivate</span></code></pre></figure>
+
+<h1 id="i-find-it-useful-to-use-shell-scripts-for-common-commands">I find it useful to use shell scripts for common commands</h1>
+
+<p>For example, you can activate/deactive the virtualenv for each 
+command you wish to perform.</p>
+
+<p>e.g.</p>
+
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">#</span><span class="o">!</span>/usr/bin/env bash
+<span class="go">
+source mbed-cli/bin/activate
+
+</span><span class="gp">mbed-cli compile -t GCC_ARM -m NUCLEO_F429ZI "$</span>@<span class="s2">"
+</span><span class="go">
+deactivate</span></code></pre></figure>
+
+
+  </div>
+
+  
+
+  <a class="u-url" href="/2019/08/06/dealing-with-mbed.html" hidden></a>
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          
+            
+            <li><a class="u-email" href="mailto:contact@cjh.id.au">contact@cjh.id.au</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <ul class="social-media-list">
+  
+  
+  
+  <li><a href="https://github.com/cjhdev"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">cjhdev</span></a></li>
+  
+  <li><a href="https://www.linkedin.com/in/cameronisanengineer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">cameronisanengineer</span></a></li>
+  
+  
+  
+  
+  
+  
+</ul>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
