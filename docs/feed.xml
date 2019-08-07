@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-08-06T09:40:07+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">Living with mbed-cli</title><link href="/2019/08/06/dealing-with-mbed.html" rel="alternate" type="text/html" title="Living with mbed-cli" /><published>2019-08-06T00:00:00+01:00</published><updated>2019-08-06T00:00:00+01:00</updated><id>/2019/08/06/dealing-with-mbed</id><content type="html" xml:base="/2019/08/06/dealing-with-mbed.html">&lt;p&gt;MBED is neat but the mbed-cli tool is a pain (on Linux at least). 
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-08-07T18:28:26+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">Living with mbed-cli</title><link href="/2019/08/06/dealing-with-mbed.html" rel="alternate" type="text/html" title="Living with mbed-cli" /><published>2019-08-06T00:00:00+01:00</published><updated>2019-08-06T00:00:00+01:00</updated><id>/2019/08/06/dealing-with-mbed</id><content type="html" xml:base="/2019/08/06/dealing-with-mbed.html">&lt;p&gt;MBED is neat but the mbed-cli tool is a pain (on Linux at least). 
 This post is about how I get mbed-cli to work on my system.&lt;/p&gt;
 
 &lt;h1 id=&quot;install-virtualenv-and-python&quot;&gt;Install Virtualenv and Python&lt;/h1&gt;
@@ -67,9 +67,9 @@ source mbed-cli/bin/activate
 
 &lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;mbed-cli compile -t GCC_ARM -m NUCLEO_F429ZI &quot;$&lt;/span&gt;@&lt;span class=&quot;s2&quot;&gt;&quot;
 &lt;/span&gt;&lt;span class=&quot;go&quot;&gt;
-deactivate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html">MBED is neat but the mbed-cli tool is a pain (on Linux at least). This post is about how I get mbed-cli to work on my system.</summary></entry><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+deactivate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html">MBED is neat but the mbed-cli tool is a pain (on Linux at least). This post is about how I get mbed-cli to work on my system.</summary></entry><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;&lt;img src=&quot;/assets/third_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Above is version &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt; of the LoRa Pulse Counter demonstration platform.&lt;/p&gt;
+&lt;p&gt;Above is version &lt;a href=&quot;#040&quot;&gt;0.4.0&lt;/a&gt; of the LoRa Pulse Counter demonstration platform.&lt;/p&gt;
 
 &lt;p&gt;This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
 also an opportunity to evaluate &lt;a href=&quot;http://kicad-pcb.org/&quot;&gt;Kicad&lt;/a&gt;.&lt;/p&gt;
@@ -319,113 +319,94 @@ features. The MCU will wake from:&lt;/p&gt;
 
 &lt;h3 id=&quot;device-to-application&quot;&gt;Device-to-Application&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://www.itu.int/rec/T-REC-X.696/en&quot;&gt;Octet Encoding Rules X.696&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;uart-communication-protocol&quot;&gt;UART Communication Protocol&lt;/h2&gt;
 
-&lt;h4 id=&quot;periodic-port-124&quot;&gt;Periodic (port 1..24)&lt;/h4&gt;
+&lt;p&gt;The following protocol allows the device to managed over the UART connection.&lt;/p&gt;
 
-&lt;p&gt;1:  1+2+3+4
-2:  1
-3:  2
-4:  3
-5:  4
-6:  1+2
-7:  1+3
-8:  1+4
-9:  2+3
-10: 2+4
-11: 3+4&lt;/p&gt;
+&lt;h3 id=&quot;uart-settings&quot;&gt;UART Settings&lt;/h3&gt;
 
-&lt;h4 id=&quot;alarm-flags&quot;&gt;Alarm Flags&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;38400 baud&lt;/li&gt;
+  &lt;li&gt;8 data bits, 1 stop bit, no parity&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;7..5: active
-7..5: latched&lt;/p&gt;
+&lt;h3 id=&quot;framing&quot;&gt;Framing&lt;/h3&gt;
 
-&lt;p&gt;0: tamper 1 active
-1: tamper 2 active
-2: tamper 3 active
-3: tamper 4 active 
-4: channel 1 present
-5: channel 2 present
-6: channel 3 present
-7: channel 4 present&lt;/p&gt;
+&lt;p&gt;The protocol uses start, end, escape, and xor characters to mark start/end of 
+messages and to remove start/end markers from the message payload.&lt;/p&gt;
 
-&lt;channels&gt;
+&lt;p&gt;Special characters are as follows:&lt;/p&gt;
 
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;name&lt;/th&gt;
+      &lt;th&gt;value&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;start&lt;/td&gt;
+      &lt;td&gt;0x7e&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;end&lt;/td&gt;
+      &lt;td&gt;0x7f&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;escape&lt;/td&gt;
+      &lt;td&gt;0x7d&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;xor&lt;/td&gt;
+      &lt;td&gt;0x20&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
 
-&lt;channel-flag&gt;&lt;channels&gt;...
+&lt;p&gt;When a start, end, or escape character appears within a message payload, it is replaced
+by an escape character followed by the original character XORed with the xor character.&lt;/p&gt;
 
+&lt;p&gt;The last two bytes of a frame is a 16 bit CRC ordered most significant byte first.
+The CRC is calculated over the payload bytes prior to any escaping.&lt;/p&gt;
 
-Periodic ::= CHOICE
-{
-    one SEQUENCE 
-    {
-        
-    }
-}
+&lt;p&gt;CRC parameters are as follows:&lt;/p&gt;
 
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;name&lt;/td&gt;
+      &lt;td&gt;CRC-16-CCITT&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;polynomial&lt;/td&gt;
+      &lt;td&gt;0x1021&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;initial value&lt;/td&gt;
+      &lt;td&gt;0xffff&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;reflect input&lt;/td&gt;
+      &lt;td&gt;no&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;reflect output&lt;/td&gt;
+      &lt;td&gt;no&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;xor output&lt;/td&gt;
+      &lt;td&gt;no&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
 
-One-Counter ::=
+&lt;h3 id=&quot;commands&quot;&gt;Commands&lt;/h3&gt;
 
-
-#### Two-Counters (port 1)
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Two-Counters ::= SEQUENCE
-{
-    channel1    INTEGER (0..max-uint32),
-    channel2    INTEGER (0..max-uint32)
-    channel3    INTEGER (0..max-uint32)
-    channel4    INTEGER (0..max-uint32)
-}
-
-max-uint32 Integer ::= 4294967295&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-## UART Communication Protocol
-
-The following protocol allows the device to managed over the UART connection.
-
-### UART Settings
-
-- 38400 baud
-- 8 data bits, 1 stop bit, no parity
-
-### Framing
-
-The protocol uses start, end, escape, and xor characters to mark start/end of 
-messages and to remove start/end markers from the message payload.
-
-Special characters are as follows:
-
-| name   | value |
-|--------|-------|
-| start  | 0x7e  |
-| end    | 0x7f  |
-| escape | 0x7d  |
-| xor    | 0x20  |
-
-When a start, end, or escape character appears within a message payload, it is replaced
-by an escape character followed by the original character XORed with the xor character.
-
-The last two bytes of a frame is a 16 bit CRC ordered most significant byte first.
-The CRC is calculated over the payload bytes prior to any escaping.
-
-CRC parameters are as follows:
-
-| name          | CRC-16-CCITT |
-| polynomial    | 0x1021 |
-| initial value | 0xffff |
-| reflect input | no |
-| reflect output | no |
-| xor output | no |
-
-### Commands
-
-Commands are constructed as a sequence of a Command-Header
+&lt;p&gt;Commands are constructed as a sequence of a Command-Header
 followed by a command specific argument. Similarly Responses
 are constructed as a sequence of a Command-Header followed by
-a response specific Argument.
-
+a response specific Argument.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Header ::= [0] SEQUENCE 
 {
@@ -439,151 +420,232 @@ Response-Header ::= [1] SEQUENCE
     c-id    INTEGER (0..65535)
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;c-id&lt;/th&gt;
+      &lt;th&gt;name&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0000&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#boot-or-app&quot;&gt;Boot-Or-App&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0001&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#goto-boot&quot;&gt;Goto-Boot&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0002&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#goto-app&quot;&gt;Goto-App&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0003&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#restart&quot;&gt;Restart&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0004&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-boot-version&quot;&gt;Get-Boot-Version&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0005&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-app-version&quot;&gt;Get-App-Version&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0006&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-log-severity-level&quot;&gt;Set-Log-Severity-Level&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0007&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-vbat-and-ambient&quot;&gt;Get-Vbat-And-Ambient&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0008&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-factory-id&quot;&gt;Get-Factory-ID&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0009&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-device-name&quot;&gt;Get-Device-Name&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x000a&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-device-name&quot;&gt;Set-Device-Name&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0100&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-dev-eui&quot;&gt;Set-Dev-EUI&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0101&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-app-eui&quot;&gt;Set-App-EUI&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0102&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-app-key&quot;&gt;Set-App-Key&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0103&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-dev-eui&quot;&gt;Get-Dev-EUI&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0104&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-app-eui&quot;&gt;Get-App-EUI&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0105&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-encrypted-app-key&quot;&gt;Get-Encrypted-App-Key&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0106&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#join-network&quot;&gt;Join-Network&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0107&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#forget-network&quot;&gt;Forget-Network&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0108&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#forget-network&quot;&gt;Get-Join-Status&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0109&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#enable-adr&quot;&gt;Enable-ADR&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x010a&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#disable-adr&quot;&gt;Disable-ADR&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x010b&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-adr-mode&quot;&gt;Get-ADR-Mode&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x010c&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-data-rate&quot;&gt;Set-Data-Rate&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x010d&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-data-rate&quot;&gt;Get-Data-Rate&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x010e&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-power&quot;&gt;Set-Power&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x010f&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-power&quot;&gt;Get-Power&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0200&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#get-counter&quot;&gt;Get-Counter&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0201&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#clear-counter&quot;&gt;Clear-Counter&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0202&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-pull&quot;&gt;Set-Pull&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0203&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-filter&quot;&gt;Set-Filter&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0204&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#set-polarity&quot;&gt;Set-Polarity&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
 
+&lt;p&gt;Command/Response arguments are encoded according to &lt;a href=&quot;https://www.itu.int/rec/T-REC-X.696/en&quot;&gt;Octet Encoding Rules X.696&lt;/a&gt;.&lt;/p&gt;
 
-| c-id     | name
-|--------|-------
-| 0x0000 | [Boot-Or-App](#boot-or-app)
-| 0x0001 | [Goto-Boot](#goto-boot)
-| 0x0002 | [Goto-App](#goto-app)
-| 0x0003 | [Restart](#restart)
-| 0x0004 | [Get-Boot-Version](#get-boot-version)
-| 0x0005 | [Get-App-Version](#get-app-version)
-| 0x0006 | [Set-Log-Severity-Level](#set-log-severity-level)
-| 0x0007 | [Get-Vbat-And-Ambient](#get-vbat-and-ambient)
-| 0x0008 | [Get-Factory-ID](#get-factory-id)
-| 0x0009 | [Get-Device-Name](#get-device-name)
-| 0x000a | [Set-Device-Name](#set-device-name)
-| 0x0100 | [Set-Dev-EUI](#set-dev-eui)
-| 0x0101 | [Set-App-EUI](#set-app-eui)
-| 0x0102 | [Set-App-Key](#set-app-key)
-| 0x0103 | [Get-Dev-EUI](#get-dev-eui)
-| 0x0104 | [Get-App-EUI](#get-app-eui)
-| 0x0105 | [Get-Encrypted-App-Key](#get-encrypted-app-key)
-| 0x0106 | [Join-Network](#join-network)
-| 0x0107 | [Forget-Network](#forget-network)
-| 0x0108 | [Get-Join-Status](#forget-network)
-| 0x0109 | [Enable-ADR](#enable-adr)
-| 0x010a | [Disable-ADR](#disable-adr)
-| 0x010b | [Get-ADR-Mode](#get-adr-mode)
-| 0x010c | [Set-Data-Rate](#set-data-rate)
-| 0x010d | [Get-Data-Rate](#get-data-rate)
-| 0x010e | [Set-Power](#set-power)
-| 0x010f | [Get-Power](#get-power)
-| 0x0200 | [Get-Counter](#get-counter)
-| 0x0201 | [Clear-Counter](#clear-counter)
-| 0x0202 | [Set-Pull](#set-pull)
-| 0x0203 | [Set-Filter](#set-filter)
-| 0x0204 | [Set-Polarity](#set-polarity)
-| 0x0205 | [Set-Publish-Period](#set-publish-period)
-| 0x0206 | [Set-Channel-Publish-Mode](#set-channel-publish-mode)
+&lt;h4 id=&quot;set-dev-eui&quot;&gt;Set-Dev-EUI&lt;/h4&gt;
 
-Command/Response arguments are encoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
+&lt;p&gt;Write Dev-EUI to non-volatile memory.&lt;/p&gt;
 
-#### Set-Dev-EUI
-
-Write Dev-EUI to non-volatile memory. 
-
-Following this the device shall forget the network and enter a non-joining
-mode.
-
+&lt;p&gt;Following this the device shall forget the network and enter a non-joining
+mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Dev-EUI ::= OCTET STRING (SIZE(8))
 
 Response-Set-Dev-EUI ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;set-app-eui&quot;&gt;Set-App-EUI&lt;/h4&gt;
 
-#### Set-App-EUI
+&lt;p&gt;Write App-EUI to non-volatile memory.&lt;/p&gt;
 
-Write App-EUI to non-volatile memory. 
-
-Following this the device shall forget the network and enter a non-joining
-mode.
-
+&lt;p&gt;Following this the device shall forget the network and enter a non-joining
+mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-App-EUI ::= OCTET STRING (SIZE(8))
 
 Response-Set-App-EUI- ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;set-app-key&quot;&gt;Set-App-Key&lt;/h4&gt;
 
-#### Set-App-Key
+&lt;p&gt;Write App-Key to non-volatile memory.&lt;/p&gt;
 
-Write App-Key to non-volatile memory. 
-
-Following this the device shall forget the network and enter a non-joining
-mode.
-
+&lt;p&gt;Following this the device shall forget the network and enter a non-joining
+mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-App-Key ::= OCTET STRING (SIZE(16))
 
 Response-Set-App-Key ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-dev-eui&quot;&gt;Get-Dev-EUI&lt;/h4&gt;
 
-#### Get-Dev-EUI
-
-Return the Dev-EUI.
-
+&lt;p&gt;Return the Dev-EUI.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Dev-EUI ::= NULL
 
 Response-Get-Dev-EUI ::= OCTET STRING (SIZE(8))&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-app-eui&quot;&gt;Get-App-EUI&lt;/h4&gt;
 
-#### Get-App-EUI
-
-Return the App-EUI.
-
+&lt;p&gt;Return the App-EUI.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-App-EUI ::= NULL
 
 Response-Get-App-EUI ::= OCTET STRING (SIZE(8))&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-encrypted-app-key&quot;&gt;Get-Encrypted-App-Key&lt;/h4&gt;
 
-#### Get-Encrypted-App-Key
-
-Return the result of performing AES-128 encryption of a zeroed block using the App-Key.
-
+&lt;p&gt;Return the result of performing AES-128 encryption of a zeroed block using the App-Key.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Encrypted-App-Key ::= NULL
 
 Response-Get-Encrypted-App-Key ::= OCTET STRING (SIZE(16))&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;join-network&quot;&gt;Join-Network&lt;/h4&gt;
 
-#### Join-Network
-
-Device shall forget the network and enter a joining mode.
-
+&lt;p&gt;Device shall forget the network and enter a joining mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Join ::= NULL
 
 Response-Join ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;forget-network&quot;&gt;Forget-Network&lt;/h4&gt;
 
-#### Forget-Network
-
-Device shall forget the network and enter a non-joining mode.
-
+&lt;p&gt;Device shall forget the network and enter a non-joining mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Forget ::= NULL
 
 Response-Forget ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;set-log-severity-level&quot;&gt;Set-Log-Severity-Level&lt;/h4&gt;
 
-#### Set-Log-Severity-Level
-
-Set the severity level for log messages pushed by Log-Message alert in accordance
-with [RFC 5424](https://tools.ietf.org/html/rfc5424).
-
+&lt;p&gt;Set the severity level for log messages pushed by Log-Message alert in accordance
+with &lt;a href=&quot;https://tools.ietf.org/html/rfc5424&quot;&gt;RFC 5424&lt;/a&gt;.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Log-Severity-Level ::= INTEGER (0..255)
 
 Response-Set-Log-Severity-Level ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-vbat-and-ambient&quot;&gt;Get-VBAT-And-Ambient&lt;/h4&gt;
 
-#### Get-VBAT-And-Ambient
-
-Return the battery voltage and ambient temperature.
-
+&lt;p&gt;Return the battery voltage and ambient temperature.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Vbat-And-Ambient ::= NULL
 
@@ -593,11 +655,9 @@ Response-Get-Vbat-And-Ambient ::= SEQUENCE
     ambient INTEGER (0..65535)
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-counter&quot;&gt;Get-Counter&lt;/h4&gt;
 
-#### Get-Counter
-
-Return a counter register.
-
+&lt;p&gt;Return a counter register.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Counter ::= SEQUENCE
 {
@@ -610,11 +670,9 @@ Response-Get-Counter ::= CHOICE
     index-out-of-range      NULL    
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;clear-counter&quot;&gt;Clear-Counter&lt;/h4&gt;
 
-#### Clear-Counter
-
-Zero a counter register.
-
+&lt;p&gt;Zero a counter register.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Clear-Counter ::= SEQUENCE
 {
@@ -627,11 +685,9 @@ Response-Clear-Counter ::= CHOICE
     index-out-of-range      NULL    
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;set-pull&quot;&gt;Set-Pull&lt;/h4&gt;
 
-#### Set-Pull
-
-Set a pull-resistor.
-
+&lt;p&gt;Set a pull-resistor.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Pull ::= SEQUENCE
 {
@@ -650,11 +706,9 @@ Response-Set-Pull ::= CHOICE
     setting-out-of-range    NULL    
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;set-filter&quot;&gt;Set-Filter&lt;/h4&gt;
 
-#### Set-Filter
-
-Set an input rise-time filter.
-
+&lt;p&gt;Set an input rise-time filter.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Filter ::= SEQUENCE
 {
@@ -677,81 +731,65 @@ Response-Set-Filter ::= CHOICE
     setting-out-of-range    NULL    
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;goto-boot&quot;&gt;Goto-Boot&lt;/h4&gt;
 
-#### Goto-Boot
-
-Put device into bootloader mode.
-
+&lt;p&gt;Put device into bootloader mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Goto-Boot ::= NULL
 
 Response-Goto-Boot ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;goto-app&quot;&gt;Goto-App&lt;/h4&gt;
 
-#### Goto-App
-
-Put device into application mode.
-
+&lt;p&gt;Put device into application mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Goto-App ::= NULL
 
 Response-Goto-App ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;boot-or-app&quot;&gt;Boot-Or-App&lt;/h4&gt;
 
-#### Boot-Or-App
-
-Indicate whether device is in bootloader or application mode.
-
+&lt;p&gt;Indicate whether device is in bootloader or application mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Boot-Or-App ::= NULL
 
 Response-Boot-Or-App ::= ENUMERATED { boot (0), app (1) }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-boot-version&quot;&gt;Get-Boot-Version&lt;/h4&gt;
 
-#### Get-Boot-Version
-
-Get bootloader version string.
-
+&lt;p&gt;Get bootloader version string.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Boot-Version ::= NULL
 
 Response-Get-Boot-Version ::= VisibleString&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-app-version&quot;&gt;Get-App-Version&lt;/h4&gt;
 
-#### Get-App-Version
-
-Get application version string.
-
+&lt;p&gt;Get application version string.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-App-Version ::= NULL
 
 Response-Get-App-Version ::= VisibleString&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;restart&quot;&gt;Restart&lt;/h4&gt;
 
-#### Restart
-
-User request to restart the device.
-
+&lt;p&gt;User request to restart the device.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Restart ::= NULL
 
 Response-Restart ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-device-name&quot;&gt;Get-Device-Name&lt;/h4&gt;
 
-#### Get-Device-Name
-
-Get the unique device name string.
-
+&lt;p&gt;Get the unique device name string.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Device-Name ::= NULL
 
 Response-Get-Device-Name ::= VisibleString (SIZE(0..36))&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;set-device-name&quot;&gt;Set-Device-Name&lt;/h4&gt;
 
-#### Set-Device-Name
-
-Set the unique device name string.
-
+&lt;p&gt;Set the unique device name string.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Device-Name ::= VisibleString (SIZE(0..36))
 
@@ -761,11 +799,9 @@ Response-Set-Device-Name ::= CHOICE
     too-long
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;set-polarity&quot;&gt;Set-Polarity&lt;/h4&gt;
 
-#### Set-Polarity
-
-Set the active polarity of an input.
-
+&lt;p&gt;Set the active polarity of an input.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Polarity ::= SEQUENCE
 {
@@ -784,44 +820,36 @@ Response-Set-Polarity ::= CHOICE
     setting-out-of-range    NULL    
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-factory-id&quot;&gt;Get-Factory-ID&lt;/h4&gt;
 
-#### Get-Factory-ID
-
-Read the unique ID assigned to the MCU at the factory
-
+&lt;p&gt;Read the unique ID assigned to the MCU at the factory&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Factory-ID ::= NULL
 
 Response-Get-Factory-ID ::= OCTET STRING &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;enable-adr&quot;&gt;Enable-ADR&lt;/h4&gt;
 
-#### Enable-ADR
+&lt;p&gt;Enable Adaptive Data Rate Mode.&lt;/p&gt;
 
-Enable Adaptive Data Rate Mode.
-
-In this mode explicit rate and power settings applied through this interface
-will be ignored.
-
+&lt;p&gt;In this mode explicit rate and power settings applied through this interface
+will be ignored.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Enable-ADR ::= NULL
 
 Response-Enable-ADR ::= NULL &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;disable-adr&quot;&gt;Disable-ADR&lt;/h4&gt;
 
-#### Disable-ADR
-
-Disable Adaptive Data Rate Mode.
-
+&lt;p&gt;Disable Adaptive Data Rate Mode.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Disble-ADR ::= NULL
 
 Response-Disable-ADR ::= NULL &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;get-adr-mode&quot;&gt;Get-ADR-Mode&lt;/h4&gt;
 
-#### Get-ADR-Mode
-
-Is ADR enabled or disabled?
-
+&lt;p&gt;Is ADR enabled or disabled?&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-ADR-Mode ::= NULL
 
@@ -831,41 +859,31 @@ Response-Get-ADR-Mode ::= ENUMERATED
     enabled
 } &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-
-#### Get-Power
-
+&lt;h4 id=&quot;get-power&quot;&gt;Get-Power&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Power ::= NULL
 
 Response-Get-Power ::= INTEGER (0..255)&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-
-#### Set-Power
-
+&lt;h4 id=&quot;set-power&quot;&gt;Set-Power&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Power ::= INTEGER (0..255)
 
 Response-Set-Power ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-
-#### Get-Data-Rate
-
+&lt;h4 id=&quot;get-data-rate&quot;&gt;Get-Data-Rate&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Data-Rate ::= NULL
 
 Response-Get-Data-Rate ::= INTEGER (0..255)&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-
-#### Set-Data-Rate
-
+&lt;h4 id=&quot;set-data-rate&quot;&gt;Set-Data-Rate&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Data-Rate ::= INTEGER (0..255)
 
 Response-Set-Data-Rate ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-
-#### Get-Join-Status
-
+&lt;h4 id=&quot;get-join-status&quot;&gt;Get-Join-Status&lt;/h4&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Get-Join-Status ::= NULL
 
@@ -876,55 +894,55 @@ Response-Get-Join-Status ::= ENUMERATED
     joined
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h3 id=&quot;alerts&quot;&gt;Alerts&lt;/h3&gt;
 
-#### Set-Publish-Period
-
-How often the channel data will be published.
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Command-Set-Publish-Period ::= ENUMERATED
-{
-    one-minute,
-    five-minute
-}
-
-Response-Set-Publish-Period ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-### Alerts
-
-Alerts are constructed as a sequence of a Alert-Header
-followed by an alert specific argument
-
+&lt;p&gt;Alerts are constructed as a sequence of a Alert-Header
+followed by an alert specific argument&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Alert-Header ::= [2] SEQUENCE 
 {
     a-id    INTEGER (0..65535)
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;a-id&lt;/th&gt;
+      &lt;th&gt;name&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0000&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#unknown-message&quot;&gt;Unknown-Message&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0001&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#unknown-command&quot;&gt;Unknown-Command&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0002&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#invalid-command-argument&quot;&gt;Invalid-Command-Argument&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;0x0010&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#log&quot;&gt;Log&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
 
-| a-id     | name
-|--------|-------
-| 0x0000 | [Unknown-Message](#unknown-message)
-| 0x0001 | [Unknown-Command](#unknown-command)
-| 0x0002 | [Invalid-Command-Argument](#invalid-command-argument)
-| 0x0010 | [Log](#log)
+&lt;p&gt;Alert arguments are encoded according to &lt;a href=&quot;https://www.itu.int/rec/T-REC-X.696/en&quot;&gt;Octet Encoding Rules X.696&lt;/a&gt;.&lt;/p&gt;
 
-Alert arguments are encoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
+&lt;h4 id=&quot;unknown-message&quot;&gt;Unknown-Message&lt;/h4&gt;
 
-#### Unknown-Message
-
-Pushed by device which has received a series of bytes which do
-not match any expected patterns.
-
+&lt;p&gt;Pushed by device which has received a series of bytes which do
+not match any expected patterns.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Alert-Unkown-Message ::= NULL&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;unknown-command&quot;&gt;Unknown-Command&lt;/h4&gt;
 
-#### Unknown-Command
-
-Pushed by a device which has decoded an unimplemented c-id.
-
+&lt;p&gt;Pushed by a device which has decoded an unimplemented c-id.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Alert-Unknown-Command ::= SEQUENCE
 {
@@ -932,11 +950,9 @@ Pushed by a device which has decoded an unimplemented c-id.
     c-id  INTEGER (0..65535)
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;invalid-command-argument&quot;&gt;Invalid-Command-Argument&lt;/h4&gt;
 
-#### Invalid-Command-Argument
-
-Pushed by a device which has decoded an invalid c-id specific argument.
-
+&lt;p&gt;Pushed by a device which has decoded an invalid c-id specific argument.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Alert-Invalid-Command-Argument ::= SEQUENCE 
 {
@@ -944,12 +960,10 @@ Pushed by a device which has decoded an invalid c-id specific argument.
     c-id  INTEGER (0..65535)
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h4 id=&quot;log&quot;&gt;Log&lt;/h4&gt;
 
-#### Log
-
-Used to push logging messages to a client depending on the severity level
-set by [Set-Log-Severity-Level](#set-log-severity-level) command.
-
+&lt;p&gt;Used to push logging messages to a client depending on the severity level
+set by &lt;a href=&quot;#set-log-severity-level&quot;&gt;Set-Log-Severity-Level&lt;/a&gt; command.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Alert-Log ::= SEQUENCE
 {
@@ -957,67 +971,75 @@ set by [Set-Log-Severity-Level](#set-log-severity-level) command.
     message VisibleString
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;h2 id=&quot;hardware-revisions&quot;&gt;Hardware Revisions&lt;/h2&gt;
 
-## Hardware Revisions
+&lt;h3 id=&quot;040&quot;&gt;0.4.0&lt;/h3&gt;
 
-### 0.4.0
+&lt;p&gt;Third revision. Changes from last revision include:&lt;/p&gt;
 
-Third revision. Changes from last revision include:
+&lt;ul&gt;
+  &lt;li&gt;clamp diodes and TVS surge protection added to UART level converter&lt;/li&gt;
+  &lt;li&gt;via reinforced mounting holes with optional chassis ground&lt;/li&gt;
+  &lt;li&gt;optional external button header&lt;/li&gt;
+  &lt;li&gt;simplified input circuit with TVS diode for surge protection&lt;/li&gt;
+  &lt;li&gt;four inputs (up from two) each with configurable pull up/down resistors&lt;/li&gt;
+  &lt;li&gt;keepout underneath radio module&lt;/li&gt;
+  &lt;li&gt;0805 packages replaced with 0603&lt;/li&gt;
+  &lt;li&gt;larger pitch 6 way SWD header&lt;/li&gt;
+&lt;/ul&gt;
 
-- clamp diodes and TVS surge protection added to UART level converter
-- via reinforced mounting holes with optional chassis ground
-- optional external button header
-- simplified input circuit with TVS diode for surge protection
-- four inputs (up from two) each with configurable pull up/down resistors
-- keepout underneath radio module
-- 0805 packages replaced with 0603
-- larger pitch 6 way SWD header
+&lt;p&gt;&lt;img src=&quot;/assets/third_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-![3d model](/assets/third_pass_model.png){: .center-image }
+&lt;p&gt;&lt;img src=&quot;/assets/third_pass_model_back.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-![3d model](/assets/third_pass_model_back.png){: .center-image }
+&lt;p&gt;&lt;img src=&quot;/assets/third_pass_assembled.jpg&quot; alt=&quot;assembled&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-### 0.2.0
+&lt;h3 id=&quot;020&quot;&gt;0.2.0&lt;/h3&gt;
 
-Second revision. Changes from the last revision include:
+&lt;p&gt;Second revision. Changes from the last revision include:&lt;/p&gt;
 
-- U.FL replaced with dual SMA/U.FL footprint
-- removed DIO4 and DIO5 routing
-- using single inverter for UART transmit line
-- removed reset button
-- using larger footprints for easy soldering
-- enlarged M2 mounting holes to M3
+&lt;ul&gt;
+  &lt;li&gt;U.FL replaced with dual SMA/U.FL footprint&lt;/li&gt;
+  &lt;li&gt;removed DIO4 and DIO5 routing&lt;/li&gt;
+  &lt;li&gt;using single inverter for UART transmit line&lt;/li&gt;
+  &lt;li&gt;removed reset button&lt;/li&gt;
+  &lt;li&gt;using larger footprints for easy soldering&lt;/li&gt;
+  &lt;li&gt;enlarged M2 mounting holes to M3&lt;/li&gt;
+&lt;/ul&gt;
 
-This revision has been used to develop the firmware. A number of 
-problems were discovered during the course of development:
+&lt;p&gt;This revision has been used to develop the firmware. A number of 
+problems were discovered during the course of development:&lt;/p&gt;
 
-- There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity
-- Pin assignments don't take into account external interrupt multiplexing of the STM32
-- The design needs speed up capacitors on the level converter
-- ADC result is measured against VDD and not the reference (therefore the VDD resistor divider is not required)
+&lt;ul&gt;
+  &lt;li&gt;There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity&lt;/li&gt;
+  &lt;li&gt;Pin assignments don’t take into account external interrupt multiplexing of the STM32&lt;/li&gt;
+  &lt;li&gt;The design needs speed up capacitors on the level converter&lt;/li&gt;
+  &lt;li&gt;ADC result is measured against VDD and not the reference (therefore the VDD resistor divider is not required)&lt;/li&gt;
+&lt;/ul&gt;
 
-![3d model](/assets/second_pass_model.png){: .center-image }
+&lt;p&gt;&lt;img src=&quot;/assets/second_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-![assembled board](/assets/lpc_0.2.0.jpg){: .center-image }
+&lt;p&gt;&lt;img src=&quot;/assets/lpc_0.2.0.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-### 0.1.1
+&lt;h3 id=&quot;011&quot;&gt;0.1.1&lt;/h3&gt;
 
-This was the first revision. A number of mistakes were made, namely:
+&lt;p&gt;This was the first revision. A number of mistakes were made, namely:&lt;/p&gt;
 
-- There was copper (and a via!) underneath the U.FL connector
-- Pin assignments mean STM32L051K8 cannot be swapped for the new lower cost STM32L010K8
-- The UART level converter power consumption could be improved by using the 
-MCU UART signal invert feature
-- The reset switch is redundant
-- Standard footprints are too small for easy hand soldering
-- Double row storage capacitors are difficult to solder by hand
+&lt;ul&gt;
+  &lt;li&gt;There was copper (and a via!) underneath the U.FL connector&lt;/li&gt;
+  &lt;li&gt;Pin assignments mean STM32L051K8 cannot be swapped for the new lower cost STM32L010K8&lt;/li&gt;
+  &lt;li&gt;The UART level converter power consumption could be improved by using the 
+MCU UART signal invert feature&lt;/li&gt;
+  &lt;li&gt;The reset switch is redundant&lt;/li&gt;
+  &lt;li&gt;Standard footprints are too small for easy hand soldering&lt;/li&gt;
+  &lt;li&gt;Double row storage capacitors are difficult to solder by hand&lt;/li&gt;
+&lt;/ul&gt;
 
-This revision was swiftly replaced with [0.2.0](#020).
+&lt;p&gt;This revision was swiftly replaced with &lt;a href=&quot;#020&quot;&gt;0.2.0&lt;/a&gt;.&lt;/p&gt;
 
-![3d model](/assets/first_pass_model.png){: .center-image }
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-![assembled board](/assets/first_pass_assembled.jpg){: .center-image }
-&lt;/channels&gt;&lt;/channel-flag&gt;&lt;/channels&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/first_pass_assembled.jpg&quot; alt=&quot;assembled board&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Yesterday I finished a &lt;a href=&quot;https://github.com/cjhdev/ruby_olm&quot;&gt;Ruby wrapper&lt;/a&gt; for Olm. 
 &lt;a href=&quot;https://git.matrix.org/git/olm/&quot;&gt;Olm&lt;/a&gt; is a protocol agnostic 

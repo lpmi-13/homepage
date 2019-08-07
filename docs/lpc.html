@@ -114,12 +114,7 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
 </li>
 <li class="toc-entry toc-h2"><a href="#lorawan-message-format">LoRaWAN Message Format</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#device-to-application">Device-to-Application</a>
-<ul>
-<li class="toc-entry toc-h4"><a href="#one-counter1-port-1">One-Counter1 (port 1)</a></li>
-<li class="toc-entry toc-h4"><a href="#two-counters-port-1">Two-Counters (port 1)</a></li>
-</ul>
-</li>
+<li class="toc-entry toc-h3"><a href="#device-to-application">Device-to-Application</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#uart-communication-protocol">UART Communication Protocol</a>
@@ -150,6 +145,16 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
 <li class="toc-entry toc-h4"><a href="#restart">Restart</a></li>
 <li class="toc-entry toc-h4"><a href="#get-device-name">Get-Device-Name</a></li>
 <li class="toc-entry toc-h4"><a href="#set-device-name">Set-Device-Name</a></li>
+<li class="toc-entry toc-h4"><a href="#set-polarity">Set-Polarity</a></li>
+<li class="toc-entry toc-h4"><a href="#get-factory-id">Get-Factory-ID</a></li>
+<li class="toc-entry toc-h4"><a href="#enable-adr">Enable-ADR</a></li>
+<li class="toc-entry toc-h4"><a href="#disable-adr">Disable-ADR</a></li>
+<li class="toc-entry toc-h4"><a href="#get-adr-mode">Get-ADR-Mode</a></li>
+<li class="toc-entry toc-h4"><a href="#get-power">Get-Power</a></li>
+<li class="toc-entry toc-h4"><a href="#set-power">Set-Power</a></li>
+<li class="toc-entry toc-h4"><a href="#get-data-rate">Get-Data-Rate</a></li>
+<li class="toc-entry toc-h4"><a href="#set-data-rate">Set-Data-Rate</a></li>
+<li class="toc-entry toc-h4"><a href="#get-join-status">Get-Join-Status</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h3"><a href="#alerts">Alerts</a>
@@ -169,9 +174,9 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
 <li class="toc-entry toc-h3"><a href="#011">0.1.1</a></li>
 </ul>
 </li>
-</ul><p><img src="/assets/lpc_0.2.0.jpg" alt="assembled board" class="center-image"></p>
+</ul><p><img src="/assets/third_pass_assembled.jpg" alt="assembled board" class="center-image"></p>
 
-<p>Above is version <a href="#020">0.2.0</a> of the LoRa Pulse Counter demonstration platform.</p>
+<p>Above is version <a href="#040">0.4.0</a> of the LoRa Pulse Counter demonstration platform.</p>
 
 <p>This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
 also an opportunity to evaluate <a href="http://kicad-pcb.org/">Kicad</a>.</p>
@@ -214,15 +219,22 @@ You can have a peek at the API documentation <a href="https://cjhdev.github.io/l
 dry-contact, or push-pull outputs. In the case of push-pull, the voltage applied
 must not exceed the battery voltage, which can be referenced from the “V+” terminals.</p>
 
-<p>Rise-time of the active signal is limited to 250us the RC filter. The fall-time
-will be around 500us for open-collector outputs.</p>
+<p>Each input looks like this:</p>
+
+<p><img src="/assets/counter_input.png" alt="input" class="center-image"></p>
+
+<ul>
+  <li>CONN is where the external signal enters</li>
+  <li>INPUT is a high-impedance digital input</li>
+  <li>DRIVER is a digital output configured to either drive high (pull-up) or low (pull-down)</li>
+  <li>A TVS is used for surge protection</li>
+</ul>
+
+<p>The input rise time is limited by an RC filter. This is typically around 250us for 
+rise and 500us for fall when the pull-up is used.</p>
 
 <p>The rise-time can be further limited by a configurable software filter. This allows
 each input to be adapted to different types of outputs (e.g. slow bouncy contacts vs. fast digital switches).</p>
-
-<p>Each input has a configurable pull up/down resistor. This is useful
-for adapting the average energy consumption to the resting state of the input
-signal.</p>
 
 <h3 id="external-pickup-power-supply">
 <a id="external-pickup-power-supply" class="anchor" href="#external-pickup-power-supply" aria-hidden="true"><span class="octicon octicon-link"></span></a>External Pickup Power Supply</h3>
@@ -236,10 +248,11 @@ to detect a flashing LED.</p>
 <h3 id="status-button-and-led">
 <a id="status-button-and-led" class="anchor" href="#status-button-and-led" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status Button and LED</h3>
 
-<p>The device has a button which when pressed enables a status LED which
-makes it possible to quickly inspect the status of the device.</p>
+<p>The device has a button which serves two purposes depending on how 
+it is pressed.</p>
 
-<p>The status codes are as follows:</p>
+<p>As short press will cause the status LED to blink the device status code.
+The status codes are as follows:</p>
 
 <table>
   <thead>
@@ -271,6 +284,8 @@ makes it possible to quickly inspect the status of the device.</p>
     </tr>
   </tbody>
 </table>
+
+<p>Holding the button for 5 seconds will toggle join mode.</p>
 
 <h3 id="uart-connection">
 <a id="uart-connection" class="anchor" href="#uart-connection" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Connection</h3>
@@ -390,33 +405,31 @@ features. The MCU will wake from:</p>
 <h3 id="configurable">
 <a id="configurable" class="anchor" href="#configurable" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configurable</h3>
 
-<p>While incomplete at this stage, the following characteristics are 
-intended to be configurable:</p>
+<p>The following characteristics are configurable:</p>
 
 <ul>
-  <li>input filter mode</li>
-  <li>input trigger mode
+  <li>input channel (each channel independently)
     <ul>
-      <li>rising</li>
-      <li>falling</li>
-      <li>both</li>
-    </ul>
-  </li>
-  <li>input pullup/pulldown mode</li>
-  <li>alert mode
-    <ul>
-      <li>active high/low</li>
-    </ul>
-  </li>
-  <li>message formats
-    <ul>
-      <li>two counters</li>
-      <li>one counter per message</li>
-      <li>counter(s) plus alert status field</li>
+      <li>polarity
+        <ul>
+          <li>active-high</li>
+          <li>active-low</li>
+        </ul>
+      </li>
+      <li>rise-time
+        <ul>
+          <li>~250us</li>
+          <li>25ms</li>
+          <li>250ms</li>
+          <li>1000ms</li>
+          <li>5000ms</li>
+          <li>10000ms</li>
+        </ul>
+      </li>
+      <li>pull-up/pull-down</li>
     </ul>
   </li>
   <li>counter push interval</li>
-  <li>alert notification strategy</li>
 </ul>
 
 <h2 id="lorawan-message-format">
@@ -426,24 +439,6 @@ intended to be configurable:</p>
 
 <h3 id="device-to-application">
 <a id="device-to-application" class="anchor" href="#device-to-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Device-to-Application</h3>
-
-<p><a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a></p>
-
-<h4 id="one-counter1-port-1">
-<a id="one-counter1-port-1" class="anchor" href="#one-counter1-port-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>One-Counter1 (port 1)</h4>
-
-<h4 id="two-counters-port-1">
-<a id="two-counters-port-1" class="anchor" href="#two-counters-port-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Two-Counters (port 1)</h4>
-
-<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Two-Counters ::= SEQUENCE
-{
-    channel1    INTEGER (0..max-uint32),
-    channel2    INTEGER (0..max-uint32)
-    channel3    INTEGER (0..max-uint32)
-    channel4    INTEGER (0..max-uint32)
-}
-
-max-uint32 Integer ::= 4294967295</code></pre></figure>
 
 <h2 id="uart-communication-protocol">
 <a id="uart-communication-protocol" class="anchor" href="#uart-communication-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>UART Communication Protocol</h2>
@@ -583,68 +578,108 @@ Response-Header ::= [1] SEQUENCE
       <td><a href="#get-app-version">Get-App-Version</a></td>
     </tr>
     <tr>
-      <td>0x0010</td>
-      <td><a href="#set-dev-eui">Set-Dev-EUI</a></td>
-    </tr>
-    <tr>
-      <td>0x0011</td>
-      <td><a href="#set-app-eui">Set-App-EUI</a></td>
-    </tr>
-    <tr>
-      <td>0x0012</td>
-      <td><a href="#set-app-key">Set-App-Key</a></td>
-    </tr>
-    <tr>
-      <td>0x0013</td>
-      <td><a href="#get-dev-eui">Get-Dev-EUI</a></td>
-    </tr>
-    <tr>
-      <td>0x0014</td>
-      <td><a href="#get-app-eui">Get-App-EUI</a></td>
-    </tr>
-    <tr>
-      <td>0x0015</td>
-      <td><a href="#get-encrypted-app-key">Get-Encrypted-App-Key</a></td>
-    </tr>
-    <tr>
-      <td>0x0016</td>
-      <td><a href="#join-network">Join-Network</a></td>
-    </tr>
-    <tr>
-      <td>0x0017</td>
-      <td><a href="#forget-network">Forget-Network</a></td>
-    </tr>
-    <tr>
-      <td>0x0018</td>
-      <td><a href="#get-counter">Get-Counter</a></td>
-    </tr>
-    <tr>
-      <td>0x0019</td>
-      <td><a href="#clear-counter">Clear-Counter</a></td>
-    </tr>
-    <tr>
-      <td>0x001a</td>
-      <td><a href="#set-pull">Set-Pull</a></td>
-    </tr>
-    <tr>
-      <td>0x001b</td>
-      <td><a href="#set-filter">Set-Filter</a></td>
-    </tr>
-    <tr>
-      <td>0x001c</td>
-      <td><a href="#get-device-name">Get-Device-Name</a></td>
-    </tr>
-    <tr>
-      <td>0x001d</td>
-      <td><a href="#set-device-name">Set-Device-Name</a></td>
-    </tr>
-    <tr>
-      <td>0x001e</td>
+      <td>0x0006</td>
       <td><a href="#set-log-severity-level">Set-Log-Severity-Level</a></td>
     </tr>
     <tr>
-      <td>0x001f</td>
+      <td>0x0007</td>
       <td><a href="#get-vbat-and-ambient">Get-Vbat-And-Ambient</a></td>
+    </tr>
+    <tr>
+      <td>0x0008</td>
+      <td><a href="#get-factory-id">Get-Factory-ID</a></td>
+    </tr>
+    <tr>
+      <td>0x0009</td>
+      <td><a href="#get-device-name">Get-Device-Name</a></td>
+    </tr>
+    <tr>
+      <td>0x000a</td>
+      <td><a href="#set-device-name">Set-Device-Name</a></td>
+    </tr>
+    <tr>
+      <td>0x0100</td>
+      <td><a href="#set-dev-eui">Set-Dev-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0101</td>
+      <td><a href="#set-app-eui">Set-App-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0102</td>
+      <td><a href="#set-app-key">Set-App-Key</a></td>
+    </tr>
+    <tr>
+      <td>0x0103</td>
+      <td><a href="#get-dev-eui">Get-Dev-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0104</td>
+      <td><a href="#get-app-eui">Get-App-EUI</a></td>
+    </tr>
+    <tr>
+      <td>0x0105</td>
+      <td><a href="#get-encrypted-app-key">Get-Encrypted-App-Key</a></td>
+    </tr>
+    <tr>
+      <td>0x0106</td>
+      <td><a href="#join-network">Join-Network</a></td>
+    </tr>
+    <tr>
+      <td>0x0107</td>
+      <td><a href="#forget-network">Forget-Network</a></td>
+    </tr>
+    <tr>
+      <td>0x0108</td>
+      <td><a href="#forget-network">Get-Join-Status</a></td>
+    </tr>
+    <tr>
+      <td>0x0109</td>
+      <td><a href="#enable-adr">Enable-ADR</a></td>
+    </tr>
+    <tr>
+      <td>0x010a</td>
+      <td><a href="#disable-adr">Disable-ADR</a></td>
+    </tr>
+    <tr>
+      <td>0x010b</td>
+      <td><a href="#get-adr-mode">Get-ADR-Mode</a></td>
+    </tr>
+    <tr>
+      <td>0x010c</td>
+      <td><a href="#set-data-rate">Set-Data-Rate</a></td>
+    </tr>
+    <tr>
+      <td>0x010d</td>
+      <td><a href="#get-data-rate">Get-Data-Rate</a></td>
+    </tr>
+    <tr>
+      <td>0x010e</td>
+      <td><a href="#set-power">Set-Power</a></td>
+    </tr>
+    <tr>
+      <td>0x010f</td>
+      <td><a href="#get-power">Get-Power</a></td>
+    </tr>
+    <tr>
+      <td>0x0200</td>
+      <td><a href="#get-counter">Get-Counter</a></td>
+    </tr>
+    <tr>
+      <td>0x0201</td>
+      <td><a href="#clear-counter">Clear-Counter</a></td>
+    </tr>
+    <tr>
+      <td>0x0202</td>
+      <td><a href="#set-pull">Set-Pull</a></td>
+    </tr>
+    <tr>
+      <td>0x0203</td>
+      <td><a href="#set-filter">Set-Filter</a></td>
+    </tr>
+    <tr>
+      <td>0x0204</td>
+      <td><a href="#set-polarity">Set-Polarity</a></td>
     </tr>
   </tbody>
 </table>
@@ -812,14 +847,19 @@ Response-Set-Pull ::= CHOICE
 <h4 id="set-filter">
 <a id="set-filter" class="anchor" href="#set-filter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Filter</h4>
 
-<p>Set an input filter.</p>
+<p>Set an input rise-time filter.</p>
 
 <figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Filter ::= SEQUENCE
 {
     index   INTEGER (0..255),
     setting ENUMERATED {
     
-        none
+        none,
+        25ms,
+        250ms,
+        1000ms,
+        5000ms,
+        10000ms
     }
 }
 
@@ -904,6 +944,111 @@ Response-Set-Device-Name ::= CHOICE
 {
     success,
     too-long
+}</code></pre></figure>
+
+<h4 id="set-polarity">
+<a id="set-polarity" class="anchor" href="#set-polarity" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Polarity</h4>
+
+<p>Set the active polarity of an input.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Polarity ::= SEQUENCE
+{
+    index   INTEGER (0..255),
+    setting ENUMERATED {
+    
+        active-low,
+        active-high   
+    }
+}
+
+Response-Set-Polarity ::= CHOICE 
+{
+    success,
+    index-out-of-range      NULL,
+    setting-out-of-range    NULL    
+}</code></pre></figure>
+
+<h4 id="get-factory-id">
+<a id="get-factory-id" class="anchor" href="#get-factory-id" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Factory-ID</h4>
+
+<p>Read the unique ID assigned to the MCU at the factory</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Factory-ID ::= NULL
+
+Response-Get-Factory-ID ::= OCTET STRING </code></pre></figure>
+
+<h4 id="enable-adr">
+<a id="enable-adr" class="anchor" href="#enable-adr" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enable-ADR</h4>
+
+<p>Enable Adaptive Data Rate Mode.</p>
+
+<p>In this mode explicit rate and power settings applied through this interface
+will be ignored.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Enable-ADR ::= NULL
+
+Response-Enable-ADR ::= NULL </code></pre></figure>
+
+<h4 id="disable-adr">
+<a id="disable-adr" class="anchor" href="#disable-adr" aria-hidden="true"><span class="octicon octicon-link"></span></a>Disable-ADR</h4>
+
+<p>Disable Adaptive Data Rate Mode.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Disble-ADR ::= NULL
+
+Response-Disable-ADR ::= NULL </code></pre></figure>
+
+<h4 id="get-adr-mode">
+<a id="get-adr-mode" class="anchor" href="#get-adr-mode" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-ADR-Mode</h4>
+
+<p>Is ADR enabled or disabled?</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-ADR-Mode ::= NULL
+
+Response-Get-ADR-Mode ::= ENUMERATED
+{
+    disabled,
+    enabled
+} </code></pre></figure>
+
+<h4 id="get-power">
+<a id="get-power" class="anchor" href="#get-power" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Power</h4>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Power ::= NULL
+
+Response-Get-Power ::= INTEGER (0..255)</code></pre></figure>
+
+<h4 id="set-power">
+<a id="set-power" class="anchor" href="#set-power" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Power</h4>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Power ::= INTEGER (0..255)
+
+Response-Set-Power ::= NULL</code></pre></figure>
+
+<h4 id="get-data-rate">
+<a id="get-data-rate" class="anchor" href="#get-data-rate" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Data-Rate</h4>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Data-Rate ::= NULL
+
+Response-Get-Data-Rate ::= INTEGER (0..255)</code></pre></figure>
+
+<h4 id="set-data-rate">
+<a id="set-data-rate" class="anchor" href="#set-data-rate" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set-Data-Rate</h4>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Set-Data-Rate ::= INTEGER (0..255)
+
+Response-Set-Data-Rate ::= NULL</code></pre></figure>
+
+<h4 id="get-join-status">
+<a id="get-join-status" class="anchor" href="#get-join-status" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get-Join-Status</h4>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Command-Get-Join-Status ::= NULL
+
+Response-Get-Join-Status ::= ENUMERATED
+{
+    not-joining,
+    joining,
+    joined
 }</code></pre></figure>
 
 <h3 id="alerts">
@@ -1010,6 +1155,8 @@ set by <a href="#set-log-severity-level">Set-Log-Severity-Level</a> command.</p>
 <p><img src="/assets/third_pass_model.png" alt="3d model" class="center-image"></p>
 
 <p><img src="/assets/third_pass_model_back.png" alt="3d model" class="center-image"></p>
+
+<p><img src="/assets/third_pass_assembled.jpg" alt="assembled" class="center-image"></p>
 
 <h3 id="020">
 <a id="020" class="anchor" href="#020" aria-hidden="true"><span class="octicon octicon-link"></span></a>0.2.0</h3>

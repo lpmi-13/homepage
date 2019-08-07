@@ -7,11 +7,11 @@ permalink: lpc
 toc: true
 ---
 
-![assembled board]({{ "/assets/lpc_0.2.0.jpg" | absolute_url }}){: .center-image }
+![assembled board]({{ "/assets/third_pass_assembled.jpg" | absolute_url }}){: .center-image }
 
 {{ table_of_contents }}
 
-Above is version [0.2.0](#020) of the LoRa Pulse Counter demonstration platform. 
+Above is version [0.4.0](#040) of the LoRa Pulse Counter demonstration platform. 
 
 This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
 also an opportunity to evaluate [Kicad](http://kicad-pcb.org/).
@@ -48,15 +48,20 @@ The device has four inputs suitable for interfacing with open-collector,
 dry-contact, or push-pull outputs. In the case of push-pull, the voltage applied
 must not exceed the battery voltage, which can be referenced from the "V+" terminals.
 
-Rise-time of the active signal is limited to 250us the RC filter. The fall-time
-will be around 500us for open-collector outputs.
+Each input looks like this:
+
+![input]({{ "/assets/counter_input.png" | absolute_url }}){: .center-image }
+
+- CONN is where the external signal enters
+- INPUT is a high-impedance digital input
+- DRIVER is a digital output configured to either drive high (pull-up) or low (pull-down)
+- A TVS is used for surge protection
+
+The input rise time is limited by an RC filter. This is typically around 250us for 
+rise and 500us for fall when the pull-up is used.
 
 The rise-time can be further limited by a configurable software filter. This allows
 each input to be adapted to different types of outputs (e.g. slow bouncy contacts vs. fast digital switches).
-
-Each input has a configurable pull up/down resistor. This is useful
-for adapting the average energy consumption to the resting state of the input
-signal. 
 
 ### External Pickup Power Supply
 
@@ -68,9 +73,10 @@ to detect a flashing LED.
 
 ### Status Button and LED
 
-The device has a button which when pressed enables a status LED which
-makes it possible to quickly inspect the status of the device.
+The device has a button which serves two purposes depending on how 
+it is pressed.
 
+As short press will cause the status LED to blink the device status code.
 The status codes are as follows:
 
 number of flashes | status 
@@ -80,6 +86,8 @@ number of flashes | status
 2                 | joined but no downlink received in interval
 3                 | joining
 4                 | not-joined
+
+Holding the button for 5 seconds will toggle join mode.
 
 ### UART Connection
 
@@ -154,49 +162,27 @@ Average power consumption then depends on the demands of the application:
 
 ### Configurable
 
-While incomplete at this stage, the following characteristics are 
-intended to be configurable:
+The following characteristics are configurable:
 
-- input filter mode
-- input trigger mode
-    - rising
-    - falling
-    - both
-- input pullup/pulldown mode
-- alert mode
-    - active high/low
-- message formats
-    - two counters
-    - one counter per message
-    - counter(s) plus alert status field
+- input channel (each channel independently)
+    - polarity
+        - active-high
+        - active-low
+    - rise-time
+        - ~250us
+        - 25ms
+        - 250ms
+        - 1000ms
+        - 5000ms
+        - 10000ms
+    - pull-up/pull-down
 - counter push interval
-- alert notification strategy
 
 ## LoRaWAN Message Format
 
 LoRaWAN messages are differentiated by port number.
 
 ### Device-to-Application
-
-[Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en)
-
-#### One-Counter1 (port 1)
-
-#### Two-Counters (port 1)
-
-{% highlight asn1 %}
-Two-Counters ::= SEQUENCE
-{
-    channel1    INTEGER (0..max-uint32),
-    channel2    INTEGER (0..max-uint32)
-    channel3    INTEGER (0..max-uint32)
-    channel4    INTEGER (0..max-uint32)
-}
-
-max-uint32 Integer ::= 4294967295
-{% endhighlight %}
-
-
 
 ## UART Communication Protocol
 
@@ -266,23 +252,32 @@ Response-Header ::= [1] SEQUENCE
 | 0x0003 | [Restart](#restart)
 | 0x0004 | [Get-Boot-Version](#get-boot-version)
 | 0x0005 | [Get-App-Version](#get-app-version)
-| 0x0010 | [Set-Dev-EUI](#set-dev-eui)
-| 0x0011 | [Set-App-EUI](#set-app-eui)
-| 0x0012 | [Set-App-Key](#set-app-key)
-| 0x0013 | [Get-Dev-EUI](#get-dev-eui)
-| 0x0014 | [Get-App-EUI](#get-app-eui)
-| 0x0015 | [Get-Encrypted-App-Key](#get-encrypted-app-key)
-| 0x0016 | [Join-Network](#join-network)
-| 0x0017 | [Forget-Network](#forget-network)
-| 0x0018 | [Get-Counter](#get-counter)
-| 0x0019 | [Clear-Counter](#clear-counter)
-| 0x001a | [Set-Pull](#set-pull)
-| 0x001b | [Set-Filter](#set-filter)
-| 0x001c | [Get-Device-Name](#get-device-name)
-| 0x001d | [Set-Device-Name](#set-device-name)
-| 0x001e | [Set-Log-Severity-Level](#set-log-severity-level)
-| 0x001f | [Get-Vbat-And-Ambient](#get-vbat-and-ambient)
-
+| 0x0006 | [Set-Log-Severity-Level](#set-log-severity-level)
+| 0x0007 | [Get-Vbat-And-Ambient](#get-vbat-and-ambient)
+| 0x0008 | [Get-Factory-ID](#get-factory-id)
+| 0x0009 | [Get-Device-Name](#get-device-name)
+| 0x000a | [Set-Device-Name](#set-device-name)
+| 0x0100 | [Set-Dev-EUI](#set-dev-eui)
+| 0x0101 | [Set-App-EUI](#set-app-eui)
+| 0x0102 | [Set-App-Key](#set-app-key)
+| 0x0103 | [Get-Dev-EUI](#get-dev-eui)
+| 0x0104 | [Get-App-EUI](#get-app-eui)
+| 0x0105 | [Get-Encrypted-App-Key](#get-encrypted-app-key)
+| 0x0106 | [Join-Network](#join-network)
+| 0x0107 | [Forget-Network](#forget-network)
+| 0x0108 | [Get-Join-Status](#forget-network)
+| 0x0109 | [Enable-ADR](#enable-adr)
+| 0x010a | [Disable-ADR](#disable-adr)
+| 0x010b | [Get-ADR-Mode](#get-adr-mode)
+| 0x010c | [Set-Data-Rate](#set-data-rate)
+| 0x010d | [Get-Data-Rate](#get-data-rate)
+| 0x010e | [Set-Power](#set-power)
+| 0x010f | [Get-Power](#get-power)
+| 0x0200 | [Get-Counter](#get-counter)
+| 0x0201 | [Clear-Counter](#clear-counter)
+| 0x0202 | [Set-Pull](#set-pull)
+| 0x0203 | [Set-Filter](#set-filter)
+| 0x0204 | [Set-Polarity](#set-polarity)
 
 Command/Response arguments are encoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
 
@@ -459,7 +454,7 @@ Response-Set-Pull ::= CHOICE
 
 #### Set-Filter
 
-Set an input filter.
+Set an input rise-time filter.
 
 {% highlight asn1 %}
 Command-Set-Filter ::= SEQUENCE
@@ -467,7 +462,12 @@ Command-Set-Filter ::= SEQUENCE
     index   INTEGER (0..255),
     setting ENUMERATED {
     
-        none
+        none,
+        25ms,
+        250ms,
+        1000ms,
+        5000ms,
+        10000ms
     }
 }
 
@@ -563,6 +563,121 @@ Response-Set-Device-Name ::= CHOICE
 }
 {% endhighlight %}
 
+#### Set-Polarity
+
+Set the active polarity of an input.
+
+{% highlight asn1 %}
+Command-Set-Polarity ::= SEQUENCE
+{
+    index   INTEGER (0..255),
+    setting ENUMERATED {
+    
+        active-low,
+        active-high   
+    }
+}
+
+Response-Set-Polarity ::= CHOICE 
+{
+    success,
+    index-out-of-range      NULL,
+    setting-out-of-range    NULL    
+}
+{% endhighlight %}
+
+#### Get-Factory-ID
+
+Read the unique ID assigned to the MCU at the factory
+
+{% highlight asn1 %}
+Command-Get-Factory-ID ::= NULL
+
+Response-Get-Factory-ID ::= OCTET STRING 
+{% endhighlight %}
+
+#### Enable-ADR
+
+Enable Adaptive Data Rate Mode.
+
+In this mode explicit rate and power settings applied through this interface
+will be ignored.
+
+{% highlight asn1 %}
+Command-Enable-ADR ::= NULL
+
+Response-Enable-ADR ::= NULL 
+{% endhighlight %}
+
+#### Disable-ADR
+
+Disable Adaptive Data Rate Mode.
+
+{% highlight asn1 %}
+Command-Disble-ADR ::= NULL
+
+Response-Disable-ADR ::= NULL 
+{% endhighlight %}
+
+#### Get-ADR-Mode
+
+Is ADR enabled or disabled?
+
+{% highlight asn1 %}
+Command-Get-ADR-Mode ::= NULL
+
+Response-Get-ADR-Mode ::= ENUMERATED
+{
+    disabled,
+    enabled
+} 
+{% endhighlight %}
+
+#### Get-Power
+
+{% highlight asn1 %}
+Command-Get-Power ::= NULL
+
+Response-Get-Power ::= INTEGER (0..255)
+{% endhighlight %}
+
+#### Set-Power
+
+{% highlight asn1 %}
+Command-Set-Power ::= INTEGER (0..255)
+
+Response-Set-Power ::= NULL
+{% endhighlight %}
+
+#### Get-Data-Rate
+
+{% highlight asn1 %}
+Command-Get-Data-Rate ::= NULL
+
+Response-Get-Data-Rate ::= INTEGER (0..255)
+{% endhighlight %}
+
+#### Set-Data-Rate
+
+{% highlight asn1 %}
+Command-Set-Data-Rate ::= INTEGER (0..255)
+
+Response-Set-Data-Rate ::= NULL
+{% endhighlight %}
+
+#### Get-Join-Status
+
+{% highlight asn1 %}
+Command-Get-Join-Status ::= NULL
+
+Response-Get-Join-Status ::= ENUMERATED
+{
+    not-joining,
+    joining,
+    joined
+}
+{% endhighlight %}
+
 ### Alerts
 
 Alerts are constructed as a sequence of a Alert-Header
@@ -648,6 +763,8 @@ Third revision. Changes from last revision include:
 ![3d model]({{ "/assets/third_pass_model.png" | absolute_url }}){: .center-image }
 
 ![3d model]({{ "/assets/third_pass_model_back.png" | absolute_url }}){: .center-image }
+
+![assembled]({{ "/assets/third_pass_assembled.jpg" | absolute_url }}){: .center-image }
 
 ### 0.2.0
 
