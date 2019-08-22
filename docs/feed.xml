@@ -1,73 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-08-23T00:38:46+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">Living with mbed-cli</title><link href="/2019/08/06/dealing-with-mbed.html" rel="alternate" type="text/html" title="Living with mbed-cli" /><published>2019-08-06T00:00:00+01:00</published><updated>2019-08-06T00:00:00+01:00</updated><id>/2019/08/06/dealing-with-mbed</id><content type="html" xml:base="/2019/08/06/dealing-with-mbed.html">&lt;p&gt;MBED is neat but the mbed-cli tool is a pain (on Linux at least). 
-This post is about how I get mbed-cli to work on my system.&lt;/p&gt;
-
-&lt;h1 id=&quot;install-virtualenv-and-python&quot;&gt;Install Virtualenv and Python&lt;/h1&gt;
-
-&lt;p&gt;mbed-cli at time of writing requires Python 2.7.&lt;/p&gt;
-
-&lt;h1 id=&quot;create-an-app-folder&quot;&gt;Create an app folder&lt;/h1&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;mkdir my_app
-cd my_app&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;create-virtualenv-within-app-folder&quot;&gt;Create virtualenv within app folder&lt;/h1&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;virualenv my_env --no-site-packages&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;I found I had to use –no-site-packages because pip (later) was finding
-some of the dependencies elsewhere on my system and not installing them
-in the virtualenv, but then python doesn’t find them when it runs.&lt;/p&gt;
-
-&lt;h1 id=&quot;activate-the-environment&quot;&gt;Activate the environment&lt;/h1&gt;
-
-&lt;p&gt;virtualenv seems to need to be activated/deactivates, there is no “exec” type command.&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;source my_env/bin/activate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;install-mbed-cli-in-the-environment&quot;&gt;Install mbed-cli in the environment&lt;/h1&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;pip install mbed-cli&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;init-the-project&quot;&gt;Init the project&lt;/h1&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;mbed-cli new .&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;install-mbeds-dependencies&quot;&gt;Install mbed’s dependencies&lt;/h1&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;cd mbed-os
-pip install -r requirements.txt
-cd -&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;This step might happen first time you “mbed-cli compile” since I seem
-to be experiencing an “auto-install” delay each time I run that command.&lt;/p&gt;
-
-&lt;p&gt;The auto-install thing never seems to succeed so there is a painful delay
-each time you use the tool.&lt;/p&gt;
-
-&lt;h1 id=&quot;do-stuff&quot;&gt;Do stuff&lt;/h1&gt;
-
-&lt;p&gt;Like compile:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;mbed-cli compile -t GCC_ARM -m NUCLEO_F429ZI&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;remember-to-deactivate-the-virtualenv-when-you-are-done&quot;&gt;Remember to deactivate the virtualenv when you are done&lt;/h1&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;deactivate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;i-find-it-useful-to-use-shell-scripts-for-common-commands&quot;&gt;I find it useful to use shell scripts for common commands&lt;/h1&gt;
-
-&lt;p&gt;For example, you can activate/deactive the virtualenv for each 
-command you wish to perform.&lt;/p&gt;
-
-&lt;p&gt;e.g.&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;/usr/bin/env bash
-&lt;span class=&quot;go&quot;&gt;
-source mbed-cli/bin/activate
-
-&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;mbed-cli compile -t GCC_ARM -m NUCLEO_F429ZI &quot;$&lt;/span&gt;@&lt;span class=&quot;s2&quot;&gt;&quot;
-&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;
-deactivate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html">MBED is neat but the mbed-cli tool is a pain (on Linux at least). This post is about how I get mbed-cli to work on my system.</summary></entry><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-02-05T00:00:00+00:00</published><updated>2019-02-05T00:00:00+00:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;This is my LoRaWAN enabled business card project.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-08-23T00:43:54+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-08-23T00:00:00+01:00</published><updated>2019-08-23T00:00:00+01:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;This is my LoRaWAN enabled business card project.&lt;/p&gt;
 
 &lt;p&gt;It’s a four-channel 2KHz impulse counter based on an STM32L051K8.&lt;/p&gt;
 
@@ -1237,7 +1168,76 @@ with app-key. This can be used to verify &lt;a href=&quot;#app-key&quot;&gt;app-
 
 &lt;ul&gt;
   &lt;li&gt;minutes as an 8 bit integer&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This is my LoRaWAN enabled business card project.</summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
+&lt;/ul&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This is my LoRaWAN enabled business card project.</summary></entry><entry><title type="html">Living with mbed-cli</title><link href="/2019/08/06/dealing-with-mbed.html" rel="alternate" type="text/html" title="Living with mbed-cli" /><published>2019-08-06T00:00:00+01:00</published><updated>2019-08-06T00:00:00+01:00</updated><id>/2019/08/06/dealing-with-mbed</id><content type="html" xml:base="/2019/08/06/dealing-with-mbed.html">&lt;p&gt;MBED is neat but the mbed-cli tool is a pain (on Linux at least). 
+This post is about how I get mbed-cli to work on my system.&lt;/p&gt;
+
+&lt;h1 id=&quot;install-virtualenv-and-python&quot;&gt;Install Virtualenv and Python&lt;/h1&gt;
+
+&lt;p&gt;mbed-cli at time of writing requires Python 2.7.&lt;/p&gt;
+
+&lt;h1 id=&quot;create-an-app-folder&quot;&gt;Create an app folder&lt;/h1&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;mkdir my_app
+cd my_app&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;create-virtualenv-within-app-folder&quot;&gt;Create virtualenv within app folder&lt;/h1&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;virualenv my_env --no-site-packages&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I found I had to use –no-site-packages because pip (later) was finding
+some of the dependencies elsewhere on my system and not installing them
+in the virtualenv, but then python doesn’t find them when it runs.&lt;/p&gt;
+
+&lt;h1 id=&quot;activate-the-environment&quot;&gt;Activate the environment&lt;/h1&gt;
+
+&lt;p&gt;virtualenv seems to need to be activated/deactivates, there is no “exec” type command.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;source my_env/bin/activate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;install-mbed-cli-in-the-environment&quot;&gt;Install mbed-cli in the environment&lt;/h1&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;pip install mbed-cli&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;init-the-project&quot;&gt;Init the project&lt;/h1&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;mbed-cli new .&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;install-mbeds-dependencies&quot;&gt;Install mbed’s dependencies&lt;/h1&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;cd mbed-os
+pip install -r requirements.txt
+cd -&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This step might happen first time you “mbed-cli compile” since I seem
+to be experiencing an “auto-install” delay each time I run that command.&lt;/p&gt;
+
+&lt;p&gt;The auto-install thing never seems to succeed so there is a painful delay
+each time you use the tool.&lt;/p&gt;
+
+&lt;h1 id=&quot;do-stuff&quot;&gt;Do stuff&lt;/h1&gt;
+
+&lt;p&gt;Like compile:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;mbed-cli compile -t GCC_ARM -m NUCLEO_F429ZI&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;remember-to-deactivate-the-virtualenv-when-you-are-done&quot;&gt;Remember to deactivate the virtualenv when you are done&lt;/h1&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;go&quot;&gt;deactivate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;i-find-it-useful-to-use-shell-scripts-for-common-commands&quot;&gt;I find it useful to use shell scripts for common commands&lt;/h1&gt;
+
+&lt;p&gt;For example, you can activate/deactive the virtualenv for each 
+command you wish to perform.&lt;/p&gt;
+
+&lt;p&gt;e.g.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-terminal&quot; data-lang=&quot;terminal&quot;&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;/usr/bin/env bash
+&lt;span class=&quot;go&quot;&gt;
+source mbed-cli/bin/activate
+
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;mbed-cli compile -t GCC_ARM -m NUCLEO_F429ZI &quot;$&lt;/span&gt;@&lt;span class=&quot;s2&quot;&gt;&quot;
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;
+deactivate&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html">MBED is neat but the mbed-cli tool is a pain (on Linux at least). This post is about how I get mbed-cli to work on my system.</summary></entry><entry><title type="html">ruby_olm: Olm Double-Ratchet for Ruby</title><link href="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html" rel="alternate" type="text/html" title="ruby_olm: Olm Double-Ratchet for Ruby" /><published>2018-11-27T00:00:00+00:00</published><updated>2018-11-27T00:00:00+00:00</updated><id>/2018/11/27/ruby-wrapper-for-olm-double-ratchet</id><content type="html" xml:base="/2018/11/27/ruby-wrapper-for-olm-double-ratchet.html">&lt;p&gt;&lt;img src=&quot;/assets/double_ratchet.svg&quot; alt=&quot;Olm Double Ratchet&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Yesterday I finished a &lt;a href=&quot;https://github.com/cjhdev/ruby_olm&quot;&gt;Ruby wrapper&lt;/a&gt; for Olm. 
 &lt;a href=&quot;https://git.matrix.org/git/olm/&quot;&gt;Olm&lt;/a&gt; is a protocol agnostic 
