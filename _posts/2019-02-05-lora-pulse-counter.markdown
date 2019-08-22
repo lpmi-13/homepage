@@ -4,99 +4,80 @@ title:  "LoRa Pulse Counter Demo"
 date:   2019-02-05
 categories:
 permalink: lpc
-toc: true
 ---
+
+This is my LoRaWAN enabled business card project.
+
+It's a four-channel 2KHz impulse counter based on an STM32L051K8. 
 
 ![assembled board]({{ "/assets/third_pass_assembled.jpg" | absolute_url }}){: .center-image }
 
-{{ table_of_contents }}
+![3d model]({{ "/assets/third_pass_model.png" | absolute_url }}){: .center-image }
 
-Above is version [0.4.0](#040) of the LoRa Pulse Counter demonstration platform. 
+![3d model]({{ "/assets/third_pass_model_back.png" | absolute_url }}){: .center-image }
 
-This project exists to demonstrate an end-to-end hardware/firmware/software project. It was
-also an opportunity to evaluate [Kicad](http://kicad-pcb.org/).
+Hardware features include:
 
-## Application
+- STM32L051K8 (64K flash, 8K RAM, Cortex M0+)
+- RFM95W (SX1276 based radio module from HopeRF)
+- dual SMA/UFL footprint
+- status button and LED indicator
+- UART with level converter
+- reverse cell protection
+- power supply for accessories (via "V+")
+- surge protection
+- four inputs suitable for open-collector or dry-contact
 
-The device can be used to count electrical pulses produced by 
-instruments and/or detect level changes from switch based sensors. 
-The count and level state is sent to a remote application over LoRaWAN.
+The firmware is currently occupying half of available flash. Features include:
 
-This might seem dull but it is useful for things like:
+- low power operation (~2uA in stop mode)
+- bespoke [LoRaWAN stack](https://github.com/cjhdev/lora_device_lib)
+- [device failure alarms](#device-alarm)
+- XTAL fail-safe
+- 32 bit counters
+- double-buffer configuration store with fail-safe defaults
+- multi-function [status button with LED indicator](#status-button-and-led)
+- [UART protocol](#uart-protocol)
+- local and remote configuration/control via a common [register](#registers) system
+        
+Configuration items include:
 
-- retrofitting remote reading to existing electricity and water meters
-- tamper detection (e.g. someone opened a door)
-- storage tank level monitoring (e.g. float switches)
-- interactive demonstrations
+- (per input)
+    - pull-up/pull-down
+    - polarity
+    - rise-time (none to 10s)
+    - counter trigger (rising/falling/both)
+    - alert trigger (none/rising/falling/both)
+    - publish enable/disable
+    - alert lockout interval
+    - stale alert interval
+- publish interval
+- alert interval
+- LoRaWAN parameters    
+- radio enabled/disabled
+- user defined serial number (device name)
+- low-battery level
 
-## Features
+## Pin Map
 
-### LoRaWAN
+### Inputs
 
-The device uses LoRaWAN to send data to a remote application. 
-The stack makes use of over-the-air-activation (OTAA)
-and adapative data rate (ADR) to keep setup and operation of the device
-as simple as possible.
+pin | signal    | comment
+----|-----------|-------------------------------------------------------
+1   | V+        | weak power supply / reference
+2   | 1         | channel 1
+3   | 2         | channel 2
+4   | GND       | 
+5   | V+        | 
+6   | 1         | channel 3
+7   | 2         | channel 4
+8   | GND       | 
+{: style="font-size: 90%;" }
 
-The implementation used in this project is bespoke and not based
-on any of the existing permissively licensed projects.
-You can have a peek at the API documentation [here](https://cjhdev.github.io/lora_device_lib_api/).
+### UART
 
-### Digital Inputs
-
-The device has four inputs suitable for interfacing with open-collector, 
-dry-contact, or push-pull outputs. In the case of push-pull, the voltage applied
-must not exceed the battery voltage, which can be referenced from the "V+" terminals.
-
-Each input looks like this:
-
-![input]({{ "/assets/counter_input.png" | absolute_url }}){: .center-image }
-
-- CONN is where the external signal enters
-- INPUT is a high-impedance digital input
-- DRIVER is a digital output configured to either drive high (pull-up) or low (pull-down)
-- A TVS is used for surge protection
-
-The input rise time is limited by an RC filter. This is typically around 250us for 
-rise and 500us for fall when the pull-up is used.
-
-The rise-time can be further limited by a configurable software filter. This allows
-each input to be adapted to different types of outputs (e.g. slow bouncy contacts vs. fast digital switches).
-
-### External Pickup Power Supply
-
-The device can supply a small amount of power to external sensors through
-the "V+" terminals. 
-
-You may, for example, need to power a photodiode detector circuit in order
-to detect a flashing LED.
-
-### Status Button and LED
-
-The device has a button which serves two purposes depending on how 
-it is pressed.
-
-As short press will cause the status LED to blink the device status code.
-The status codes are as follows:
-
-number of flashes | status 
-------------------|-----------------------------------------------------
-0                 | dead
-1                 | joined and downlink received in interval
-2                 | joined but no downlink received in interval
-3                 | joining
-4                 | not-joined
-
-Holding the button for 5 seconds will toggle join mode.
-
-### UART Connection
-
-The device has a level-converted UART connection for the purpose of
-performing configuration and applying updates. The level converter
-is implemented in such a way that it doesn't consume any energy from
-the battery.
-
-The connector pin assignment is as follows:
+The pin layout is compatible with a large number of commercial USB-to-serial 
+adapters:
 
 pin | signal    | comment
 ----|-----------|-------------------------------------------------------
@@ -106,87 +87,102 @@ pin | signal    | comment
 4   | TXD       | transmit line
 5   | RXD       | receive line
 6   | DTR       | not connected
+{: style="font-size: 90%;" }
 
-This connector is compatible with USB-to-serial converters
-made by FTDI, Sparkfun, and many others.
+## Status Button and LED Behavior
 
-The [UART Communication Protocol](#uart-communication-protocol) runs
-over this connection. 
+The button has two actions depending on  how it is pressed:
 
-### Battery Voltage Sensor
+- A short press will cause the status LED to blink the device status code.
+- A long press (>5s) will enable or disable joining mode (i.e. toggle the setting)
 
-The device is able to sample battery voltage. This information is made
-available to the remote application.
+The status codes are as follows:
 
-### Ambient Temperature Sensor
-
-The device is able to sample ambient temperature. This information is made available to 
-the remote application.
-
-### Field Serviceable Primary Cell
-
-The device is powered by a CR123A (Li-MnO2) primary cell which
-is installed in a PCB mounted holder.
-
-The hardware includes reverse polarity protection just in case the cell is
-installed backwards.
-
-### Low Power Design
-
-Power consumption (and battery life) depends on three things: hardware implementation,
-firmware implementation, and application requirements.
-
-The hardware is designed to produce the lowest possible power consumption during active
-and sleep modes. To achieve this the following decisions were made:
-
-- direct unregulated power supply
-- UART level converter is powered by
-- status LED is active only when the user requests it via the user button
-- STM32L051 MCU (using LSE + HSI oscillators)
-- 4MHz system clock (HSI/4)
-
-The firmware implementation is event driven and takes advantage of the MCU "wake from stop mode"
-features. The MCU will wake from:
-
-- external interrupts
-- LPTIM backed application timer
-- UART start bit
-
-Average power consumption then depends on the demands of the application:
-
-- resting state of digital inputs (vs. the pull up/down configuration)
-- frequency of pulse signals
-- frequency of pulse count reporting (configurable)
-- alerting strategy (configurable)
-- link-check strategy (configurable)
-
-### Configurable
-
-The following characteristics are configurable:
-
-- input channel (each channel independently)
-    - polarity
-        - active-high
-        - active-low
-    - rise-time
-        - ~250us
-        - 25ms
-        - 250ms
-        - 1000ms
-        - 5000ms
-        - 10000ms
-    - pull-up/pull-down
-- counter push interval
+number of flashes | status 
+------------------|-----------------------------------------------------
+0                 | dead
+1                 | joined and downlink received in interval
+2                 | joined but no downlink received in interval
+3                 | joining
+4                 | not-joined
+{: style="font-size: 90%;" }
 
 ## LoRaWAN Message Format
 
-LoRaWAN messages are differentiated by port number.
+| direction | port | name      |
+|----------|------|-----------|
+| up        | 1    | power-up |
+| up        | 2    | config-publish | 
+| up        | 3    | [input-publish](#input-publish) | 
+| up        | 4    | input-alert     | 
+| down      | 1    | [remote-write-register](#remote-write-register) | 
+{: style="font-size: 90%;" }
 
-### Device-to-Application
+### Input-Publish
 
-## UART Communication Protocol
+Sent every [publish-interval](#publish-interval). The abstract structure is as follows:
 
-The following protocol allows the device to managed over the UART connection.
+{% highlight asn1 %}
+Counter-Publish ::= SEQUENCE
+{
+    device-alarms BIT STRING (SIZE(8)) {
+        clock-failure,
+        low-battery,
+        over-temperature,
+        power-on-reset,
+        wdt-reset,
+        reserved-6,
+        reserved-7,
+        reserved-8
+    },
+    input-alarms BIT STRING (SIZE(8)) {
+        input-1-active,
+        input-2-active,
+        input-3-active,
+        input-4-active,
+        reserved1,
+        reserved2,
+        reserved3,
+        reserved4
+    },
+    counter-presence BIT STRING (SIZE(8)) {
+        input-1-present,
+        input-2-present,
+        input-3-present,
+        input-4-present,
+        reserved-5,
+        reserved-6,
+        reserved-7,
+        reserved-8,
+    },    
+    counter1 INTEGER (0..4294967295) OPTIONAL,
+    counter2 INTEGER (0..4294967295) OPTIONAL,
+    counter3 INTEGER (0..4294967295) OPTIONAL,
+    counter4 INTEGER (0..4294967295) OPTIONAL  
+}
+{% endhighlight %}
+
+The encoding is [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en) with the following exceptions:
+
+- OPTIONAL counter fields are included according to corresponding counter-presence bit being set
+
+### Remote-Write-Register
+
+Works the same way as [Write-Register](#write-register). Use to modify [registers](#registers) remotely.
+
+{% highlight asn1 %}
+Remote-Write-Register ::= SEQUENCE OF command SEQUENCE
+{
+    id INTEGER (0..65535),
+    // register type
+}
+{% endhighlight %}
+
+Multiple commands can be packed into one message. [Config-Publish]() is
+sent after processing a command regardless of success or failure.
+
+
+## UART Protocol
 
 ### UART Settings
 
@@ -222,6 +218,7 @@ CRC parameters are as follows:
 | reflect output | no |
 | xor output | no |
 
+
 ### Commands
 
 Commands are constructed as a sequence of a Command-Header
@@ -243,438 +240,59 @@ Response-Header ::= [1] SEQUENCE
 }
 {% endhighlight %}
 
-
 | c-id     | name
 |--------|-------
 | 0x0000 | [Boot-Or-App](#boot-or-app)
 | 0x0001 | [Goto-Boot](#goto-boot)
 | 0x0002 | [Goto-App](#goto-app)
 | 0x0003 | [Restart](#restart)
-| 0x0004 | [Get-Boot-Version](#get-boot-version)
-| 0x0005 | [Get-App-Version](#get-app-version)
-| 0x0006 | [Set-Log-Severity-Level](#set-log-severity-level)
-| 0x0007 | [Get-Vbat-And-Ambient](#get-vbat-and-ambient)
-| 0x0008 | [Get-Factory-ID](#get-factory-id)
-| 0x0009 | [Get-Device-Name](#get-device-name)
-| 0x000a | [Set-Device-Name](#set-device-name)
-| 0x0100 | [Set-Dev-EUI](#set-dev-eui)
-| 0x0101 | [Set-App-EUI](#set-app-eui)
-| 0x0102 | [Set-App-Key](#set-app-key)
-| 0x0103 | [Get-Dev-EUI](#get-dev-eui)
-| 0x0104 | [Get-App-EUI](#get-app-eui)
-| 0x0105 | [Get-Encrypted-App-Key](#get-encrypted-app-key)
-| 0x0106 | [Join-Network](#join-network)
-| 0x0107 | [Forget-Network](#forget-network)
-| 0x0108 | [Get-Join-Status](#forget-network)
-| 0x0109 | [Enable-ADR](#enable-adr)
-| 0x010a | [Disable-ADR](#disable-adr)
-| 0x010b | [Get-ADR-Mode](#get-adr-mode)
-| 0x010c | [Set-Data-Rate](#set-data-rate)
-| 0x010d | [Get-Data-Rate](#get-data-rate)
-| 0x010e | [Set-Power](#set-power)
-| 0x010f | [Get-Power](#get-power)
-| 0x0200 | [Get-Counter](#get-counter)
-| 0x0201 | [Clear-Counter](#clear-counter)
-| 0x0202 | [Set-Pull](#set-pull)
-| 0x0203 | [Set-Filter](#set-filter)
-| 0x0204 | [Set-Polarity](#set-polarity)
+| 0x0004 | [Write-Register](#write-register)
+| 0x0005 | [Read-Register](#read-register)
 
 Command/Response arguments are encoded according to [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en).
 
-#### Set-Dev-EUI
+#### Write-Register
 
-Write Dev-EUI to non-volatile memory. 
-
-Following this the device shall forget the network and enter a non-joining
-mode.
+Write a value to a [register](#registers).
 
 {% highlight asn1 %}
-Command-Set-Dev-EUI ::= OCTET STRING (SIZE(8))
-
-Response-Set-Dev-EUI ::= NULL
-{% endhighlight %}
-
-#### Set-App-EUI
-
-Write App-EUI to non-volatile memory. 
-
-Following this the device shall forget the network and enter a non-joining
-mode.
-
-{% highlight asn1 %}
-Command-Set-App-EUI ::= OCTET STRING (SIZE(8))
-
-Response-Set-App-EUI- ::= NULL
-{% endhighlight %}
-
-#### Set-App-Key
-
-Write App-Key to non-volatile memory. 
-
-Following this the device shall forget the network and enter a non-joining
-mode.
-
-{% highlight asn1 %}
-Command-Set-App-Key ::= OCTET STRING (SIZE(16))
-
-Response-Set-App-Key ::= NULL
-{% endhighlight %}
-
-#### Get-Dev-EUI
-
-Return the Dev-EUI.
-
-{% highlight asn1 %}
-Command-Get-Dev-EUI ::= NULL
-
-Response-Get-Dev-EUI ::= OCTET STRING (SIZE(8))
-{% endhighlight %}
-
-#### Get-App-EUI
-
-Return the App-EUI.
-
-{% highlight asn1 %}
-Command-Get-App-EUI ::= NULL
-
-Response-Get-App-EUI ::= OCTET STRING (SIZE(8))
-{% endhighlight %}
-
-#### Get-Encrypted-App-Key
-
-Return the result of performing AES-128 encryption of a zeroed block using the App-Key.
-
-{% highlight asn1 %}
-Command-Get-Encrypted-App-Key ::= NULL
-
-Response-Get-Encrypted-App-Key ::= OCTET STRING (SIZE(16))
-{% endhighlight %}
-
-#### Join-Network
-
-Device shall forget the network and enter a joining mode.
-
-{% highlight asn1 %}
-Command-Join ::= NULL
-
-Response-Join ::= NULL
-{% endhighlight %}
-
-#### Forget-Network
-
-Device shall forget the network and enter a non-joining mode.
-
-{% highlight asn1 %}
-Command-Forget ::= NULL
-
-Response-Forget ::= NULL
-{% endhighlight %}
-
-#### Set-Log-Severity-Level
-
-Set the severity level for log messages pushed by Log-Message alert in accordance
-with [RFC 5424](https://tools.ietf.org/html/rfc5424).
-
-{% highlight asn1 %}
-Command-Set-Log-Severity-Level ::= INTEGER (0..255)
-
-Response-Set-Log-Severity-Level ::= NULL
-{% endhighlight %}
-
-#### Get-VBAT-And-Ambient
-
-Return the battery voltage and ambient temperature.
-
-{% highlight asn1 %}
-Command-Get-Vbat-And-Ambient ::= NULL
-
-Response-Get-Vbat-And-Ambient ::= SEQUENCE
-{
-    vbat INTEGER (0..65535),
-    ambient INTEGER (0..65535)
-}
-{% endhighlight %}
-
-#### Get-Counter
-
-Return a counter register.
-
-{% highlight asn1 %}
-Command-Get-Counter ::= SEQUENCE
-{
-    index INTEGER (0..255)
+Command-Write-Register ::= SEQUENCE
+{    
+    id INTEGER (0..65535)
+    // register type
 }
 
-Response-Get-Counter ::= CHOICE
-{
-    success                 INTEGER (0..4294967295),
-    index-out-of-range      NULL    
-}
-{% endhighlight %}
+Register-Access-Result ::= ENUMERATED {
 
-#### Clear-Counter
-
-Zero a counter register.
-
-{% highlight asn1 %}
-Command-Clear-Counter ::= SEQUENCE
-{
-    index INTEGER (0..255)
-}
-
-Response-Clear-Counter ::= CHOICE
-{
-    success                 NULL,
-    index-out-of-range      NULL    
-}
-{% endhighlight %}
-
-#### Set-Pull
-
-Set a pull-resistor.
-
-{% highlight asn1 %}
-Command-Set-Pull ::= SEQUENCE
-{
-    index   INTEGER (0..255),
-    setting ENUMERATED {
-    
-        pull-up,
-        pull-down    
-    }
-}
-
-Response-Set-Pull ::= CHOICE
-{
-    success                 NULL,
-    index-out-of-range      NULL,
-    setting-out-of-range    NULL    
-}
-{% endhighlight %}
-
-#### Set-Filter
-
-Set an input rise-time filter.
-
-{% highlight asn1 %}
-Command-Set-Filter ::= SEQUENCE
-{
-    index   INTEGER (0..255),
-    setting ENUMERATED {
-    
-        none,
-        25ms,
-        250ms,
-        1000ms,
-        5000ms,
-        10000ms
-    }
-}
-
-Response-Set-Filter ::= CHOICE
-{
-    success                 NULL,
-    index-out-of-range      NULL,
-    setting-out-of-range    NULL    
-}
-{% endhighlight %}
-
-#### Goto-Boot
-
-Put device into bootloader mode.
-
-{% highlight asn1 %}
-Command-Goto-Boot ::= NULL
-
-Response-Goto-Boot ::= NULL
-{% endhighlight %}
-
-#### Goto-App
-
-Put device into application mode.
-
-{% highlight asn1 %}
-Command-Goto-App ::= NULL
-
-Response-Goto-App ::= NULL
-{% endhighlight %}
-
-#### Boot-Or-App
-
-Indicate whether device is in bootloader or application mode.
-
-{% highlight asn1 %}
-Command-Boot-Or-App ::= NULL
-
-Response-Boot-Or-App ::= ENUMERATED { boot (0), app (1) }
-{% endhighlight %}
-
-#### Get-Boot-Version
-
-Get bootloader version string.
-
-{% highlight asn1 %}
-Command-Get-Boot-Version ::= NULL
-
-Response-Get-Boot-Version ::= VisibleString
-{% endhighlight %}
-
-#### Get-App-Version
-
-Get application version string.
-
-{% highlight asn1 %}
-Command-Get-App-Version ::= NULL
-
-Response-Get-App-Version ::= VisibleString
-{% endhighlight %}
-
-#### Restart
-
-User request to restart the device.
-
-{% highlight asn1 %}
-Command-Restart ::= NULL
-
-Response-Restart ::= NULL
-{% endhighlight %}
-
-#### Get-Device-Name
-
-Get the unique device name string.
-
-{% highlight asn1 %}
-Command-Get-Device-Name ::= NULL
-
-Response-Get-Device-Name ::= VisibleString (SIZE(0..36))
-{% endhighlight %}
-
-#### Set-Device-Name
-
-Set the unique device name string.
-
-{% highlight asn1 %}
-Command-Set-Device-Name ::= VisibleString (SIZE(0..36))
-
-Response-Set-Device-Name ::= CHOICE 
-{
     success,
-    too-long
+    register-does-not-exist,
+    access-denied,
+    argument-error,
+    range-error,
+    not-authorised,
+    temporary-failure        
+}
+
+Command-Write-Register :: SEQUENCE
+{
+    result Register-Access-Result
 }
 {% endhighlight %}
 
-#### Set-Polarity
+#### Read-Register
 
-Set the active polarity of an input.
+Read a value from a [register](#registers).
 
 {% highlight asn1 %}
-Command-Set-Polarity ::= SEQUENCE
-{
-    index   INTEGER (0..255),
-    setting ENUMERATED {
-    
-        active-low,
-        active-high   
-    }
+Command-Read-Register ::= SEQUENCE
+{    
+    id INTEGER (0..65535)
 }
 
-Response-Set-Polarity ::= CHOICE 
+Command-Write-Register :: SEQUENCE
 {
-    success,
-    index-out-of-range      NULL,
-    setting-out-of-range    NULL    
-}
-{% endhighlight %}
-
-#### Get-Factory-ID
-
-Read the unique ID assigned to the MCU at the factory
-
-{% highlight asn1 %}
-Command-Get-Factory-ID ::= NULL
-
-Response-Get-Factory-ID ::= OCTET STRING 
-{% endhighlight %}
-
-#### Enable-ADR
-
-Enable Adaptive Data Rate Mode.
-
-In this mode explicit rate and power settings applied through this interface
-will be ignored.
-
-{% highlight asn1 %}
-Command-Enable-ADR ::= NULL
-
-Response-Enable-ADR ::= NULL 
-{% endhighlight %}
-
-#### Disable-ADR
-
-Disable Adaptive Data Rate Mode.
-
-{% highlight asn1 %}
-Command-Disble-ADR ::= NULL
-
-Response-Disable-ADR ::= NULL 
-{% endhighlight %}
-
-#### Get-ADR-Mode
-
-Is ADR enabled or disabled?
-
-{% highlight asn1 %}
-Command-Get-ADR-Mode ::= NULL
-
-Response-Get-ADR-Mode ::= ENUMERATED
-{
-    disabled,
-    enabled
-} 
-{% endhighlight %}
-
-#### Get-Power
-
-{% highlight asn1 %}
-Command-Get-Power ::= NULL
-
-Response-Get-Power ::= INTEGER (0..255)
-{% endhighlight %}
-
-#### Set-Power
-
-{% highlight asn1 %}
-Command-Set-Power ::= INTEGER (0..255)
-
-Response-Set-Power ::= NULL
-{% endhighlight %}
-
-#### Get-Data-Rate
-
-{% highlight asn1 %}
-Command-Get-Data-Rate ::= NULL
-
-Response-Get-Data-Rate ::= INTEGER (0..255)
-{% endhighlight %}
-
-#### Set-Data-Rate
-
-{% highlight asn1 %}
-Command-Set-Data-Rate ::= INTEGER (0..255)
-
-Response-Set-Data-Rate ::= NULL
-{% endhighlight %}
-
-#### Get-Join-Status
-
-{% highlight asn1 %}
-Command-Get-Join-Status ::= NULL
-
-Response-Get-Join-Status ::= ENUMERATED
-{
-    not-joining,
-    joining,
-    joined
+    result Register-Access-Result,
+    // returned value
 }
 {% endhighlight %}
 
@@ -734,8 +352,8 @@ Alert-Invalid-Command-Argument ::= SEQUENCE
 
 #### Log
 
-Used to push logging messages to a client depending on the severity level
-set by [Set-Log-Severity-Level](#set-log-severity-level) command.
+Used to push logging messages to a client depending on the [log severity level](#log-severity-level)
+setting.
 
 {% highlight asn1 %}
 Alert-Log ::= SEQUENCE
@@ -745,64 +363,250 @@ Alert-Log ::= SEQUENCE
 }
 {% endhighlight %}
 
-## Hardware Revisions
+### Registers
 
-### 0.4.0
+Registers can be read and written by the [Read-Register](read-register) and [Write-Register](write-register)
+commands.
 
-Third revision. Changes from last revision include:
+| id     | access | name | type | comment |
+|--------|--------|------|------|-------|
+| 0x0000 | RW     | log-severity-level  | INTEGER(0..255)
+| 0x0001 | R      | boot-version  | OCTET STRING
+| 0x0002 | R      | app-version         | OCTET STRING
+| 0x0003 | R      | factory-id          | OCTET STRING 
+| 0x0004 | R      | vbat                | INTEGER(0..4294967295) | mV
+| 0x0005 | R      | ambient             | INTEGER(0..4294967295) | degC
+| 0x0006 | R      | low-vbat-threshold  | INTEGER(0..65535)      | mV
+| 0x0007 | RW     | device-name         | OCTET STRING(SIZE(0..36)) | fits a UUID
+| 0x0008 | R      | device-alarm        | BIT STRING (SIZE(8))
+| 0x0100 | RW    | dev-eui              | OCTET STRING (SIZE(8))
+| 0x0101 | RW    | app-eui              | OCTET STRING (SIZE(8))
+| 0x0102 | W     | app-key              | OCTET STRING (SIZE(16))
+| 0x0103 | R     | enc-app-key          | OCTET STRING (SIZE(16))
+| 0x0104 | RW    | join-enabled         | BOOLEAN
+| 0x0105 | RW    | tx-rate              | INTEGER(0..255)
+| 0x0106 | RW    | tx-power             | INTEGER(0..255)
+| 0x0107 | RW    | adr-enabled          | BOOLEAN
+| 0x0108 | RW    | joined               | BOOLEAN
+| 0x0200 | RW    | counter1             | INTEGER(0..4294967295)
+| 0x0201 | RW    | counter2             | INTEGER(0..4294967295)
+| 0x0202 | RW    | counter3             | INTEGER(0..4294967295)
+| 0x0203 | RW    | counter4             | INTEGER(0..4294967295)
+| 0x0204 | RW    | input1-polarity   | INTEGER(0..255)
+| 0x0205 | RW    | input2-polarity   | INTEGER(0..255)
+| 0x0206 | RW    | input3-polarity   | INTEGER(0..255)
+| 0x0207 | RW    | input4-polarity   | INTEGER(0..255)
+| 0x0208 | RW    | input1-pull-up       | BOOLEAN
+| 0x0209 | RW    | input2-pull-up       | BOOLEAN
+| 0x020a | RW    | input3-pull-up       | BOOLEAN
+| 0x020b | RW    | input4-pull-up       | BOOLEAN
+| 0x020c | RW    | input1-rise-time     | INTEGER(0..255)
+| 0x020d | RW    | input2-rise-time     | INTEGER(0..255)
+| 0x020e | RW    | input3-rise-time     | INTEGER(0..255)
+| 0x020f | RW    | input4-rise-time     | INTEGER(0..255)
+| 0x0210 | RW    | input1-alert-trigger | INTEGER(0..255)
+| 0x0211 | RW    | input2-alert-trigger | INTEGER(0..255)
+| 0x0212 | RW    | input3-alert-trigger | INTEGER(0..255)
+| 0x0213 | RW    | input4-alert-trigger | INTEGER(0..255)
+| 0x0214 | RW    | input1-alert-lockout-interval | INTEGER(0..255) | minutes
+| 0x0215 | RW    | input2-alert-lockout-interval | INTEGER(0..255) | minutes
+| 0x0216 | RW    | input3-alert-lockout-interval | INTEGER(0..255) | minutes
+| 0x0217 | RW    | input4-alert-lockout-interval | INTEGER(0..255) | minutes
+| 0x0218 | RW    | input1-publish-enabled | BOOLEAN
+| 0x0219 | RW    | input2-publish-enabled | BOOLEAN
+| 0x021a | RW    | input3-publish-enabled | BOOLEAN
+| 0x021b | RW    | input4-publish-enabled | BOOLEAN
+| 0x021c | RW    | publish-interval | INTEGER(0..65535) | minutes
+| 0x021d | RW    | alert-interval | INTEGER(0..255) | minutes
+| 0x021e | R    | input1-state | BOOLEAN
+| 0x021f | R    | input2-state | BOOLEAN
+| 0x0220 | R    | input3-state | BOOLEAN
+| 0x0221 | R    | input4-state | BOOLEAN    
+| 0x0222 | RW    | counter1-trigger | INTEGER(0..255)
+| 0x0223 | RW    | counter2-trigger | INTEGER(0..255)
+| 0x0224 | RW    | counter3-trigger | INTEGER(0..255)
+| 0x0225 | RW    | counter4-trigger | INTEGER(0..255)
+{: style="font-size: 80%; text-align: center;"}
 
-- clamp diodes and TVS surge protection added to UART level converter
-- via reinforced mounting holes with optional chassis ground
-- optional external button header
-- simplified input circuit with TVS diode for surge protection
-- four inputs (up from two) each with configurable pull up/down resistors
-- keepout underneath radio module
-- 0805 packages replaced with 0603
-- larger pitch 6 way SWD header
+#### log-severity-level
 
-![3d model]({{ "/assets/third_pass_model.png" | absolute_url }}){: .center-image }
+The minimum level for log messages pushed by [Log alert](#log):
 
-![3d model]({{ "/assets/third_pass_model_back.png" | absolute_url }}){: .center-image }
+{% highlight asn1 %}
+INTEGER(0..255) {
 
-![assembled]({{ "/assets/third_pass_assembled.jpg" | absolute_url }}){: .center-image }
+    emergency   (0),
+    alert       (1),
+    critical    (2),
+    error       (3),
+    warning     (4),
+    notice      (5),
+    info        (6),
+    debug       (7)
+}
+{% endhighlight %}
 
-### 0.2.0
+#### boot-version
 
-Second revision. Changes from the last revision include:
+Bootloader version string.
 
-- U.FL replaced with dual SMA/U.FL footprint
-- removed DIO4 and DIO5 routing
-- using single inverter for UART transmit line
-- removed reset button
-- using larger footprints for easy soldering
-- enlarged M2 mounting holes to M3
+#### app-version
 
-This revision has been used to develop the firmware. A number of 
-problems were discovered during the course of development:
+Application version string.
 
-- There should be a top-layer keepout underneath U3; trace isolation is currently dependent on soldermask integrity
-- Pin assignments don't take into account external interrupt multiplexing of the STM32
-- The design needs speed up capacitors on the level converter
-- ADC result is measured against VDD and not the reference (therefore the VDD resistor divider is not required)
+#### factory-id
 
-![3d model]({{ "/assets/second_pass_model.png" | absolute_url }}){: .center-image }
+A read-only string unique to this LoRa Pulse Counter.
 
-![assembled board]({{ "/assets/lpc_0.2.0.jpg" | absolute_url }}){: .center-image }
+#### vbat
 
-### 0.1.1
+Battery voltage in millivolts.
 
-This was the first revision. A number of mistakes were made, namely:
+#### ambient
 
-- There was copper (and a via!) underneath the U.FL connector
-- Pin assignments mean STM32L051K8 cannot be swapped for the new lower cost STM32L010K8
-- The UART level converter power consumption could be improved by using the 
-MCU UART signal invert feature
-- The reset switch is redundant
-- Standard footprints are too small for easy hand soldering
-- Double row storage capacitors are difficult to solder by hand
+Ambient temperature measured by integrated temperature sensor.
 
-This revision was swiftly replaced with [0.2.0](#020).
+#### low-vbat-threshold
 
-![3d model]({{ "/assets/first_pass_model.png" | absolute_url }}){: .center-image }
+When vbat is below this value the low-battery [device alarm](#device-alarm)
+will be active.
 
-![assembled board]({{ "/assets/first_pass_assembled.jpg" | absolute_url }}){: .center-image }
+#### device-name
+
+A user assigned name to help with inventory management.
+
+#### ambient-offset
+
+An offset correction applied to the ambient temperature measurement.
+
+#### device-alarm
+
+The device alarm field is used to indicate faults on the device:
+
+{% highlight asn1 %}
+BIT STRING (SIZE(8)) {
+    clock-failure       (0x80),
+    low-battery         (0x40),
+    over-temperature    (0x20),
+    power-on-reset      (0x10),
+    wdt-reset           (0x08),
+    reserved-6          (0x04),
+    reserved-7          (0x02),
+    reserved-8          (0x01)
+}
+{% endhighlight %}
+
+
+ fault | description 
+-------|-------------
+clock-failure       | device is unable to schedule precise time events
+low-battery         | battery requires replacement
+over-temperature    | ambient temperature is outside of the recommended window
+power-reset         | power supply was interrupted either by tamper or brown-out
+wdt-reset           | firmware malfunction
+{: style="font-size: 90%;" }
+
+
+#### dev-eui
+
+LoRaWAN device EUI.
+
+#### app-eui
+
+LoRaWAN application EUI.
+
+#### app-key
+
+A write only register containing the LoRaWAN application key.
+
+#### enc-app-key
+
+A read only register containing a zero block which has been encrypted
+with app-key. This can be used to verify [app-key](#app-key) without revealing it.
+
+#### join-enabled
+
+- Write true to start the OTAA process.
+- Write false to forget the current network and prevent OTAA process
+- Read the current setting
+
+#### tx-rate
+
+The rate setting to use when adr-enabled is set to false.
+
+#### tx-power
+
+The power setting to use when adr-enabled is set to false.
+
+#### adr-enabled
+
+Write 'true' to enable ADR or 'false' to disable ADR.
+
+#### joined
+
+Read to determined if the device is joined to a network.
+
+#### counter[n]
+
+- Read counter value
+- Write any value to reset the counter value
+
+#### input[n]-polarity
+
+{% highlight asn1 %}
+INTEGER(0..255) 
+{
+    low     (0),
+    high    (1)  
+}
+{% endhighlight %}
+
+#### input[n]-pull-up
+
+- Write 'true' to enable pull-up resistor.
+- Write 'false' to enable pull-down resistor.
+
+#### input[n]-rise-time
+
+{% highlight asn1 %}
+INTEGER(0..255) 
+{
+    none    (0),
+    25ms    (1),
+    250ms   (2),
+    1000ms  (3),
+    5000ms  (4),
+    10000ms (5)
+}
+{% endhighlight %}
+
+#### input[n]-alert-trigger
+
+{% highlight asn1 %}
+INTEGER(0..255) 
+{
+    never                   (0),
+    rising                  (1),
+    falling                 (2),
+    rising-falling          (3)
+}
+{% endhighlight %}
+
+#### counter[n]-trigger
+
+{% highlight asn1 %}
+INTEGER(0..255) 
+{
+    rising          (0),
+    falling         (1),
+    rising-falling  (2)
+}
+{% endhighlight %}
+
+#### publish-interval
+
+- minutes as a 16 bit integer
+
+#### alert-interval
+
+- minutes as an 8 bit integer
