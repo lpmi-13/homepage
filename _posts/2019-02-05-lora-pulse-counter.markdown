@@ -69,8 +69,8 @@ pin | signal    | comment
 3   | 2         | channel 2
 4   | GND       | 
 5   | V+        | 
-6   | 1         | channel 3
-7   | 2         | channel 4
+6   | 3         | channel 3
+7   | 4         | channel 4
 8   | GND       | 
 {: style="font-size: 90%;" }
 
