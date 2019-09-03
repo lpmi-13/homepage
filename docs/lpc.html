@@ -108,6 +108,8 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
 
 <p><img src="/assets/third_pass_model_back.png" alt="3d model" class="center-image" /></p>
 
+<p><img src="/assets/top_crop_resize.jpg" alt="in case" class="center-image" /></p>
+
 <p>Hardware features include:</p>
 
 <ul>
@@ -128,12 +130,16 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
   <li>low power operation (~2uA in stop mode)</li>
   <li>bespoke <a href="https://github.com/cjhdev/lora_device_lib">LoRaWAN stack</a></li>
   <li><a href="#device-alarm">device failure alarms</a></li>
+  <li>tickless application timers</li>
   <li>XTAL fail-safe</li>
-  <li>32 bit counters</li>
+  <li>32 bit counters stored in no-init volatile memory</li>
+  <li>count on rising/falling/both</li>
+  <li>alert on rising/falling/both/none</li>
   <li>double-buffer configuration store with fail-safe defaults</li>
   <li>multi-function <a href="#status-button-and-led">status button with LED indicator</a></li>
   <li><a href="#uart-protocol">UART protocol</a></li>
   <li>local and remote configuration/control via a common <a href="#registers">register</a> system</li>
+  <li>hard fault diagnostics</li>
 </ul>
 
 <p>Configuration items include:</p>
@@ -143,16 +149,13 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
     <ul>
       <li>pull-up/pull-down</li>
       <li>polarity</li>
-      <li>rise-time (none to 10s)</li>
+      <li>rise-time (250us to 10s)</li>
       <li>counter trigger (rising/falling/both)</li>
       <li>alert trigger (none/rising/falling/both)</li>
       <li>publish enable/disable</li>
-      <li>alert lockout interval</li>
-      <li>stale alert interval</li>
     </ul>
   </li>
   <li>publish interval</li>
-  <li>alert interval</li>
   <li>LoRaWAN parameters</li>
   <li>radio enabled/disabled</li>
   <li>user defined serial number (device name)</li>
@@ -262,7 +265,7 @@ adapters:</p>
   </tbody>
 </table>
 
-<h2 id="status-button-and-led-behavior">Status Button and LED Behavior</h2>
+<h2 id="status-button-and-led">Status Button and LED</h2>
 
 <p>The button has two actions depending on  how it is pressed:</p>
 
@@ -318,7 +321,7 @@ adapters:</p>
     <tr>
       <td>up</td>
       <td>1</td>
-      <td>power-up</td>
+      <td><a href="#power-up">power-up</a></td>
     </tr>
     <tr>
       <td>up</td>
@@ -343,6 +346,46 @@ adapters:</p>
   </tbody>
 </table>
 
+<h3 id="power-up">Power-Up</h3>
+
+<p>Sent once immediately after the first join-accept is received after system start. If the cause
+of the last reset was a hard fault, the state of the MCU at the time of the fault
+is also included in the message.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">Counter-Publish ::= SEQUENCE
+{
+    device-alarms BIT STRING (SIZE(8)) {
+        clock-failure,
+        low-battery,
+        over-temperature,
+        reserved-4,
+        wdt-reset,
+        hard-fault,
+        reserved-7,
+        reserved-8
+    },
+    mcu-state SEQUENCE
+    {
+        stack-address INTEGER (0..4294967295),
+        
+        r0  INTEGER (0..4294967295),
+        r1  INTEGER (0..4294967295),
+        r2  INTEGER (0..4294967295),
+        r3  INTEGER (0..4294967295),
+        r12 INTEGER (0..4294967295),
+        lr  INTEGER (0..4294967295),
+        pc  INTEGER (0..4294967295),
+        sr  INTEGER (0..4294967295)
+        
+    } OPTIONAL
+}</code></pre></figure>
+
+<p>The encoding is <a href="https://www.itu.int/rec/T-REC-X.696/en">Octet Encoding Rules X.696</a> with the following exceptions:</p>
+
+<ul>
+  <li>OPTIONAL mcu-state is encoded if the hard-fault bit is set in device-alarms</li>
+</ul>
+
 <h3 id="input-publish">Input-Publish</h3>
 
 <p>Sent every <a href="#publish-interval">publish-interval</a>. The abstract structure is as follows:</p>
@@ -353,9 +396,9 @@ adapters:</p>
         clock-failure,
         low-battery,
         over-temperature,
-        power-on-reset,
+        reserved-4,
         wdt-reset,
-        reserved-6,
+        hard-fault,
         reserved-7,
         reserved-8
     },
@@ -661,410 +704,419 @@ setting.</p>
 <h3 id="registers">Registers</h3>
 
 <p>Registers can be read and written by the <a href="read-register">Read-Register</a> and <a href="write-register">Write-Register</a>
-commands.</p>
+commands. Access is role based according to read-group and write-group.</p>
+
+<p>Groups are:</p>
+
+<ul>
+  <li>user</li>
+  <li>owner</li>
+  <li>lora</li>
+  <li>ALL (user|owner|lora)</li>
+</ul>
 
 <table style="font-size: 80%; text-align: center;">
   <thead>
     <tr>
       <th>id</th>
-      <th>access</th>
+      <th>read-group</th>
+      <th>write-group</th>
       <th>name</th>
       <th>type</th>
-      <th>comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>0x0000</td>
-      <td>RW</td>
-      <td>log-severity-level</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#log-severity-level">log-severity-level</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0001</td>
-      <td>R</td>
-      <td>boot-version</td>
-      <td>OCTET STRING</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#boot-version">boot-version</a></td>
+      <td>OCTET STRING</td>
     </tr>
     <tr>
       <td>0x0002</td>
-      <td>R</td>
-      <td>app-version</td>
-      <td>OCTET STRING</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#app-version">app-version</a></td>
+      <td>OCTET STRING</td>
     </tr>
     <tr>
       <td>0x0003</td>
-      <td>R</td>
-      <td>factory-id</td>
-      <td>OCTET STRING</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#factory-id">factory-id</a></td>
+      <td>OCTET STRING</td>
     </tr>
     <tr>
       <td>0x0004</td>
-      <td>R</td>
-      <td>vbat</td>
+      <td>ALL</td>
+      <td> </td>
+      <td><a href="#vbat">vbat</a></td>
       <td>INTEGER(0..4294967295)</td>
-      <td>mV</td>
     </tr>
     <tr>
       <td>0x0005</td>
-      <td>R</td>
-      <td>ambient</td>
+      <td>ALL</td>
+      <td> </td>
+      <td><a href="#ambient">ambient</a></td>
       <td>INTEGER(0..4294967295)</td>
-      <td>degC</td>
     </tr>
     <tr>
       <td>0x0006</td>
-      <td>R</td>
-      <td>low-vbat-threshold</td>
+      <td>ALL</td>
+      <td>owner</td>
+      <td><a href="#low-vbat-threshold">low-vbat-threshold</a></td>
       <td>INTEGER(0..65535)</td>
-      <td>mV</td>
     </tr>
     <tr>
       <td>0x0007</td>
-      <td>RW</td>
-      <td>device-name</td>
+      <td>ALL</td>
+      <td>owner</td>
+      <td><a href="#device-name">device-name</a></td>
       <td>OCTET STRING(SIZE(0..36))</td>
-      <td>fits a UUID</td>
     </tr>
     <tr>
       <td>0x0008</td>
-      <td>R</td>
-      <td>device-alarm</td>
-      <td>BIT STRING (SIZE(8))</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#device-alarm">device-alarm</a></td>
+      <td>BIT STRING (SIZE(8))</td>
     </tr>
     <tr>
       <td>0x0100</td>
-      <td>RW</td>
-      <td>dev-eui</td>
+      <td>ALL</td>
+      <td>owner</td>
+      <td><a href="#dev-eui">dev-eui</a></td>
       <td>OCTET STRING (SIZE(8))</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0101</td>
-      <td>RW</td>
-      <td>app-eui</td>
+      <td>ALL</td>
+      <td>owner</td>
+      <td><a href="#app-eui">app-eui</a></td>
       <td>OCTET STRING (SIZE(8))</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0102</td>
-      <td>W</td>
-      <td>app-key</td>
-      <td>OCTET STRING (SIZE(16))</td>
       <td> </td>
+      <td>owner</td>
+      <td><a href="#app-key">app-key</a></td>
+      <td>OCTET STRING (SIZE(16))</td>
     </tr>
     <tr>
       <td>0x0103</td>
-      <td>R</td>
-      <td>enc-app-key</td>
-      <td>OCTET STRING (SIZE(16))</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#enc-app-key">enc-app-key</a></td>
+      <td>OCTET STRING (SIZE(16))</td>
     </tr>
     <tr>
       <td>0x0104</td>
-      <td>RW</td>
-      <td>join-enabled</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#join-enabled">join-enabled</a></td>
       <td>BOOLEAN</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0105</td>
-      <td>RW</td>
-      <td>tx-rate</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#tx-rate">tx-rate</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0106</td>
-      <td>RW</td>
-      <td>tx-power</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#tx-power">tx-power</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0107</td>
-      <td>RW</td>
-      <td>adr-enabled</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#adr-enabled">adr-enabled</a></td>
       <td>BOOLEAN</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0108</td>
-      <td>RW</td>
-      <td>joined</td>
-      <td>BOOLEAN</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#joined">joined</a></td>
+      <td>BOOLEAN</td>
     </tr>
     <tr>
       <td>0x0200</td>
-      <td>RW</td>
-      <td>counter1</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern">counter1</a></td>
       <td>INTEGER(0..4294967295)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0201</td>
-      <td>RW</td>
-      <td>counter2</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern">counter2</a></td>
       <td>INTEGER(0..4294967295)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0202</td>
-      <td>RW</td>
-      <td>counter3</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern">counter3</a></td>
       <td>INTEGER(0..4294967295)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0203</td>
-      <td>RW</td>
-      <td>counter4</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern">counter4</a></td>
       <td>INTEGER(0..4294967295)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0204</td>
-      <td>RW</td>
-      <td>input1-polarity</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-polarity">input1-polarity</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0205</td>
-      <td>RW</td>
-      <td>input2-polarity</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-polarity">input2-polarity</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0206</td>
-      <td>RW</td>
-      <td>input3-polarity</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-polarity">input3-polarity</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0207</td>
-      <td>RW</td>
-      <td>input4-polarity</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-polarity">input4-polarity</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0208</td>
-      <td>RW</td>
-      <td>input1-pull-up</td>
-      <td>BOOLEAN</td>
-      <td> </td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-pull">input1-pull</a></td>
+      <td>INTEGER(0..255)</td>
     </tr>
     <tr>
       <td>0x0209</td>
-      <td>RW</td>
-      <td>input2-pull-up</td>
-      <td>BOOLEAN</td>
-      <td> </td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-pull">input2-pull</a></td>
+      <td>INTEGER(0..255)</td>
     </tr>
     <tr>
       <td>0x020a</td>
-      <td>RW</td>
-      <td>input3-pull-up</td>
-      <td>BOOLEAN</td>
-      <td> </td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-pull">input3-pull</a></td>
+      <td>INTEGER(0..255)</td>
     </tr>
     <tr>
       <td>0x020b</td>
-      <td>RW</td>
-      <td>input4-pull-up</td>
-      <td>BOOLEAN</td>
-      <td> </td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-pull">input4-pull</a></td>
+      <td>INTEGER(0..255)</td>
     </tr>
     <tr>
       <td>0x020c</td>
-      <td>RW</td>
-      <td>input1-rise-time</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-rise-time">input1-rise-time</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x020d</td>
-      <td>RW</td>
-      <td>input2-rise-time</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-rise-time">input2-rise-time</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x020e</td>
-      <td>RW</td>
-      <td>input3-rise-time</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-rise-time">input3-rise-time</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x020f</td>
-      <td>RW</td>
-      <td>input4-rise-time</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-rise-time">input4-rise-time</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0210</td>
-      <td>RW</td>
-      <td>input1-alert-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-alert-trigger">input1-alert-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0211</td>
-      <td>RW</td>
-      <td>input2-alert-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-alert-trigger">input2-alert-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0212</td>
-      <td>RW</td>
-      <td>input3-alert-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-alert-trigger">input3-alert-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0213</td>
-      <td>RW</td>
-      <td>input4-alert-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-alert-trigger">input4-alert-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0214</td>
-      <td>RW</td>
-      <td>input1-alert-lockout-interval</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#">input1-alert-lockout-interval</a></td>
       <td>INTEGER(0..255)</td>
-      <td>minutes</td>
     </tr>
     <tr>
       <td>0x0215</td>
-      <td>RW</td>
-      <td>input2-alert-lockout-interval</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#">input2-alert-lockout-interval</a></td>
       <td>INTEGER(0..255)</td>
-      <td>minutes</td>
     </tr>
     <tr>
       <td>0x0216</td>
-      <td>RW</td>
-      <td>input3-alert-lockout-interval</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#">input3-alert-lockout-interval</a></td>
       <td>INTEGER(0..255)</td>
-      <td>minutes</td>
     </tr>
     <tr>
       <td>0x0217</td>
-      <td>RW</td>
-      <td>input4-alert-lockout-interval</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#">input4-alert-lockout-interval</a></td>
       <td>INTEGER(0..255)</td>
-      <td>minutes</td>
     </tr>
     <tr>
       <td>0x0218</td>
-      <td>RW</td>
-      <td>input1-publish-enabled</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-publish-enable">input1-publish-enabled</a></td>
       <td>BOOLEAN</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0219</td>
-      <td>RW</td>
-      <td>input2-publish-enabled</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-publish-enable">input2-publish-enabled</a></td>
       <td>BOOLEAN</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x021a</td>
-      <td>RW</td>
-      <td>input3-publish-enabled</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-publish-enable">input3-publish-enabled</a></td>
       <td>BOOLEAN</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x021b</td>
-      <td>RW</td>
-      <td>input4-publish-enabled</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#inputn-publish-enable">input4-publish-enabled</a></td>
       <td>BOOLEAN</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x021c</td>
-      <td>RW</td>
-      <td>publish-interval</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#publish-interval">publish-interval</a></td>
       <td>INTEGER(0..65535)</td>
-      <td>minutes</td>
     </tr>
     <tr>
       <td>0x021d</td>
-      <td>RW</td>
-      <td>alert-interval</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#">alert-interval</a></td>
       <td>INTEGER(0..255)</td>
-      <td>minutes</td>
     </tr>
     <tr>
       <td>0x021e</td>
-      <td>R</td>
-      <td>input1-state</td>
-      <td>BOOLEAN</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#inputn-state">input1-state</a></td>
+      <td>BOOLEAN</td>
     </tr>
     <tr>
       <td>0x021f</td>
-      <td>R</td>
-      <td>input2-state</td>
-      <td>BOOLEAN</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#inputn-state">input2-state</a></td>
+      <td>BOOLEAN</td>
     </tr>
     <tr>
       <td>0x0220</td>
-      <td>R</td>
-      <td>input3-state</td>
-      <td>BOOLEAN</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#inputn-state">input3-state</a></td>
+      <td>BOOLEAN</td>
     </tr>
     <tr>
       <td>0x0221</td>
-      <td>R</td>
-      <td>input4-state</td>
-      <td>BOOLEAN</td>
+      <td>ALL</td>
       <td> </td>
+      <td><a href="#inputn-state">input4-state</a></td>
+      <td>BOOLEAN</td>
     </tr>
     <tr>
       <td>0x0222</td>
-      <td>RW</td>
-      <td>counter1-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern-trigger">counter1-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0223</td>
-      <td>RW</td>
-      <td>counter2-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern-trigger">counter2-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0224</td>
-      <td>RW</td>
-      <td>counter3-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern-trigger">counter3-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
     <tr>
       <td>0x0225</td>
-      <td>RW</td>
-      <td>counter4-trigger</td>
+      <td>ALL</td>
+      <td>owner|lora</td>
+      <td><a href="#countern-trigger">counter4-trigger</a></td>
       <td>INTEGER(0..255)</td>
-      <td> </td>
     </tr>
   </tbody>
 </table>
@@ -1105,6 +1157,9 @@ commands.</p>
 
 <p>Ambient temperature measured by integrated temperature sensor.</p>
 
+<p>This value is used internally to determine when the operating temperature
+is outside of the recommended range.</p>
+
 <h4 id="low-vbat-threshold">low-vbat-threshold</h4>
 
 <p>When vbat is below this value the low-battery <a href="#device-alarm">device alarm</a>
@@ -1123,14 +1178,14 @@ will be active.</p>
 <p>The device alarm field is used to indicate faults on the device:</p>
 
 <figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">BIT STRING (SIZE(8)) {
-    clock-failure       (0x80),
-    low-battery         (0x40),
-    over-temperature    (0x20),
-    power-on-reset      (0x10),
-    wdt-reset           (0x08),
-    reserved-6          (0x04),
-    reserved-7          (0x02),
-    reserved-8          (0x01)
+    clock-failure       (0),
+    low-battery         (1),
+    over-temperature    (2),
+    reserved-4          (3),
+    wdt-reset           (4),
+    hard-fault          (5),
+    reserved-7          (6),
+    reserved-8          (7)
 }</code></pre></figure>
 
 <table style="font-size: 90%;">
@@ -1186,7 +1241,6 @@ with app-key. This can be used to verify <a href="#app-key">app-key</a> without 
 <ul>
   <li>Write true to start the OTAA process.</li>
   <li>Write false to forget the current network and prevent OTAA process</li>
-  <li>Read the current setting</li>
 </ul>
 
 <h4 id="tx-rate">tx-rate</h4>
@@ -1203,14 +1257,13 @@ with app-key. This can be used to verify <a href="#app-key">app-key</a> without 
 
 <h4 id="joined">joined</h4>
 
-<p>Read to determined if the device is joined to a network.</p>
+<p>Read to determine if device is joined to a network.</p>
 
 <h4 id="countern">counter[n]</h4>
 
-<ul>
-  <li>Read counter value</li>
-  <li>Write any value to reset the counter value</li>
-</ul>
+<p>A 32 bit integer incremented according to (counter[n]-trigger)[counter[n]-trigger].</p>
+
+<p>Write any value to reset to zero.</p>
 
 <h4 id="inputn-polarity">input[n]-polarity</h4>
 
@@ -1220,12 +1273,15 @@ with app-key. This can be used to verify <a href="#app-key">app-key</a> without 
     high    (1)  
 }</code></pre></figure>
 
-<h4 id="inputn-pull-up">input[n]-pull-up</h4>
+<h4 id="inputn-pull">input[n]-pull</h4>
 
-<ul>
-  <li>Write ‘true’ to enable pull-up resistor.</li>
-  <li>Write ‘false’ to enable pull-down resistor.</li>
-</ul>
+<p>Pull-up/down setting.</p>
+
+<figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">INTEGER(0..255) 
+{
+    down    (0),
+    up      (1)
+}</code></pre></figure>
 
 <h4 id="inputn-rise-time">input[n]-rise-time</h4>
 
@@ -1251,6 +1307,8 @@ with app-key. This can be used to verify <a href="#app-key">app-key</a> without 
 
 <h4 id="countern-trigger">counter[n]-trigger</h4>
 
+<p><a href="#countern">counter[n]</a> is incremented according to this trigger.</p>
+
 <figure class="highlight"><pre><code class="language-asn1" data-lang="asn1">INTEGER(0..255) 
 {
     rising          (0),
@@ -1260,15 +1318,9 @@ with app-key. This can be used to verify <a href="#app-key">app-key</a> without 
 
 <h4 id="publish-interval">publish-interval</h4>
 
-<ul>
-  <li>minutes as a 16 bit integer</li>
-</ul>
+<p><a href="#input-publish">Input-Publish</a> is sent every publish-interval minutes.</p>
 
 <h4 id="alert-interval">alert-interval</h4>
-
-<ul>
-  <li>minutes as an 8 bit integer</li>
-</ul>
 
   </div>
 

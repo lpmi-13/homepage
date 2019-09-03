@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-08-23T00:50:48+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-08-23T00:00:00+01:00</published><updated>2019-08-23T00:00:00+01:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;This is my LoRaWAN enabled business card project.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-09-03T13:22:53+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-08-23T00:00:00+01:00</published><updated>2019-08-23T00:00:00+01:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;This is my LoRaWAN enabled business card project.&lt;/p&gt;
 
 &lt;p&gt;It’s a four-channel 2KHz impulse counter based on an STM32L051K8.&lt;/p&gt;
 
@@ -7,6 +7,8 @@
 &lt;p&gt;&lt;img src=&quot;/assets/third_pass_model.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/third_pass_model_back.png&quot; alt=&quot;3d model&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/top_crop_resize.jpg&quot; alt=&quot;in case&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Hardware features include:&lt;/p&gt;
 
@@ -28,12 +30,16 @@
   &lt;li&gt;low power operation (~2uA in stop mode)&lt;/li&gt;
   &lt;li&gt;bespoke &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib&quot;&gt;LoRaWAN stack&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;#device-alarm&quot;&gt;device failure alarms&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;tickless application timers&lt;/li&gt;
   &lt;li&gt;XTAL fail-safe&lt;/li&gt;
-  &lt;li&gt;32 bit counters&lt;/li&gt;
+  &lt;li&gt;32 bit counters stored in no-init volatile memory&lt;/li&gt;
+  &lt;li&gt;count on rising/falling/both&lt;/li&gt;
+  &lt;li&gt;alert on rising/falling/both/none&lt;/li&gt;
   &lt;li&gt;double-buffer configuration store with fail-safe defaults&lt;/li&gt;
   &lt;li&gt;multi-function &lt;a href=&quot;#status-button-and-led&quot;&gt;status button with LED indicator&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;#uart-protocol&quot;&gt;UART protocol&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;local and remote configuration/control via a common &lt;a href=&quot;#registers&quot;&gt;register&lt;/a&gt; system&lt;/li&gt;
+  &lt;li&gt;hard fault diagnostics&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Configuration items include:&lt;/p&gt;
@@ -43,16 +49,13 @@
     &lt;ul&gt;
       &lt;li&gt;pull-up/pull-down&lt;/li&gt;
       &lt;li&gt;polarity&lt;/li&gt;
-      &lt;li&gt;rise-time (none to 10s)&lt;/li&gt;
+      &lt;li&gt;rise-time (250us to 10s)&lt;/li&gt;
       &lt;li&gt;counter trigger (rising/falling/both)&lt;/li&gt;
       &lt;li&gt;alert trigger (none/rising/falling/both)&lt;/li&gt;
       &lt;li&gt;publish enable/disable&lt;/li&gt;
-      &lt;li&gt;alert lockout interval&lt;/li&gt;
-      &lt;li&gt;stale alert interval&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
   &lt;li&gt;publish interval&lt;/li&gt;
-  &lt;li&gt;alert interval&lt;/li&gt;
   &lt;li&gt;LoRaWAN parameters&lt;/li&gt;
   &lt;li&gt;radio enabled/disabled&lt;/li&gt;
   &lt;li&gt;user defined serial number (device name)&lt;/li&gt;
@@ -162,7 +165,7 @@ adapters:&lt;/p&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h2 id=&quot;status-button-and-led-behavior&quot;&gt;Status Button and LED Behavior&lt;/h2&gt;
+&lt;h2 id=&quot;status-button-and-led&quot;&gt;Status Button and LED&lt;/h2&gt;
 
 &lt;p&gt;The button has two actions depending on  how it is pressed:&lt;/p&gt;
 
@@ -218,7 +221,7 @@ adapters:&lt;/p&gt;
     &lt;tr&gt;
       &lt;td&gt;up&lt;/td&gt;
       &lt;td&gt;1&lt;/td&gt;
-      &lt;td&gt;power-up&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#power-up&quot;&gt;power-up&lt;/a&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;up&lt;/td&gt;
@@ -243,6 +246,46 @@ adapters:&lt;/p&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
 
+&lt;h3 id=&quot;power-up&quot;&gt;Power-Up&lt;/h3&gt;
+
+&lt;p&gt;Sent once immediately after the first join-accept is received after system start. If the cause
+of the last reset was a hard fault, the state of the MCU at the time of the fault
+is also included in the message.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Counter-Publish ::= SEQUENCE
+{
+    device-alarms BIT STRING (SIZE(8)) {
+        clock-failure,
+        low-battery,
+        over-temperature,
+        reserved-4,
+        wdt-reset,
+        hard-fault,
+        reserved-7,
+        reserved-8
+    },
+    mcu-state SEQUENCE
+    {
+        stack-address INTEGER (0..4294967295),
+        
+        r0  INTEGER (0..4294967295),
+        r1  INTEGER (0..4294967295),
+        r2  INTEGER (0..4294967295),
+        r3  INTEGER (0..4294967295),
+        r12 INTEGER (0..4294967295),
+        lr  INTEGER (0..4294967295),
+        pc  INTEGER (0..4294967295),
+        sr  INTEGER (0..4294967295)
+        
+    } OPTIONAL
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The encoding is &lt;a href=&quot;https://www.itu.int/rec/T-REC-X.696/en&quot;&gt;Octet Encoding Rules X.696&lt;/a&gt; with the following exceptions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;OPTIONAL mcu-state is encoded if the hard-fault bit is set in device-alarms&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;h3 id=&quot;input-publish&quot;&gt;Input-Publish&lt;/h3&gt;
 
 &lt;p&gt;Sent every &lt;a href=&quot;#publish-interval&quot;&gt;publish-interval&lt;/a&gt;. The abstract structure is as follows:&lt;/p&gt;
@@ -253,9 +296,9 @@ adapters:&lt;/p&gt;
         clock-failure,
         low-battery,
         over-temperature,
-        power-on-reset,
+        reserved-4,
         wdt-reset,
-        reserved-6,
+        hard-fault,
         reserved-7,
         reserved-8
     },
@@ -561,410 +604,419 @@ setting.&lt;/p&gt;
 &lt;h3 id=&quot;registers&quot;&gt;Registers&lt;/h3&gt;
 
 &lt;p&gt;Registers can be read and written by the &lt;a href=&quot;read-register&quot;&gt;Read-Register&lt;/a&gt; and &lt;a href=&quot;write-register&quot;&gt;Write-Register&lt;/a&gt;
-commands.&lt;/p&gt;
+commands. Access is role based according to read-group and write-group.&lt;/p&gt;
+
+&lt;p&gt;Groups are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;user&lt;/li&gt;
+  &lt;li&gt;owner&lt;/li&gt;
+  &lt;li&gt;lora&lt;/li&gt;
+  &lt;li&gt;ALL (user|owner|lora)&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;table style=&quot;font-size: 80%; text-align: center;&quot;&gt;
   &lt;thead&gt;
     &lt;tr&gt;
       &lt;th&gt;id&lt;/th&gt;
-      &lt;th&gt;access&lt;/th&gt;
+      &lt;th&gt;read-group&lt;/th&gt;
+      &lt;th&gt;write-group&lt;/th&gt;
       &lt;th&gt;name&lt;/th&gt;
       &lt;th&gt;type&lt;/th&gt;
-      &lt;th&gt;comment&lt;/th&gt;
     &lt;/tr&gt;
   &lt;/thead&gt;
   &lt;tbody&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0000&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;log-severity-level&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#log-severity-level&quot;&gt;log-severity-level&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0001&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;boot-version&lt;/td&gt;
-      &lt;td&gt;OCTET STRING&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#boot-version&quot;&gt;boot-version&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;OCTET STRING&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0002&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;app-version&lt;/td&gt;
-      &lt;td&gt;OCTET STRING&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#app-version&quot;&gt;app-version&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;OCTET STRING&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0003&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;factory-id&lt;/td&gt;
-      &lt;td&gt;OCTET STRING&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#factory-id&quot;&gt;factory-id&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;OCTET STRING&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0004&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;vbat&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#vbat&quot;&gt;vbat&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..4294967295)&lt;/td&gt;
-      &lt;td&gt;mV&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0005&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;ambient&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#ambient&quot;&gt;ambient&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..4294967295)&lt;/td&gt;
-      &lt;td&gt;degC&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0006&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;low-vbat-threshold&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#low-vbat-threshold&quot;&gt;low-vbat-threshold&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..65535)&lt;/td&gt;
-      &lt;td&gt;mV&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0007&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;device-name&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#device-name&quot;&gt;device-name&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;OCTET STRING(SIZE(0..36))&lt;/td&gt;
-      &lt;td&gt;fits a UUID&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0008&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;device-alarm&lt;/td&gt;
-      &lt;td&gt;BIT STRING (SIZE(8))&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#device-alarm&quot;&gt;device-alarm&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;BIT STRING (SIZE(8))&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0100&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;dev-eui&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#dev-eui&quot;&gt;dev-eui&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;OCTET STRING (SIZE(8))&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0101&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;app-eui&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#app-eui&quot;&gt;app-eui&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;OCTET STRING (SIZE(8))&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0102&lt;/td&gt;
-      &lt;td&gt;W&lt;/td&gt;
-      &lt;td&gt;app-key&lt;/td&gt;
-      &lt;td&gt;OCTET STRING (SIZE(16))&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;owner&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#app-key&quot;&gt;app-key&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;OCTET STRING (SIZE(16))&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0103&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;enc-app-key&lt;/td&gt;
-      &lt;td&gt;OCTET STRING (SIZE(16))&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#enc-app-key&quot;&gt;enc-app-key&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;OCTET STRING (SIZE(16))&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0104&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;join-enabled&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#join-enabled&quot;&gt;join-enabled&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0105&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;tx-rate&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#tx-rate&quot;&gt;tx-rate&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0106&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;tx-power&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#tx-power&quot;&gt;tx-power&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0107&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;adr-enabled&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#adr-enabled&quot;&gt;adr-enabled&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0108&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;joined&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#joined&quot;&gt;joined&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;BOOLEAN&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0200&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter1&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern&quot;&gt;counter1&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..4294967295)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0201&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter2&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern&quot;&gt;counter2&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..4294967295)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0202&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter3&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern&quot;&gt;counter3&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..4294967295)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0203&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter4&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern&quot;&gt;counter4&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..4294967295)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0204&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input1-polarity&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-polarity&quot;&gt;input1-polarity&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0205&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input2-polarity&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-polarity&quot;&gt;input2-polarity&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0206&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input3-polarity&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-polarity&quot;&gt;input3-polarity&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0207&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input4-polarity&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-polarity&quot;&gt;input4-polarity&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0208&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input1-pull-up&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-pull&quot;&gt;input1-pull&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0209&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input2-pull-up&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-pull&quot;&gt;input2-pull&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x020a&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input3-pull-up&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-pull&quot;&gt;input3-pull&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x020b&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input4-pull-up&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-pull&quot;&gt;input4-pull&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x020c&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input1-rise-time&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-rise-time&quot;&gt;input1-rise-time&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x020d&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input2-rise-time&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-rise-time&quot;&gt;input2-rise-time&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x020e&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input3-rise-time&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-rise-time&quot;&gt;input3-rise-time&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x020f&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input4-rise-time&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-rise-time&quot;&gt;input4-rise-time&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0210&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input1-alert-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-alert-trigger&quot;&gt;input1-alert-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0211&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input2-alert-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-alert-trigger&quot;&gt;input2-alert-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0212&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input3-alert-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-alert-trigger&quot;&gt;input3-alert-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0213&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input4-alert-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-alert-trigger&quot;&gt;input4-alert-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0214&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input1-alert-lockout-interval&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#&quot;&gt;input1-alert-lockout-interval&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt;minutes&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0215&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input2-alert-lockout-interval&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#&quot;&gt;input2-alert-lockout-interval&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt;minutes&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0216&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input3-alert-lockout-interval&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#&quot;&gt;input3-alert-lockout-interval&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt;minutes&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0217&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input4-alert-lockout-interval&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#&quot;&gt;input4-alert-lockout-interval&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt;minutes&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0218&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input1-publish-enabled&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-publish-enable&quot;&gt;input1-publish-enabled&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0219&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input2-publish-enabled&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-publish-enable&quot;&gt;input2-publish-enabled&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x021a&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input3-publish-enabled&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-publish-enable&quot;&gt;input3-publish-enabled&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x021b&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;input4-publish-enabled&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-publish-enable&quot;&gt;input4-publish-enabled&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;BOOLEAN&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x021c&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;publish-interval&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#publish-interval&quot;&gt;publish-interval&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..65535)&lt;/td&gt;
-      &lt;td&gt;minutes&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x021d&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;alert-interval&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#&quot;&gt;alert-interval&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt;minutes&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x021e&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;input1-state&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-state&quot;&gt;input1-state&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;BOOLEAN&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x021f&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;input2-state&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-state&quot;&gt;input2-state&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;BOOLEAN&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0220&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;input3-state&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-state&quot;&gt;input3-state&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;BOOLEAN&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0221&lt;/td&gt;
-      &lt;td&gt;R&lt;/td&gt;
-      &lt;td&gt;input4-state&lt;/td&gt;
-      &lt;td&gt;BOOLEAN&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
       &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#inputn-state&quot;&gt;input4-state&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;BOOLEAN&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0222&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter1-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern-trigger&quot;&gt;counter1-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0223&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter2-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern-trigger&quot;&gt;counter2-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0224&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter3-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern-trigger&quot;&gt;counter3-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;0x0225&lt;/td&gt;
-      &lt;td&gt;RW&lt;/td&gt;
-      &lt;td&gt;counter4-trigger&lt;/td&gt;
+      &lt;td&gt;ALL&lt;/td&gt;
+      &lt;td&gt;owner|lora&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;#countern-trigger&quot;&gt;counter4-trigger&lt;/a&gt;&lt;/td&gt;
       &lt;td&gt;INTEGER(0..255)&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
     &lt;/tr&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
@@ -1005,6 +1057,9 @@ commands.&lt;/p&gt;
 
 &lt;p&gt;Ambient temperature measured by integrated temperature sensor.&lt;/p&gt;
 
+&lt;p&gt;This value is used internally to determine when the operating temperature
+is outside of the recommended range.&lt;/p&gt;
+
 &lt;h4 id=&quot;low-vbat-threshold&quot;&gt;low-vbat-threshold&lt;/h4&gt;
 
 &lt;p&gt;When vbat is below this value the low-battery &lt;a href=&quot;#device-alarm&quot;&gt;device alarm&lt;/a&gt;
@@ -1023,14 +1078,14 @@ will be active.&lt;/p&gt;
 &lt;p&gt;The device alarm field is used to indicate faults on the device:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;BIT STRING (SIZE(8)) {
-    clock-failure       (0x80),
-    low-battery         (0x40),
-    over-temperature    (0x20),
-    power-on-reset      (0x10),
-    wdt-reset           (0x08),
-    reserved-6          (0x04),
-    reserved-7          (0x02),
-    reserved-8          (0x01)
+    clock-failure       (0),
+    low-battery         (1),
+    over-temperature    (2),
+    reserved-4          (3),
+    wdt-reset           (4),
+    hard-fault          (5),
+    reserved-7          (6),
+    reserved-8          (7)
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;table style=&quot;font-size: 90%;&quot;&gt;
@@ -1086,7 +1141,6 @@ with app-key. This can be used to verify &lt;a href=&quot;#app-key&quot;&gt;app-
 &lt;ul&gt;
   &lt;li&gt;Write true to start the OTAA process.&lt;/li&gt;
   &lt;li&gt;Write false to forget the current network and prevent OTAA process&lt;/li&gt;
-  &lt;li&gt;Read the current setting&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h4 id=&quot;tx-rate&quot;&gt;tx-rate&lt;/h4&gt;
@@ -1103,14 +1157,13 @@ with app-key. This can be used to verify &lt;a href=&quot;#app-key&quot;&gt;app-
 
 &lt;h4 id=&quot;joined&quot;&gt;joined&lt;/h4&gt;
 
-&lt;p&gt;Read to determined if the device is joined to a network.&lt;/p&gt;
+&lt;p&gt;Read to determine if device is joined to a network.&lt;/p&gt;
 
 &lt;h4 id=&quot;countern&quot;&gt;counter[n]&lt;/h4&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;Read counter value&lt;/li&gt;
-  &lt;li&gt;Write any value to reset the counter value&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;A 32 bit integer incremented according to (counter[n]-trigger)[counter[n]-trigger].&lt;/p&gt;
+
+&lt;p&gt;Write any value to reset to zero.&lt;/p&gt;
 
 &lt;h4 id=&quot;inputn-polarity&quot;&gt;input[n]-polarity&lt;/h4&gt;
 
@@ -1120,12 +1173,15 @@ with app-key. This can be used to verify &lt;a href=&quot;#app-key&quot;&gt;app-
     high    (1)  
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;inputn-pull-up&quot;&gt;input[n]-pull-up&lt;/h4&gt;
+&lt;h4 id=&quot;inputn-pull&quot;&gt;input[n]-pull&lt;/h4&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;Write ‘true’ to enable pull-up resistor.&lt;/li&gt;
-  &lt;li&gt;Write ‘false’ to enable pull-down resistor.&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Pull-up/down setting.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;INTEGER(0..255) 
+{
+    down    (0),
+    up      (1)
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;h4 id=&quot;inputn-rise-time&quot;&gt;input[n]-rise-time&lt;/h4&gt;
 
@@ -1151,6 +1207,8 @@ with app-key. This can be used to verify &lt;a href=&quot;#app-key&quot;&gt;app-
 
 &lt;h4 id=&quot;countern-trigger&quot;&gt;counter[n]-trigger&lt;/h4&gt;
 
+&lt;p&gt;&lt;a href=&quot;#countern&quot;&gt;counter[n]&lt;/a&gt; is incremented according to this trigger.&lt;/p&gt;
+
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;INTEGER(0..255) 
 {
     rising          (0),
@@ -1160,15 +1218,9 @@ with app-key. This can be used to verify &lt;a href=&quot;#app-key&quot;&gt;app-
 
 &lt;h4 id=&quot;publish-interval&quot;&gt;publish-interval&lt;/h4&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;minutes as a 16 bit integer&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;&lt;a href=&quot;#input-publish&quot;&gt;Input-Publish&lt;/a&gt; is sent every publish-interval minutes.&lt;/p&gt;
 
-&lt;h4 id=&quot;alert-interval&quot;&gt;alert-interval&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;minutes as an 8 bit integer&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This is my LoRaWAN enabled business card project.</summary></entry><entry><title type="html">Living with mbed-cli</title><link href="/2019/08/06/dealing-with-mbed.html" rel="alternate" type="text/html" title="Living with mbed-cli" /><published>2019-08-06T00:00:00+01:00</published><updated>2019-08-06T00:00:00+01:00</updated><id>/2019/08/06/dealing-with-mbed</id><content type="html" xml:base="/2019/08/06/dealing-with-mbed.html">&lt;p&gt;MBED is neat but the mbed-cli tool is a pain (on Linux at least). 
+&lt;h4 id=&quot;alert-interval&quot;&gt;alert-interval&lt;/h4&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This is my LoRaWAN enabled business card project.</summary></entry><entry><title type="html">Living with mbed-cli</title><link href="/2019/08/06/dealing-with-mbed.html" rel="alternate" type="text/html" title="Living with mbed-cli" /><published>2019-08-06T00:00:00+01:00</published><updated>2019-08-06T00:00:00+01:00</updated><id>/2019/08/06/dealing-with-mbed</id><content type="html" xml:base="/2019/08/06/dealing-with-mbed.html">&lt;p&gt;MBED is neat but the mbed-cli tool is a pain (on Linux at least). 
 This post is about how I get mbed-cli to work on my system.&lt;/p&gt;
 
 &lt;h1 id=&quot;install-virtualenv-and-python&quot;&gt;Install Virtualenv and Python&lt;/h1&gt;

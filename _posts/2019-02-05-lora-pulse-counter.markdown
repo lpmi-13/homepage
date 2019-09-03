@@ -16,6 +16,8 @@ It's a four-channel 2KHz impulse counter based on an STM32L051K8.
 
 ![3d model]({{ "/assets/third_pass_model_back.png" | absolute_url }}){: .center-image }
 
+![in case]({{ "/assets/top_crop_resize.jpg" | absolute_url }}){: .center-image }
+
 Hardware features include:
 
 - STM32L051K8 (64K flash, 8K RAM, Cortex M0+)
@@ -33,26 +35,27 @@ The firmware is currently occupying half of available flash. Features include:
 - low power operation (~2uA in stop mode)
 - bespoke [LoRaWAN stack](https://github.com/cjhdev/lora_device_lib)
 - [device failure alarms](#device-alarm)
+- tickless application timers
 - XTAL fail-safe
-- 32 bit counters
+- 32 bit counters stored in no-init volatile memory
+- count on rising/falling/both
+- alert on rising/falling/both/none
 - double-buffer configuration store with fail-safe defaults
 - multi-function [status button with LED indicator](#status-button-and-led)
 - [UART protocol](#uart-protocol)
 - local and remote configuration/control via a common [register](#registers) system
-        
+- hard fault diagnostics
+
 Configuration items include:
 
 - (per input)
     - pull-up/pull-down
     - polarity
-    - rise-time (none to 10s)
+    - rise-time (250us to 10s)
     - counter trigger (rising/falling/both)
     - alert trigger (none/rising/falling/both)
     - publish enable/disable
-    - alert lockout interval
-    - stale alert interval
 - publish interval
-- alert interval
 - LoRaWAN parameters    
 - radio enabled/disabled
 - user defined serial number (device name)
@@ -89,7 +92,7 @@ pin | signal    | comment
 6   | DTR       | not connected
 {: style="font-size: 90%;" }
 
-## Status Button and LED Behavior
+## Status Button and LED
 
 The button has two actions depending on  how it is pressed:
 
@@ -111,12 +114,52 @@ number of flashes | status
 
 | direction | port | name      |
 |----------|------|-----------|
-| up        | 1    | power-up |
+| up        | 1    | [power-up](#power-up) |
 | up        | 2    | config-publish | 
 | up        | 3    | [input-publish](#input-publish) | 
 | up        | 4    | input-alert     | 
 | down      | 1    | [remote-write-register](#remote-write-register) | 
 {: style="font-size: 90%;" }
+
+### Power-Up
+
+Sent once immediately after the first join-accept is received after system start. If the cause
+of the last reset was a hard fault, the state of the MCU at the time of the fault
+is also included in the message.
+
+{% highlight asn1 %}
+Counter-Publish ::= SEQUENCE
+{
+    device-alarms BIT STRING (SIZE(8)) {
+        clock-failure,
+        low-battery,
+        over-temperature,
+        reserved-4,
+        wdt-reset,
+        hard-fault,
+        reserved-7,
+        reserved-8
+    },
+    mcu-state SEQUENCE
+    {
+        stack-address INTEGER (0..4294967295),
+        
+        r0  INTEGER (0..4294967295),
+        r1  INTEGER (0..4294967295),
+        r2  INTEGER (0..4294967295),
+        r3  INTEGER (0..4294967295),
+        r12 INTEGER (0..4294967295),
+        lr  INTEGER (0..4294967295),
+        pc  INTEGER (0..4294967295),
+        sr  INTEGER (0..4294967295)
+        
+    } OPTIONAL
+}
+{% endhighlight %}
+
+The encoding is [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en) with the following exceptions:
+
+- OPTIONAL mcu-state is encoded if the hard-fault bit is set in device-alarms
 
 ### Input-Publish
 
@@ -129,9 +172,9 @@ Counter-Publish ::= SEQUENCE
         clock-failure,
         low-battery,
         over-temperature,
-        power-on-reset,
+        reserved-4,
         wdt-reset,
-        reserved-6,
+        hard-fault,
         reserved-7,
         reserved-8
     },
@@ -366,66 +409,73 @@ Alert-Log ::= SEQUENCE
 ### Registers
 
 Registers can be read and written by the [Read-Register](read-register) and [Write-Register](write-register)
-commands.
+commands. Access is role based according to read-group and write-group.
 
-| id     | access | name | type | comment |
+Groups are:
+
+- user
+- owner
+- lora
+- ALL (user\|owner\|lora)
+
+| id     | read-group | write-group | name | type |
 |--------|--------|------|------|-------|
-| 0x0000 | RW     | log-severity-level  | INTEGER(0..255)
-| 0x0001 | R      | boot-version  | OCTET STRING
-| 0x0002 | R      | app-version         | OCTET STRING
-| 0x0003 | R      | factory-id          | OCTET STRING 
-| 0x0004 | R      | vbat                | INTEGER(0..4294967295) | mV
-| 0x0005 | R      | ambient             | INTEGER(0..4294967295) | degC
-| 0x0006 | R      | low-vbat-threshold  | INTEGER(0..65535)      | mV
-| 0x0007 | RW     | device-name         | OCTET STRING(SIZE(0..36)) | fits a UUID
-| 0x0008 | R      | device-alarm        | BIT STRING (SIZE(8))
-| 0x0100 | RW    | dev-eui              | OCTET STRING (SIZE(8))
-| 0x0101 | RW    | app-eui              | OCTET STRING (SIZE(8))
-| 0x0102 | W     | app-key              | OCTET STRING (SIZE(16))
-| 0x0103 | R     | enc-app-key          | OCTET STRING (SIZE(16))
-| 0x0104 | RW    | join-enabled         | BOOLEAN
-| 0x0105 | RW    | tx-rate              | INTEGER(0..255)
-| 0x0106 | RW    | tx-power             | INTEGER(0..255)
-| 0x0107 | RW    | adr-enabled          | BOOLEAN
-| 0x0108 | RW    | joined               | BOOLEAN
-| 0x0200 | RW    | counter1             | INTEGER(0..4294967295)
-| 0x0201 | RW    | counter2             | INTEGER(0..4294967295)
-| 0x0202 | RW    | counter3             | INTEGER(0..4294967295)
-| 0x0203 | RW    | counter4             | INTEGER(0..4294967295)
-| 0x0204 | RW    | input1-polarity   | INTEGER(0..255)
-| 0x0205 | RW    | input2-polarity   | INTEGER(0..255)
-| 0x0206 | RW    | input3-polarity   | INTEGER(0..255)
-| 0x0207 | RW    | input4-polarity   | INTEGER(0..255)
-| 0x0208 | RW    | input1-pull-up       | BOOLEAN
-| 0x0209 | RW    | input2-pull-up       | BOOLEAN
-| 0x020a | RW    | input3-pull-up       | BOOLEAN
-| 0x020b | RW    | input4-pull-up       | BOOLEAN
-| 0x020c | RW    | input1-rise-time     | INTEGER(0..255)
-| 0x020d | RW    | input2-rise-time     | INTEGER(0..255)
-| 0x020e | RW    | input3-rise-time     | INTEGER(0..255)
-| 0x020f | RW    | input4-rise-time     | INTEGER(0..255)
-| 0x0210 | RW    | input1-alert-trigger | INTEGER(0..255)
-| 0x0211 | RW    | input2-alert-trigger | INTEGER(0..255)
-| 0x0212 | RW    | input3-alert-trigger | INTEGER(0..255)
-| 0x0213 | RW    | input4-alert-trigger | INTEGER(0..255)
-| 0x0214 | RW    | input1-alert-lockout-interval | INTEGER(0..255) | minutes
-| 0x0215 | RW    | input2-alert-lockout-interval | INTEGER(0..255) | minutes
-| 0x0216 | RW    | input3-alert-lockout-interval | INTEGER(0..255) | minutes
-| 0x0217 | RW    | input4-alert-lockout-interval | INTEGER(0..255) | minutes
-| 0x0218 | RW    | input1-publish-enabled | BOOLEAN
-| 0x0219 | RW    | input2-publish-enabled | BOOLEAN
-| 0x021a | RW    | input3-publish-enabled | BOOLEAN
-| 0x021b | RW    | input4-publish-enabled | BOOLEAN
-| 0x021c | RW    | publish-interval | INTEGER(0..65535) | minutes
-| 0x021d | RW    | alert-interval | INTEGER(0..255) | minutes
-| 0x021e | R    | input1-state | BOOLEAN
-| 0x021f | R    | input2-state | BOOLEAN
-| 0x0220 | R    | input3-state | BOOLEAN
-| 0x0221 | R    | input4-state | BOOLEAN    
-| 0x0222 | RW    | counter1-trigger | INTEGER(0..255)
-| 0x0223 | RW    | counter2-trigger | INTEGER(0..255)
-| 0x0224 | RW    | counter3-trigger | INTEGER(0..255)
-| 0x0225 | RW    | counter4-trigger | INTEGER(0..255)
+| 0x0000 | ALL | owner\|lora | [log-severity-level](#log-severity-level) | INTEGER(0..255)
+| 0x0001 | ALL | | [boot-version](#boot-version) | OCTET STRING
+| 0x0002 | ALL | | [app-version](#app-version) | OCTET STRING
+| 0x0003 | ALL | | [factory-id](#factory-id) | OCTET STRING 
+| 0x0004 | ALL | | [vbat](#vbat) | INTEGER(0..4294967295)
+| 0x0005 | ALL | | [ambient](#ambient) | INTEGER(0..4294967295)
+| 0x0006 | ALL | owner | [low-vbat-threshold](#low-vbat-threshold) | INTEGER(0..65535)
+| 0x0007 | ALL | owner | [device-name](#device-name) | OCTET STRING(SIZE(0..36))
+| 0x0008 | ALL | | [device-alarm](#device-alarm) | BIT STRING (SIZE(8))
+| 0x0100 | ALL | owner | [dev-eui](#dev-eui) | OCTET STRING (SIZE(8))
+| 0x0101 | ALL | owner | [app-eui](#app-eui) | OCTET STRING (SIZE(8))
+| 0x0102 |  | owner | [app-key](#app-key) | OCTET STRING (SIZE(16))
+| 0x0103 | ALL | | [enc-app-key](#enc-app-key) | OCTET STRING (SIZE(16))
+| 0x0104 | ALL | owner\|lora | [join-enabled](#join-enabled) | BOOLEAN
+| 0x0105 | ALL | owner\|lora | [tx-rate](#tx-rate) | INTEGER(0..255)
+| 0x0106 | ALL | owner\|lora | [tx-power](#tx-power) | INTEGER(0..255)
+| 0x0107 | ALL | owner\|lora | [adr-enabled](#adr-enabled) | BOOLEAN
+| 0x0108 | ALL | | [joined](#joined) | BOOLEAN
+| 0x0200 | ALL | owner\|lora | [counter1](#countern) | INTEGER(0..4294967295)
+| 0x0201 | ALL | owner\|lora | [counter2](#countern)  | INTEGER(0..4294967295)
+| 0x0202 | ALL | owner\|lora | [counter3](#countern)  | INTEGER(0..4294967295)
+| 0x0203 | ALL | owner\|lora | [counter4](#countern)  | INTEGER(0..4294967295)
+| 0x0204 | ALL | owner\|lora | [input1-polarity](#inputn-polarity)   | INTEGER(0..255)
+| 0x0205 | ALL | owner\|lora | [input2-polarity](#inputn-polarity)   | INTEGER(0..255)
+| 0x0206 | ALL | owner\|lora | [input3-polarity](#inputn-polarity)   | INTEGER(0..255)
+| 0x0207 | ALL | owner\|lora | [input4-polarity](#inputn-polarity)   | INTEGER(0..255)
+| 0x0208 | ALL | owner\|lora | [input1-pull](#inputn-pull)       | INTEGER(0..255)
+| 0x0209 | ALL | owner\|lora | [input2-pull](#inputn-pull)       | INTEGER(0..255)
+| 0x020a | ALL | owner\|lora | [input3-pull](#inputn-pull)       | INTEGER(0..255)
+| 0x020b | ALL | owner\|lora | [input4-pull](#inputn-pull)       | INTEGER(0..255)
+| 0x020c | ALL | owner\|lora | [input1-rise-time](#inputn-rise-time)     | INTEGER(0..255)
+| 0x020d | ALL | owner\|lora | [input2-rise-time](#inputn-rise-time)     | INTEGER(0..255)
+| 0x020e | ALL | owner\|lora | [input3-rise-time](#inputn-rise-time)     | INTEGER(0..255)
+| 0x020f | ALL | owner\|lora | [input4-rise-time](#inputn-rise-time)     | INTEGER(0..255)
+| 0x0210 | ALL | owner\|lora | [input1-alert-trigger](#inputn-alert-trigger) | INTEGER(0..255)
+| 0x0211 | ALL | owner\|lora | [input2-alert-trigger](#inputn-alert-trigger) | INTEGER(0..255)
+| 0x0212 | ALL | owner\|lora | [input3-alert-trigger](#inputn-alert-trigger) | INTEGER(0..255)
+| 0x0213 | ALL | owner\|lora | [input4-alert-trigger](#inputn-alert-trigger) | INTEGER(0..255)
+| 0x0214 | ALL | owner\|lora | [input1-alert-lockout-interval](#) | INTEGER(0..255)
+| 0x0215 | ALL | owner\|lora | [input2-alert-lockout-interval](#) | INTEGER(0..255)
+| 0x0216 | ALL | owner\|lora | [input3-alert-lockout-interval](#) | INTEGER(0..255)
+| 0x0217 | ALL | owner\|lora | [input4-alert-lockout-interval](#) | INTEGER(0..255)
+| 0x0218 | ALL | owner\|lora | [input1-publish-enabled](#inputn-publish-enable) | BOOLEAN
+| 0x0219 | ALL | owner\|lora | [input2-publish-enabled](#inputn-publish-enable) | BOOLEAN
+| 0x021a | ALL | owner\|lora | [input3-publish-enabled](#inputn-publish-enable) | BOOLEAN
+| 0x021b | ALL | owner\|lora | [input4-publish-enabled](#inputn-publish-enable) | BOOLEAN
+| 0x021c | ALL | owner\|lora | [publish-interval](#publish-interval) | INTEGER(0..65535)
+| 0x021d | ALL | owner\|lora | [alert-interval](#) | INTEGER(0..255)
+| 0x021e | ALL | | [input1-state](#inputn-state) | BOOLEAN
+| 0x021f | ALL | | [input2-state](#inputn-state) | BOOLEAN
+| 0x0220 | ALL | | [input3-state](#inputn-state) | BOOLEAN
+| 0x0221 | ALL | | [input4-state](#inputn-state) | BOOLEAN    
+| 0x0222 | ALL | owner\|lora | [counter1-trigger](#countern-trigger) | INTEGER(0..255)
+| 0x0223 | ALL | owner\|lora | [counter2-trigger](#countern-trigger) | INTEGER(0..255)
+| 0x0224 | ALL | owner\|lora | [counter3-trigger](#countern-trigger) | INTEGER(0..255)
+| 0x0225 | ALL | owner\|lora | [counter4-trigger](#countern-trigger) | INTEGER(0..255)
 {: style="font-size: 80%; text-align: center;"}
 
 #### log-severity-level
@@ -466,6 +516,9 @@ Battery voltage in millivolts.
 
 Ambient temperature measured by integrated temperature sensor.
 
+This value is used internally to determine when the operating temperature
+is outside of the recommended range.
+
 #### low-vbat-threshold
 
 When vbat is below this value the low-battery [device alarm](#device-alarm)
@@ -485,14 +538,14 @@ The device alarm field is used to indicate faults on the device:
 
 {% highlight asn1 %}
 BIT STRING (SIZE(8)) {
-    clock-failure       (0x80),
-    low-battery         (0x40),
-    over-temperature    (0x20),
-    power-on-reset      (0x10),
-    wdt-reset           (0x08),
-    reserved-6          (0x04),
-    reserved-7          (0x02),
-    reserved-8          (0x01)
+    clock-failure       (0),
+    low-battery         (1),
+    over-temperature    (2),
+    reserved-4          (3),
+    wdt-reset           (4),
+    hard-fault          (5),
+    reserved-7          (6),
+    reserved-8          (7)
 }
 {% endhighlight %}
 
@@ -528,7 +581,6 @@ with app-key. This can be used to verify [app-key](#app-key) without revealing i
 
 - Write true to start the OTAA process.
 - Write false to forget the current network and prevent OTAA process
-- Read the current setting
 
 #### tx-rate
 
@@ -544,12 +596,13 @@ Write 'true' to enable ADR or 'false' to disable ADR.
 
 #### joined
 
-Read to determined if the device is joined to a network.
+Read to determine if device is joined to a network.
 
 #### counter[n]
 
-- Read counter value
-- Write any value to reset the counter value
+A 32 bit integer incremented according to (counter\[n\]-trigger)[counter[n]-trigger].
+
+Write any value to reset to zero.
 
 #### input[n]-polarity
 
@@ -561,10 +614,17 @@ INTEGER(0..255)
 }
 {% endhighlight %}
 
-#### input[n]-pull-up
+#### input[n]-pull
 
-- Write 'true' to enable pull-up resistor.
-- Write 'false' to enable pull-down resistor.
+Pull-up/down setting.
+
+{% highlight asn1 %}
+INTEGER(0..255) 
+{
+    down    (0),
+    up      (1)
+}
+{% endhighlight %}
 
 #### input[n]-rise-time
 
@@ -594,6 +654,8 @@ INTEGER(0..255)
 
 #### counter[n]-trigger
 
+[counter[n]](#countern) is incremented according to this trigger.
+
 {% highlight asn1 %}
 INTEGER(0..255) 
 {
@@ -605,8 +667,6 @@ INTEGER(0..255)
 
 #### publish-interval
 
-- minutes as a 16 bit integer
+[Input-Publish](#input-publish) is sent every publish-interval minutes.
 
 #### alert-interval
-
-- minutes as an 8 bit integer
