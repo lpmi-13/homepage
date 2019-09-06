@@ -18,6 +18,8 @@ It's a four-channel 2KHz impulse counter based on an STM32L051K8.
 
 ![in case]({{ "/assets/top_crop_resize.jpg" | absolute_url }}){: .center-image }
 
+![profile]({{ "/assets/activity.jpg" | absolute_url }}){: .center-image }
+
 Hardware features include:
 
 - STM32L051K8 (64K flash, 8K RAM, Cortex M0+)
@@ -600,7 +602,7 @@ Read to determine if device is joined to a network.
 
 #### counter[n]
 
-A 32 bit integer incremented according to (counter\[n\]-trigger)[counter[n]-trigger].
+A 32 bit integer incremented according to [counter\[n\]-trigger](countern-trigger).
 
 Write any value to reset to zero.
 
