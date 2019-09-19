@@ -5,8 +5,6 @@ date:   2018-08-23
 categories:
 ---
 
-*update: LDL source code is no longer publicly accessible*
-
 I wrote an Arduino wrapper for my [LoRaWAN implementation](https://github.com/cjhdev/lora_device_lib_api). 
 This post shows how to use it in an experimental application.
 

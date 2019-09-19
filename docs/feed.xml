@@ -1,4 +1,91 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-09-08T14:26:41+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-08-23T00:00:00+01:00</published><updated>2019-08-23T00:00:00+01:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;This is my LoRaWAN enabled business card project.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-09-19T14:45:04+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">Conforming with LoRaWAN Fair Use Policies</title><link href="/2019/09/18/lorawan-easy-fairuse.html" rel="alternate" type="text/html" title="Conforming with LoRaWAN Fair Use Policies" /><published>2019-09-18T00:00:00+01:00</published><updated>2019-09-18T00:00:00+01:00</updated><id>/2019/09/18/lorawan-easy-fairuse</id><content type="html" xml:base="/2019/09/18/lorawan-easy-fairuse.html">&lt;p&gt;&lt;a href=&quot;https://www.thethingsnetwork.org/&quot;&gt;The Things Network&lt;/a&gt; (a LoRaWAN network provider with a free/community offering)
+encourages its users to meet a fair use policy.&lt;/p&gt;
+
+&lt;p&gt;The policy is intended to prevent TTN users from overwhelming community provided gateways. 
+The limit is set to no more than 30 seconds in 24 hours, so an effective duty cycle of 30/86400 (0.000347).&lt;/p&gt;
+
+&lt;p&gt;One way to meet this limit is to design your application to
+push data on a fixed interval calculated to not exceed the limit.&lt;/p&gt;
+
+&lt;p&gt;But what if:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;You want to push messages on demand&lt;/li&gt;
+  &lt;li&gt;You want to adjust send interval to a changing data rate (because you use ADR)&lt;/li&gt;
+  &lt;li&gt;You don’t want to implement extra logic&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The solution is to make use of the global duty cycle limit setting present
+in most LoRaWAN implementations.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_duty_cycle.png&quot; alt=&quot;snippet&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This setting can be changed by the network using the DutyCycleReq command. 
+On my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib&quot;&gt;implementation&lt;/a&gt; this 
+setting can also be changed by the application through the 
+LDL_MAC_setAggregatedDutyCycleLimit() interface.&lt;/p&gt;
+
+&lt;p&gt;The configuration item must be set to 12 in order to meet the TTN fair use policy.
+This will limit maximum duty cycle to 1/4096 (0.000244). You may notice this
+is more restrictive than what TTN requires, however this is as close as you can
+get using this setting.&lt;/p&gt;
+
+&lt;p&gt;Since the &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib/tree/master/bindings/arduino/output/arduino_ldl&quot;&gt;Arduino wrapper&lt;/a&gt; 
+in my implementation is intended for use with TTN, I’ve added
+the duty cycle limit as a default setting. The end result is that a sketch like this meets
+both regional and fair use duty cycle limits regardless of data rate:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;arduino_ldl.h&amp;gt;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_identity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lora_system_identity&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;       
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lora_system_identity&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;appEUI&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;devEUI&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x00U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x01U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;appKey&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x2bU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x7eU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x15U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x16U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x28U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xaeU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xd2U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xa6U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xabU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xf7U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x15U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x88U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x09U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0xcfU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x4fU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mh&quot;&gt;0x3cU&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;memcpy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;ArduinoLDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArduinoLDL&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;get_identity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;       &lt;span class=&quot;cm&quot;&gt;/* specify name of function that returns euis and key */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;EU_863_870&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;         &lt;span class=&quot;cm&quot;&gt;/* specify region */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;LORA_RADIO_SX1272&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;cm&quot;&gt;/* specify radio */&lt;/span&gt;    
+        &lt;span class=&quot;n&quot;&gt;LORA_RADIO_PA_RFO&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;cm&quot;&gt;/* specify radio power amplifier */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;A0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* radio reset pin */&lt;/span&gt;
+        &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                 &lt;span class=&quot;cm&quot;&gt;/* radio select pin */&lt;/span&gt;
+        &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                  &lt;span class=&quot;cm&quot;&gt;/* radio dio0 pin */&lt;/span&gt;
+        &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;                   &lt;span class=&quot;cm&quot;&gt;/* radio dio1 pin */&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;setup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;ArduinoLDL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+    
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;joined&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()){&lt;/span&gt;
+        
+            &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unconfirmedData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1U&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;                 
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+         
+            &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;otaa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;    
+    
+    &lt;span class=&quot;n&quot;&gt;ldl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;        
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name>Cameron Harper</name></author><summary type="html">The Things Network (a LoRaWAN network provider with a free/community offering) encourages its users to meet a fair use policy.</summary></entry><entry><title type="html">LoRa Pulse Counter Demo</title><link href="/lpc" rel="alternate" type="text/html" title="LoRa Pulse Counter Demo" /><published>2019-08-23T00:00:00+01:00</published><updated>2019-08-23T00:00:00+01:00</updated><id>/lora-pulse-counter</id><content type="html" xml:base="/lpc">&lt;p&gt;This is my LoRaWAN enabled business card project.&lt;/p&gt;
 
 &lt;p&gt;It’s a four-channel 2KHz impulse counter based on an STM32L051K8.&lt;/p&gt;
 
@@ -1355,9 +1442,7 @@ use this for other things like M2M/IoT.&lt;/p&gt;
 
 &lt;span class=&quot;n&quot;&gt;assert_equal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alice_msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob_msg&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">LoraDeviceLib now works with MBED</title><link href="/2018/10/06/lora-device-lib-on-mbed.html" rel="alternate" type="text/html" title="LoraDeviceLib now works with MBED" /><published>2018-10-06T00:00:00+01:00</published><updated>2018-10-06T00:00:00+01:00</updated><id>/2018/10/06/lora-device-lib-on-mbed</id><content type="html" xml:base="/2018/10/06/lora-device-lib-on-mbed.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;I recently completed an MBED wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt; (LDL). 
+&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html"></summary></entry><entry><title type="html">LoraDeviceLib now works with MBED</title><link href="/2018/10/06/lora-device-lib-on-mbed.html" rel="alternate" type="text/html" title="LoraDeviceLib now works with MBED" /><published>2018-10-06T00:00:00+01:00</published><updated>2018-10-06T00:00:00+01:00</updated><id>/2018/10/06/lora-device-lib-on-mbed</id><content type="html" xml:base="/2018/10/06/lora-device-lib-on-mbed.html">&lt;p&gt;I recently completed an MBED wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt; (LDL). 
 This follows on from the &lt;a href=&quot;/2018/08/23/build-your-own-experimental-lorawan-sensor.html&quot;&gt;Arduino wrapper&lt;/a&gt; I wrote about just a few months ago. 
 I thought it would be an interesting point of comparison to see the same demo application implemented for MBED as was implemented for Arduino.&lt;/p&gt;
 
@@ -1543,7 +1628,7 @@ mbed-cli command:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/mbed_sensor_console.png&quot; alt=&quot;sensor console&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Nice.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Ask HN: Who was hiring?</title><link href="/2018/09/21/who-was-hiring.html" rel="alternate" type="text/html" title="Ask HN: Who was hiring?" /><published>2018-09-21T00:00:00+01:00</published><updated>2018-09-21T00:00:00+01:00</updated><id>/2018/09/21/who-was-hiring</id><content type="html" xml:base="/2018/09/21/who-was-hiring.html">&lt;p&gt;This post is about techniques you can use to collect old “Who is hiring?” content
+&lt;p&gt;Nice.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">I recently completed an MBED wrapper for my LoRaWAN implementation (LDL). This follows on from the Arduino wrapper I wrote about just a few months ago. I thought it would be an interesting point of comparison to see the same demo application implemented for MBED as was implemented for Arduino.</summary></entry><entry><title type="html">Ask HN: Who was hiring?</title><link href="/2018/09/21/who-was-hiring.html" rel="alternate" type="text/html" title="Ask HN: Who was hiring?" /><published>2018-09-21T00:00:00+01:00</published><updated>2018-09-21T00:00:00+01:00</updated><id>/2018/09/21/who-was-hiring</id><content type="html" xml:base="/2018/09/21/who-was-hiring.html">&lt;p&gt;This post is about techniques you can use to collect old “Who is hiring?” content
 from Hacker News.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/who_is_hiring.png&quot; alt=&quot;who is hiring thread&quot; /&gt;&lt;/p&gt;
@@ -1870,9 +1955,7 @@ parametrised with different keywords like this:&lt;/p&gt;
 &lt;h2 id=&quot;finally&quot;&gt;Finally&lt;/h2&gt;
 
 &lt;p&gt;If you are actively looking for work on HN I recommend &lt;a href=&quot;https://hnhired.com/&quot;&gt;this&lt;/a&gt; app
-since it more or less does what my scripts do but in your browser and for the most recent month.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.</summary></entry><entry><title type="html">Build Your Own Experimental LoRaWAN Sensor</title><link href="/2018/08/23/build-your-own-experimental-lorawan-sensor.html" rel="alternate" type="text/html" title="Build Your Own Experimental LoRaWAN Sensor" /><published>2018-08-23T00:00:00+01:00</published><updated>2018-08-23T00:00:00+01:00</updated><id>/2018/08/23/build-your-own-experimental-lorawan-sensor</id><content type="html" xml:base="/2018/08/23/build-your-own-experimental-lorawan-sensor.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;I wrote an Arduino wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt;. 
+since it more or less does what my scripts do but in your browser and for the most recent month.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.</summary></entry><entry><title type="html">Build Your Own Experimental LoRaWAN Sensor</title><link href="/2018/08/23/build-your-own-experimental-lorawan-sensor.html" rel="alternate" type="text/html" title="Build Your Own Experimental LoRaWAN Sensor" /><published>2018-08-23T00:00:00+01:00</published><updated>2018-08-23T00:00:00+01:00</updated><id>/2018/08/23/build-your-own-experimental-lorawan-sensor</id><content type="html" xml:base="/2018/08/23/build-your-own-experimental-lorawan-sensor.html">&lt;p&gt;I wrote an Arduino wrapper for my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoRaWAN implementation&lt;/a&gt;. 
 This post shows how to use it in an experimental application.&lt;/p&gt;
 
 &lt;p&gt;Note that even though the wrapper is very easy to use, you should not 
@@ -2280,9 +2363,7 @@ that looks like this:&lt;/p&gt;
 &lt;span class=&quot;gp&quot;&gt;2018-08-17T11:20:43.282121472Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,50.0
 &lt;span class=&quot;gp&quot;&gt;2018-08-17T11:50:41.809375253Z,sensor1,&amp;lt;redacted&amp;gt;&lt;/span&gt;,24.0,48.0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry><entry><title type="html">Using Ruby to Emulate LoRaWAN Hardware</title><link href="/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" rel="alternate" type="text/html" title="Using Ruby to Emulate LoRaWAN Hardware" /><published>2018-03-11T00:00:00+00:00</published><updated>2018-03-11T00:00:00+00:00</updated><id>/2018/03/11/using-ruby-to-emulate-lorawan-hardware</id><content type="html" xml:base="/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html">&lt;p&gt;&lt;em&gt;update: LDL source code is no longer publicly accessible&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;For the past year I’ve been working on a background project called &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoraDeviceLib&lt;/a&gt; (LDL for short).&lt;/p&gt;
+&lt;p&gt;And that’s it.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">I wrote an Arduino wrapper for my LoRaWAN implementation. This post shows how to use it in an experimental application.</summary></entry><entry><title type="html">Using Ruby to Emulate LoRaWAN Hardware</title><link href="/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html" rel="alternate" type="text/html" title="Using Ruby to Emulate LoRaWAN Hardware" /><published>2018-03-11T00:00:00+00:00</published><updated>2018-03-11T00:00:00+00:00</updated><id>/2018/03/11/using-ruby-to-emulate-lorawan-hardware</id><content type="html" xml:base="/2018/03/11/using-ruby-to-emulate-lorawan-hardware.html">&lt;p&gt;For the past year I’ve been working on a background project called &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib_api&quot;&gt;LoraDeviceLib&lt;/a&gt; (LDL for short).&lt;/p&gt;
 
 &lt;p&gt;Since this is not my day job, I’ve been focusing on the parts of the problem that interest me (the MAC layer) and avoiding anything that seems tedious (buying a gateway, setting up a gateway, debugging radio/hardware related problems, complaining about late kickstarter projects).&lt;/p&gt;
 
@@ -2501,4 +2582,4 @@ send complete&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;It’s not perfect. There are plenty of wrinkles and missing features, the most obvious being that the emulator doesn’t simulate the effect of distance and obstacles on radio signals. 
-This means that at this time it’s not useful for debugging ADR or for observing the effect of many devices and gateways operating in the same space.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">update: LDL source code is no longer publicly accessible</summary></entry></feed>
+This means that at this time it’s not useful for debugging ADR or for observing the effect of many devices and gateways operating in the same space.&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">For the past year I’ve been working on a background project called LoraDeviceLib (LDL for short).</summary></entry></feed>

@@ -5,8 +5,6 @@ date:   2018-03-11
 categories:
 ---
 
-*update: LDL source code is no longer publicly accessible*
-
 For the past year I’ve been working on a background project called [LoraDeviceLib](https://github.com/cjhdev/lora_device_lib_api) (LDL for short). 
 
 Since this is not my day job, I’ve been focusing on the parts of the problem that interest me (the MAC layer) and avoiding anything that seems tedious (buying a gateway, setting up a gateway, debugging radio/hardware related problems, complaining about late kickstarter projects). 
