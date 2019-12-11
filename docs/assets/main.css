@@ -166,6 +166,7 @@ pre {
  * Tables
  */
 table {
+  margin: 0 auto;
   margin-bottom: 30px;
   width: 100%;
   text-align: left;
@@ -182,6 +183,15 @@ table {
     border-bottom-color: #c9c9c9; }
   table td {
     border: 1px solid #e8e8e8; }
+
+.table-success {
+  background-color: #c3e6cb; }
+
+.table-danger {
+  background-color: #f5c6cb; }
+
+.table-warning {
+  background-color: #ffeeba; }
 
 /**
  * Site header

@@ -1,4 +1,375 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-09-19T15:35:25+01:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">Conforming with LoRaWAN Fair Use Policies</title><link href="/2019/09/18/lorawan-easy-fairuse.html" rel="alternate" type="text/html" title="Conforming with LoRaWAN Fair Use Policies" /><published>2019-09-18T00:00:00+01:00</published><updated>2019-09-18T00:00:00+01:00</updated><id>/2019/09/18/lorawan-easy-fairuse</id><content type="html" xml:base="/2019/09/18/lorawan-easy-fairuse.html">&lt;p&gt;&lt;a href=&quot;https://www.thethingsnetwork.org/&quot;&gt;The Things Network&lt;/a&gt; (a LoRaWAN network provider with a free/community offering)
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-12-11T15:22:33+00:00</updated><id>/</id><title type="html">Cameron Harper</title><author><name>Cameron Harper</name></author><entry><title type="html">LDL vs. LoRaMac-Node: Size and Complexity</title><link href="/2019/12/11/comparing-ldl-to-loramac.html" rel="alternate" type="text/html" title="LDL vs. LoRaMac-Node: Size and Complexity" /><published>2019-12-11T00:00:00+00:00</published><updated>2019-12-11T00:00:00+00:00</updated><id>/2019/12/11/comparing-ldl-to-loramac</id><content type="html" xml:base="/2019/12/11/comparing-ldl-to-loramac.html">&lt;p&gt;In this post I compare the apparent &lt;a href=&quot;https://en.wikipedia.org/wiki/Cyclomatic_complexity&quot;&gt;cyclomatic complexity&lt;/a&gt; and compiled
+size of two LoRaWAN implementations: LDL and LoRaMac-Node.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/cjhdev/lora_device_lib&quot;&gt;LDL&lt;/a&gt; is my own implementation. &lt;a href=&quot;https://github.com/Lora-net/LoRaMac-node&quot;&gt;LoRaMac-Node&lt;/a&gt; 
+appears to be a Semtech sponsored LoRaWAN reference implementation.&lt;/p&gt;
+
+&lt;p&gt;LoRaMac-Node has been around for a while and is probably a sensible choice for 
+commercial projects. LDL is experimental and should not be trusted.&lt;/p&gt;
+
+&lt;h2 id=&quot;method&quot;&gt;Method&lt;/h2&gt;
+
+&lt;p&gt;The comparison is between LDL &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib/releases/tag/0.2.3&quot;&gt;0.2.3&lt;/a&gt;
+and LoRaMac-Node &lt;a href=&quot;https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.4.2&quot;&gt;4.4.2&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Source to be compared is grouped into one of three domains:&lt;/p&gt;
+
+&lt;table&gt;
+    &lt;caption&gt;Domain Definitions&lt;/caption&gt;
+    &lt;theader&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Domain&lt;/th&gt;
+            &lt;th&gt;Description&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/theader&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Region&lt;/td&gt;
+            &lt;td&gt;region specific features&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Radio&lt;/td&gt;
+            &lt;td&gt;radio drivers&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;all platform agnostic code which does not fall into the region or radio domains, excluding cryptographic modes&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The following source files are selected from each project for each domain:&lt;/p&gt;
+
+&lt;table&gt;
+    &lt;caption&gt;Radio Domain Files&lt;/caption&gt;
+    &lt;theader&gt;
+        &lt;tr&gt;
+            &lt;th&gt;LDL&lt;/th&gt;
+            &lt;th&gt;LoRaMac-Node&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/theader&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;ldl_radio.c/h&lt;/td&gt;
+            &lt;td&gt;radio/radio.h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;ldl_radio_defs.h&lt;/td&gt;
+            &lt;td&gt;radio/sx1272/sx1272.c/h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;ldl_chip.h&lt;/td&gt;
+            &lt;td&gt;radio/sx1276/sx1276.c/h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;radio/sx1272/sx1272Regs-LoRa.h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;adio/sx1272/sx1272Regs-Fsk.h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;radio/sx1276/sx1276Regs-LoRa.h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;radio/sx1276/sx1276Regs-Fsk.h&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table&gt;
+    &lt;caption&gt;Region Domain Files&lt;/caption&gt;
+    &lt;theader&gt;
+        &lt;tr&gt;
+            &lt;th&gt;LDL&lt;/th&gt;
+            &lt;th&gt;LoRaMac-Node&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/theader&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;ldl_region.c/h&lt;/td&gt;
+            &lt;td&gt;region/Region.c/h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;region/RegionCommon.c/h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;region/RegionEU868.c/h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;region/RegionUS915.c/h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;region/RegionEU433.c/h&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;region/RegionAU915.c/h&lt;/td&gt;
+        &lt;/tr&gt;        
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table&gt;
+    &lt;caption&gt;MAC Domain Files&lt;/caption&gt;
+    &lt;theader&gt;
+        &lt;tr&gt;
+            &lt;th&gt;LDL&lt;/th&gt;
+            &lt;th&gt;LoRaMac-Node&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/theader&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;ldl_mac.c/h&lt;/td&gt;
+            &lt;td&gt;mac/LoRaMac.c/h &lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;ldl_mac_commands.c/h&lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacCommands.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;ldl_frame.c/h &lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacConfirmQueue.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;ldl_ops.c/h&lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacSerializer.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;ldl_sm.c/h&lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacAdr.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;ldl_sm_internal.h &lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacParser.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;ldl_stream.c/h &lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacCrypto.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;ldl_system.c/h&lt;/td&gt;
+            &lt;td&gt;system/timer.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;peripherals/soft-se/soft-se.c/h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt; mac/LoRaMacHeaderTypes.h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacTypes.h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;mac/secure-element.h&lt;/td&gt;
+        &lt;/tr&gt;     
+        &lt;tr&gt;
+            &lt;td&gt;&lt;/td&gt;
+            &lt;td&gt;mac/LoRaMacTest.h&lt;/td&gt;
+        &lt;/tr&gt;     
+        
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The comparison excludes:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;cryptographic implementations (AES-ECB, AES-CMAC, AES-CTR)&lt;/li&gt;
+  &lt;li&gt;target specific code (e.g. hardware abstraction layer)&lt;/li&gt;
+  &lt;li&gt;mismatched LoRaWAN features which are implemented in separate files&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;LoRaMac-Node implements more regions, radios, and modes than LDL. Where possible 
+these extra features have been excluded in order to create a more like for like
+comparison.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately not all mismatched features can be excluded. For example, 
+LoRaMac-Node class C is inseparable from class A, while LDL only implements class A.
+This difference means we should expect LoRaMac-Node to have more LoC and associated
+scores.&lt;/p&gt;
+
+&lt;p&gt;The table below gives a high-level view of the features implemented by
+the files sorted into the domain tables above. Mismatched features
+are indicated by a ‘yes’ in one column and a ‘no’ in the other.&lt;/p&gt;
+
+&lt;table&gt;
+    &lt;caption&gt;Feature Matrix&lt;/caption&gt;
+    &lt;theader&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Domain&lt;/th&gt;
+            &lt;th&gt;Feature&lt;/th&gt;
+            &lt;th&gt;LDL&lt;/th&gt;
+            &lt;th&gt;LoRaMac-Node&lt;/th&gt;
+        &lt;/tr&gt;        
+    &lt;/theader&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;Class A&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;Class C&lt;/td&gt;
+            &lt;td class=&quot;table-danger&quot;&gt;no&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;LoRaWAN 1.1 key derivation and handling&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-danger&quot;&gt;no&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;OTAA&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;ABP&lt;/td&gt;
+            &lt;td class=&quot;table-danger&quot;&gt;no&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;        
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;ADR&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;Confirmed/Unconfirmed Data&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;        
+        &lt;tr&gt;
+            &lt;td&gt;MAC&lt;/td&gt;
+            &lt;td&gt;ioctl style access to all parameters&lt;/td&gt;
+            &lt;td class=&quot;table-danger&quot;&gt;no&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;        
+        &lt;tr&gt;
+            &lt;td colspan=&quot;4&quot;&gt;&lt;/td&gt;            
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Radio&lt;/td&gt;
+            &lt;td&gt;SX1272&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Radio&lt;/td&gt;
+            &lt;td&gt;SX1276&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Radio&lt;/td&gt;
+            &lt;td&gt;FSK Modulation&lt;/td&gt;
+            &lt;td class=&quot;table-danger&quot;&gt;no&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td colspan=&quot;4&quot;&gt;&lt;/td&gt;            
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Region&lt;/td&gt;
+            &lt;td&gt;EU_868_870&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;        
+        &lt;tr&gt;
+            &lt;td&gt;Region&lt;/td&gt;
+            &lt;td&gt;EU_433&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;        
+        &lt;tr&gt;
+            &lt;td&gt;Region&lt;/td&gt;
+            &lt;td&gt;US_902_928&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;        
+        &lt;tr&gt;
+            &lt;td&gt;Region&lt;/td&gt;
+            &lt;td&gt;AU_915_928&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+            &lt;td class=&quot;table-success&quot;&gt;yes&lt;/td&gt;
+        &lt;/tr&gt;        
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The tool &lt;a href=&quot;https://people.debian.org/~bame/pmccabe/overview.html&quot;&gt;pmccabe&lt;/a&gt; is used to measure:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;apparent lines of code (includes comments and whitespace)&lt;/li&gt;
+  &lt;li&gt;number of statements&lt;/li&gt;
+  &lt;li&gt;number of functions&lt;/li&gt;
+  &lt;li&gt;modified McCabe complexity (per function and per source file)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The higher the McCabe score, the more complicated the code. Functions with scores
+above 10 are considered complicated.&lt;/p&gt;
+
+&lt;p&gt;To determine compiled size, the source is compiled for an ARM Cortex M0+ using 
+arm-none-aebi-gcc 8.2.1.  All compiler settings are in the &lt;a href=&quot;https://github.com/cjhdev/lorawan_comparison/blob/master/makefile&quot;&gt;makefile&lt;/a&gt;.
+Size optimisation (-Os) is used in an effort to produce the smallest possible compiled size.&lt;/p&gt;
+
+&lt;p&gt;The objects are grouped into archive files and the size of each archive is
+determined using arm-none-aebi-size. The objects are not linked.&lt;/p&gt;
+
+&lt;p&gt;Both projects are vendored into &lt;a href=&quot;https://github.com/cjhdev/lorawan_comparison&quot;&gt;this&lt;/a&gt; repository.
+The tools pmccabe and gcc are orchestrated from &lt;a href=&quot;https://github.com/cjhdev/lorawan_comparison/blob/master/comparison.rb&quot;&gt;this&lt;/a&gt; script.&lt;/p&gt;
+
+&lt;p&gt;Data is always presented in the order of LDL first.
+LDL is plotted in blue, LoRaMac-Node is plotted in orange.&lt;/p&gt;
+
+&lt;h2 id=&quot;overall-scores&quot;&gt;Overall Scores&lt;/h2&gt;
+
+&lt;table&gt;&lt;caption&gt;LDL PMCCABE Results&lt;/caption&gt;&lt;header&gt;&lt;tr&gt;&lt;th&gt;Domain&lt;/th&gt;&lt;th&gt;LoC&lt;/th&gt;&lt;th&gt;Functions&lt;/th&gt;&lt;th&gt;Statements&lt;/th&gt;&lt;th&gt;Complexity&lt;/th&gt;&lt;/tr&gt;&lt;/header&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Mac&lt;/td&gt;&lt;td&gt;6933&lt;/td&gt;&lt;td&gt;149&lt;/td&gt;&lt;td&gt;1812&lt;/td&gt;&lt;td&gt;462&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Radio&lt;/td&gt;&lt;td&gt;1205&lt;/td&gt;&lt;td&gt;36&lt;/td&gt;&lt;td&gt;289&lt;/td&gt;&lt;td&gt;72&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Region&lt;/td&gt;&lt;td&gt;1127&lt;/td&gt;&lt;td&gt;24&lt;/td&gt;&lt;td&gt;418&lt;/td&gt;&lt;td&gt;83&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;9265&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;209&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;2519&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;617&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;table&gt;&lt;caption&gt;LoRaMAC-Node PMCCABE Results&lt;/caption&gt;&lt;header&gt;&lt;tr&gt;&lt;th&gt;Domain&lt;/th&gt;&lt;th&gt;LoC&lt;/th&gt;&lt;th&gt;Functions&lt;/th&gt;&lt;th&gt;Statements&lt;/th&gt;&lt;th&gt;Complexity&lt;/th&gt;&lt;/tr&gt;&lt;/header&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Mac&lt;/td&gt;&lt;td&gt;13798&lt;/td&gt;&lt;td&gt;189&lt;/td&gt;&lt;td&gt;3381&lt;/td&gt;&lt;td&gt;862&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Radio&lt;/td&gt;&lt;td&gt;8129&lt;/td&gt;&lt;td&gt;71&lt;/td&gt;&lt;td&gt;1358&lt;/td&gt;&lt;td&gt;345&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Region&lt;/td&gt;&lt;td&gt;9915&lt;/td&gt;&lt;td&gt;155&lt;/td&gt;&lt;td&gt;2347&lt;/td&gt;&lt;td&gt;512&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;31842&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;415&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;7086&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;1719&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/domain_loc.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/domain_functions.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/domain_statements.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/domain_complexity.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;function-complexity&quot;&gt;Function Complexity&lt;/h2&gt;
+
+&lt;p&gt;Here I’ve plotted the frequency of function complexity scores for each domain.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/function_mac.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/function_radio.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/function_region.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;compiled-size&quot;&gt;Compiled Size&lt;/h2&gt;
+
+&lt;table&gt;&lt;caption&gt;LDL Compiled Size&lt;/caption&gt;&lt;theader&gt;&lt;tr&gt;&lt;th&gt;Object File (from *.c)&lt;/th&gt;&lt;th&gt;Text (bytes)&lt;/th&gt;&lt;th&gt;BSS+Data (bytes)&lt;/th&gt;&lt;/tr&gt;&lt;/theader&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;ldl_region.o&lt;/td&gt;&lt;td&gt;1500&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_radio.o&lt;/td&gt;&lt;td&gt;1437&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_dummy_radio.o&lt;/td&gt;&lt;td&gt;20&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_mac.o&lt;/td&gt;&lt;td&gt;7982&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_mac_commands.o&lt;/td&gt;&lt;td&gt;782&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_frame.o&lt;/td&gt;&lt;td&gt;888&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_ops.o&lt;/td&gt;&lt;td&gt;1340&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_sm.o&lt;/td&gt;&lt;td&gt;262&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_stream.o&lt;/td&gt;&lt;td&gt;504&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_system.o&lt;/td&gt;&lt;td&gt;18&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ldl_dummy_mac.o&lt;/td&gt;&lt;td&gt;36&lt;/td&gt;&lt;td&gt;992&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;14769&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;1008&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;table&gt;&lt;caption&gt;LoRaMAC-Node Compiled Size&lt;/caption&gt;&lt;theader&gt;&lt;tr&gt;&lt;th&gt;Object File (from *.c)&lt;/th&gt;&lt;th&gt;Text (bytes)&lt;/th&gt;&lt;th&gt;BSS+Data (bytes)&lt;/th&gt;&lt;/tr&gt;&lt;/theader&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Region.o&lt;/td&gt;&lt;td&gt;1372&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;RegionAU915.o&lt;/td&gt;&lt;td&gt;2810&lt;/td&gt;&lt;td&gt;917&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;RegionCommon.o&lt;/td&gt;&lt;td&gt;1184&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;RegionEU433.o&lt;/td&gt;&lt;td&gt;2675&lt;/td&gt;&lt;td&gt;212&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;RegionEU868.o&lt;/td&gt;&lt;td&gt;2883&lt;/td&gt;&lt;td&gt;292&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;RegionUS915.o&lt;/td&gt;&lt;td&gt;3000&lt;/td&gt;&lt;td&gt;920&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;sx1276.o&lt;/td&gt;&lt;td&gt;6092&lt;/td&gt;&lt;td&gt;284&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;sx1272.o&lt;/td&gt;&lt;td&gt;5517&lt;/td&gt;&lt;td&gt;284&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;LoRaMac.o&lt;/td&gt;&lt;td&gt;12100&lt;/td&gt;&lt;td&gt;1644&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;LoRaMacCommands.o&lt;/td&gt;&lt;td&gt;608&lt;/td&gt;&lt;td&gt;256&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;LoRaMacConfirmQueue.o&lt;/td&gt;&lt;td&gt;580&lt;/td&gt;&lt;td&gt;42&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;LoRaMacSerializer.o&lt;/td&gt;&lt;td&gt;484&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;LoRaMacAdr.o&lt;/td&gt;&lt;td&gt;204&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;LoRaMacParser.o&lt;/td&gt;&lt;td&gt;334&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;LoRaMacCrypto.o&lt;/td&gt;&lt;td&gt;2292&lt;/td&gt;&lt;td&gt;84&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;timer.o&lt;/td&gt;&lt;td&gt;530&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;soft-se.o&lt;/td&gt;&lt;td&gt;1040&lt;/td&gt;&lt;td&gt;968&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;43705&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;5907&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/flash_size.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/lorawan_comparison/ram_size.jpg&quot; alt=&quot;&quot; class=&quot;center-image&quot; /&gt;&lt;/p&gt;</content><author><name>Cameron Harper</name></author><summary type="html">In this post I compare the apparent cyclomatic complexity and compiled size of two LoRaWAN implementations: LDL and LoRaMac-Node.</summary></entry><entry><title type="html">Conforming with LoRaWAN Fair Use Policies</title><link href="/2019/09/18/lorawan-easy-fairuse.html" rel="alternate" type="text/html" title="Conforming with LoRaWAN Fair Use Policies" /><published>2019-09-18T00:00:00+01:00</published><updated>2019-09-18T00:00:00+01:00</updated><id>/2019/09/18/lorawan-easy-fairuse</id><content type="html" xml:base="/2019/09/18/lorawan-easy-fairuse.html">&lt;p&gt;&lt;a href=&quot;https://www.thethingsnetwork.org/&quot;&gt;The Things Network&lt;/a&gt; (a LoRaWAN network provider with a free/community offering)
 encourages its community users to meet a fair use policy.&lt;/p&gt;
 
 &lt;p&gt;The policy is intended to prevent TTN users from overwhelming community provided gateways. 
@@ -24,14 +395,14 @@ in most LoRaWAN implementations.&lt;/p&gt;
 &lt;p&gt;This setting can be changed by the network using the DutyCycleReq command. 
 On my &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib&quot;&gt;implementation&lt;/a&gt; this 
 setting can also be changed by the application through the 
-LDL_MAC_setAggregatedDutyCycleLimit() interface.&lt;/p&gt;
+LDL_MAC_setMaxDCycle() interface.&lt;/p&gt;
 
 &lt;p&gt;The configuration item must be set to 12 in order to meet the TTN fair use policy.
 This will limit maximum duty cycle to 1/4096 (0.000244). You may notice this
 is more restrictive than what TTN requires, however this is as close as you can
 get using this setting.&lt;/p&gt;
 
-&lt;p&gt;Since the &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib/tree/master/bindings/arduino/output/arduino_ldl&quot;&gt;Arduino wrapper&lt;/a&gt; 
+&lt;p&gt;Since the &lt;a href=&quot;https://github.com/cjhdev/lora_device_lib/tree/master/wrappers/arduino/output/arduino_ldl&quot;&gt;Arduino wrapper&lt;/a&gt; 
 in my implementation is intended for use with TTN, I’ve added
 the duty cycle limit as a default setting. The end result is that a sketch like this meets
 both regional and fair use duty cycle limits regardless of data rate:&lt;/p&gt;
@@ -338,26 +709,33 @@ adapters:&lt;/p&gt;
 
 &lt;h3 id=&quot;power-up&quot;&gt;Power-Up&lt;/h3&gt;
 
-&lt;p&gt;Sent once immediately after the first join-accept is received after system start. If the cause
-of the last reset was a hard fault, the state of the MCU at the time of the fault
-is also included in the message.&lt;/p&gt;
+&lt;p&gt;Sent once immediately after the first join-accept is received after system start.
+If MCU state is available from the time of reset, this is included in the message.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-asn1&quot; data-lang=&quot;asn1&quot;&gt;Counter-Publish ::= SEQUENCE
 {
+    device-reset-reason BIT STRING (SIZE(8)) {
+        wdt,
+        hard-fault,
+        power,
+        user,
+        reserved-5,
+        reserved-6,
+        reserved-7,
+        reserved-8,
+    },
     device-alarms BIT STRING (SIZE(8)) {
         clock-failure,
         low-battery,
         over-temperature,
         reserved-4,
-        wdt-reset,
-        hard-fault,
+        reserved-5,
+        reserved-6,
         reserved-7,
         reserved-8
     },
     mcu-state SEQUENCE
-    {
-        stack-address INTEGER (0..4294967295),
-        
+    {        
         r0  INTEGER (0..4294967295),
         r1  INTEGER (0..4294967295),
         r2  INTEGER (0..4294967295),
@@ -373,7 +751,7 @@ is also included in the message.&lt;/p&gt;
 &lt;p&gt;The encoding is &lt;a href=&quot;https://www.itu.int/rec/T-REC-X.696/en&quot;&gt;Octet Encoding Rules X.696&lt;/a&gt; with the following exceptions:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;OPTIONAL mcu-state is encoded if the hard-fault bit is set in device-alarms&lt;/li&gt;
+  &lt;li&gt;OPTIONAL mcu-state presence is detected by size&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&quot;input-publish&quot;&gt;Input-Publish&lt;/h3&gt;
@@ -387,8 +765,8 @@ is also included in the message.&lt;/p&gt;
         low-battery,
         over-temperature,
         reserved-4,
-        wdt-reset,
-        hard-fault,
+        reserved-5,
+        reserved-6,
         reserved-7,
         reserved-8
     },

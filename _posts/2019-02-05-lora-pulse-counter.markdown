@@ -125,27 +125,34 @@ number of flashes | status
 
 ### Power-Up
 
-Sent once immediately after the first join-accept is received after system start. If the cause
-of the last reset was a hard fault, the state of the MCU at the time of the fault
-is also included in the message.
+Sent once immediately after the first join-accept is received after system start.
+If MCU state is available from the time of reset, this is included in the message.
 
 {% highlight asn1 %}
 Counter-Publish ::= SEQUENCE
 {
+    device-reset-reason BIT STRING (SIZE(8)) {
+        wdt,
+        hard-fault,
+        power,
+        user,
+        reserved-5,
+        reserved-6,
+        reserved-7,
+        reserved-8,
+    },
     device-alarms BIT STRING (SIZE(8)) {
         clock-failure,
         low-battery,
         over-temperature,
         reserved-4,
-        wdt-reset,
-        hard-fault,
+        reserved-5,
+        reserved-6,
         reserved-7,
         reserved-8
     },
     mcu-state SEQUENCE
-    {
-        stack-address INTEGER (0..4294967295),
-        
+    {        
         r0  INTEGER (0..4294967295),
         r1  INTEGER (0..4294967295),
         r2  INTEGER (0..4294967295),
@@ -161,7 +168,7 @@ Counter-Publish ::= SEQUENCE
 
 The encoding is [Octet Encoding Rules X.696](https://www.itu.int/rec/T-REC-X.696/en) with the following exceptions:
 
-- OPTIONAL mcu-state is encoded if the hard-fault bit is set in device-alarms
+- OPTIONAL mcu-state presence is detected by size
 
 ### Input-Publish
 
@@ -175,8 +182,8 @@ Counter-Publish ::= SEQUENCE
         low-battery,
         over-temperature,
         reserved-4,
-        wdt-reset,
-        hard-fault,
+        reserved-5,
+        reserved-6,
         reserved-7,
         reserved-8
     },

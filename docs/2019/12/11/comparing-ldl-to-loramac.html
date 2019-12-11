@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>LDL vs. LoRaMac-Node: Size and Complexity | Cameron Harper</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="LDL vs. LoRaMac-Node: Size and Complexity" />
+<meta name="author" content="Cameron Harper" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this post I compare the apparent cyclomatic complexity and compiled size of two LoRaWAN implementations: LDL and LoRaMac-Node." />
+<meta property="og:description" content="In this post I compare the apparent cyclomatic complexity and compiled size of two LoRaWAN implementations: LDL and LoRaMac-Node." />
+<meta property="og:site_name" content="Cameron Harper" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-12-11T00:00:00+00:00" />
+<script type="application/ld+json">
+{"description":"In this post I compare the apparent cyclomatic complexity and compiled size of two LoRaWAN implementations: LDL and LoRaMac-Node.","mainEntityOfPage":{"@type":"WebPage","@id":"/2019/12/11/comparing-ldl-to-loramac.html"},"@type":"BlogPosting","url":"/2019/12/11/comparing-ldl-to-loramac.html","headline":"LDL vs. LoRaMac-Node: Size and Complexity","dateModified":"2019-12-11T00:00:00+00:00","datePublished":"2019-12-11T00:00:00+00:00","author":{"@type":"Person","name":"Cameron Harper"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Cameron Harper" />
+  
+    <script>
+if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-39608896-1', 'auto');
+  ga('send', 'pageview');
+}
+</script>
+  
+
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" rel="author" href="/">Cameron Harper</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">LDL vs. LoRaMac-Node: Size and Complexity</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-12-11T00:00:00+00:00" itemprop="datePublished">
+        
+        Dec 11, 2019
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>In this post I compare the apparent <a href="https://en.wikipedia.org/wiki/Cyclomatic_complexity">cyclomatic complexity</a> and compiled
+size of two LoRaWAN implementations: LDL and LoRaMac-Node.</p>
+
+<p><a href="https://github.com/cjhdev/lora_device_lib">LDL</a> is my own implementation. <a href="https://github.com/Lora-net/LoRaMac-node">LoRaMac-Node</a> 
+appears to be a Semtech sponsored LoRaWAN reference implementation.</p>
+
+<p>LoRaMac-Node has been around for a while and is probably a sensible choice for 
+commercial projects. LDL is experimental and should not be trusted.</p>
+
+<h2 id="method">Method</h2>
+
+<p>The comparison is between LDL <a href="https://github.com/cjhdev/lora_device_lib/releases/tag/0.2.3">0.2.3</a>
+and LoRaMac-Node <a href="https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.4.2">4.4.2</a>.</p>
+
+<p>Source to be compared is grouped into one of three domains:</p>
+
+<table>
+    <caption>Domain Definitions</caption>
+    <theader>
+        <tr>
+            <th>Domain</th>
+            <th>Description</th>
+        </tr>
+    </theader>
+    <tbody>
+        <tr>
+            <td>Region</td>
+            <td>region specific features</td>
+        </tr>
+        <tr>
+            <td>Radio</td>
+            <td>radio drivers</td>
+        </tr>
+        <tr>
+            <td>MAC</td>
+            <td>all platform agnostic code which does not fall into the region or radio domains, excluding cryptographic modes</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>The following source files are selected from each project for each domain:</p>
+
+<table>
+    <caption>Radio Domain Files</caption>
+    <theader>
+        <tr>
+            <th>LDL</th>
+            <th>LoRaMac-Node</th>
+        </tr>
+    </theader>
+    <tbody>
+        <tr>
+            <td>ldl_radio.c/h</td>
+            <td>radio/radio.h</td>
+        </tr>
+        <tr>
+            <td>ldl_radio_defs.h</td>
+            <td>radio/sx1272/sx1272.c/h</td>
+        </tr>
+        <tr>
+            <td>ldl_chip.h</td>
+            <td>radio/sx1276/sx1276.c/h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>radio/sx1272/sx1272Regs-LoRa.h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>adio/sx1272/sx1272Regs-Fsk.h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>radio/sx1276/sx1276Regs-LoRa.h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>radio/sx1276/sx1276Regs-Fsk.h</td>
+        </tr>
+    </tbody>
+</table>
+
+<table>
+    <caption>Region Domain Files</caption>
+    <theader>
+        <tr>
+            <th>LDL</th>
+            <th>LoRaMac-Node</th>
+        </tr>
+    </theader>
+    <tbody>
+        <tr>
+            <td>ldl_region.c/h</td>
+            <td>region/Region.c/h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>region/RegionCommon.c/h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>region/RegionEU868.c/h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>region/RegionUS915.c/h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>region/RegionEU433.c/h</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>region/RegionAU915.c/h</td>
+        </tr>        
+    </tbody>
+</table>
+
+<table>
+    <caption>MAC Domain Files</caption>
+    <theader>
+        <tr>
+            <th>LDL</th>
+            <th>LoRaMac-Node</th>
+        </tr>
+    </theader>
+    <tbody>
+        <tr>
+            <td>ldl_mac.c/h</td>
+            <td>mac/LoRaMac.c/h </td>
+        </tr>     
+        <tr>
+            <td>ldl_mac_commands.c/h</td>
+            <td>mac/LoRaMacCommands.c/h</td>
+        </tr>     
+        <tr>
+            <td>ldl_frame.c/h </td>
+            <td>mac/LoRaMacConfirmQueue.c/h</td>
+        </tr>     
+        <tr>
+            <td>ldl_ops.c/h</td>
+            <td>mac/LoRaMacSerializer.c/h</td>
+        </tr>     
+        <tr>
+            <td>ldl_sm.c/h</td>
+            <td>mac/LoRaMacAdr.c/h</td>
+        </tr>     
+        <tr>
+            <td>ldl_sm_internal.h </td>
+            <td>mac/LoRaMacParser.c/h</td>
+        </tr>     
+        <tr>
+            <td>ldl_stream.c/h </td>
+            <td>mac/LoRaMacCrypto.c/h</td>
+        </tr>     
+        <tr>
+            <td>ldl_system.c/h</td>
+            <td>system/timer.c/h</td>
+        </tr>     
+        <tr>
+            <td></td>
+            <td>peripherals/soft-se/soft-se.c/h</td>
+        </tr>     
+        <tr>
+            <td></td>
+            <td> mac/LoRaMacHeaderTypes.h</td>
+        </tr>     
+        <tr>
+            <td></td>
+            <td>mac/LoRaMacTypes.h</td>
+        </tr>     
+        <tr>
+            <td></td>
+            <td>mac/secure-element.h</td>
+        </tr>     
+        <tr>
+            <td></td>
+            <td>mac/LoRaMacTest.h</td>
+        </tr>     
+        
+    </tbody>
+</table>
+
+<p>The comparison excludes:</p>
+
+<ul>
+  <li>cryptographic implementations (AES-ECB, AES-CMAC, AES-CTR)</li>
+  <li>target specific code (e.g. hardware abstraction layer)</li>
+  <li>mismatched LoRaWAN features which are implemented in separate files</li>
+</ul>
+
+<p>LoRaMac-Node implements more regions, radios, and modes than LDL. Where possible 
+these extra features have been excluded in order to create a more like for like
+comparison.</p>
+
+<p>Unfortunately not all mismatched features can be excluded. For example, 
+LoRaMac-Node class C is inseparable from class A, while LDL only implements class A.
+This difference means we should expect LoRaMac-Node to have more LoC and associated
+scores.</p>
+
+<p>The table below gives a high-level view of the features implemented by
+the files sorted into the domain tables above. Mismatched features
+are indicated by a ‘yes’ in one column and a ‘no’ in the other.</p>
+
+<table>
+    <caption>Feature Matrix</caption>
+    <theader>
+        <tr>
+            <th>Domain</th>
+            <th>Feature</th>
+            <th>LDL</th>
+            <th>LoRaMac-Node</th>
+        </tr>        
+    </theader>
+    <tbody>
+        <tr>
+            <td>MAC</td>
+            <td>Class A</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>
+        <tr>
+            <td>MAC</td>
+            <td>Class C</td>
+            <td class="table-danger">no</td>
+            <td class="table-success">yes</td>
+        </tr>
+        <tr>
+            <td>MAC</td>
+            <td>LoRaWAN 1.1 key derivation and handling</td>
+            <td class="table-success">yes</td>
+            <td class="table-danger">no</td>
+        </tr>
+        <tr>
+            <td>MAC</td>
+            <td>OTAA</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>
+        <tr>
+            <td>MAC</td>
+            <td>ABP</td>
+            <td class="table-danger">no</td>
+            <td class="table-success">yes</td>
+        </tr>        
+        <tr>
+            <td>MAC</td>
+            <td>ADR</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>
+        <tr>
+            <td>MAC</td>
+            <td>Confirmed/Unconfirmed Data</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>        
+        <tr>
+            <td>MAC</td>
+            <td>ioctl style access to all parameters</td>
+            <td class="table-danger">no</td>
+            <td class="table-success">yes</td>
+        </tr>        
+        <tr>
+            <td colspan="4"></td>            
+        </tr>
+        <tr>
+            <td>Radio</td>
+            <td>SX1272</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>
+        <tr>
+            <td>Radio</td>
+            <td>SX1276</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>
+        <tr>
+            <td>Radio</td>
+            <td>FSK Modulation</td>
+            <td class="table-danger">no</td>
+            <td class="table-success">yes</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>            
+        </tr>
+        <tr>
+            <td>Region</td>
+            <td>EU_868_870</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>        
+        <tr>
+            <td>Region</td>
+            <td>EU_433</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>        
+        <tr>
+            <td>Region</td>
+            <td>US_902_928</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>        
+        <tr>
+            <td>Region</td>
+            <td>AU_915_928</td>
+            <td class="table-success">yes</td>
+            <td class="table-success">yes</td>
+        </tr>        
+    </tbody>
+</table>
+
+<p>The tool <a href="https://people.debian.org/~bame/pmccabe/overview.html">pmccabe</a> is used to measure:</p>
+
+<ul>
+  <li>apparent lines of code (includes comments and whitespace)</li>
+  <li>number of statements</li>
+  <li>number of functions</li>
+  <li>modified McCabe complexity (per function and per source file)</li>
+</ul>
+
+<p>The higher the McCabe score, the more complicated the code. Functions with scores
+above 10 are considered complicated.</p>
+
+<p>To determine compiled size, the source is compiled for an ARM Cortex M0+ using 
+arm-none-aebi-gcc 8.2.1.  All compiler settings are in the <a href="https://github.com/cjhdev/lorawan_comparison/blob/master/makefile">makefile</a>.
+Size optimisation (-Os) is used in an effort to produce the smallest possible compiled size.</p>
+
+<p>The objects are grouped into archive files and the size of each archive is
+determined using arm-none-aebi-size. The objects are not linked.</p>
+
+<p>Both projects are vendored into <a href="https://github.com/cjhdev/lorawan_comparison">this</a> repository.
+The tools pmccabe and gcc are orchestrated from <a href="https://github.com/cjhdev/lorawan_comparison/blob/master/comparison.rb">this</a> script.</p>
+
+<p>Data is always presented in the order of LDL first.
+LDL is plotted in blue, LoRaMac-Node is plotted in orange.</p>
+
+<h2 id="overall-scores">Overall Scores</h2>
+
+<table><caption>LDL PMCCABE Results</caption><header><tr><th>Domain</th><th>LoC</th><th>Functions</th><th>Statements</th><th>Complexity</th></tr></header><tbody><tr><td>Mac</td><td>6933</td><td>149</td><td>1812</td><td>462</td></tr><tr><td>Radio</td><td>1205</td><td>36</td><td>289</td><td>72</td></tr><tr><td>Region</td><td>1127</td><td>24</td><td>418</td><td>83</td></tr><tr><td></td><td><b>9265</b></td><td><b>209</b></td><td><b>2519</b></td><td><b>617</b></td></tr></tbody></table>
+
+<table><caption>LoRaMAC-Node PMCCABE Results</caption><header><tr><th>Domain</th><th>LoC</th><th>Functions</th><th>Statements</th><th>Complexity</th></tr></header><tbody><tr><td>Mac</td><td>13798</td><td>189</td><td>3381</td><td>862</td></tr><tr><td>Radio</td><td>8129</td><td>71</td><td>1358</td><td>345</td></tr><tr><td>Region</td><td>9915</td><td>155</td><td>2347</td><td>512</td></tr><tr><td></td><td><b>31842</b></td><td><b>415</b></td><td><b>7086</b></td><td><b>1719</b></td></tr></tbody></table>
+
+<p><img src="/assets/lorawan_comparison/domain_loc.jpg" alt="" class="center-image" /></p>
+
+<p><img src="/assets/lorawan_comparison/domain_functions.jpg" alt="" class="center-image" /></p>
+
+<p><img src="/assets/lorawan_comparison/domain_statements.jpg" alt="" class="center-image" /></p>
+
+<p><img src="/assets/lorawan_comparison/domain_complexity.jpg" alt="" class="center-image" /></p>
+
+<h2 id="function-complexity">Function Complexity</h2>
+
+<p>Here I’ve plotted the frequency of function complexity scores for each domain.</p>
+
+<p><img src="/assets/lorawan_comparison/function_mac.jpg" alt="" class="center-image" /></p>
+
+<p><img src="/assets/lorawan_comparison/function_radio.jpg" alt="" class="center-image" /></p>
+
+<p><img src="/assets/lorawan_comparison/function_region.jpg" alt="" class="center-image" /></p>
+
+<h2 id="compiled-size">Compiled Size</h2>
+
+<table><caption>LDL Compiled Size</caption><theader><tr><th>Object File (from *.c)</th><th>Text (bytes)</th><th>BSS+Data (bytes)</th></tr></theader><tbody><tr><td>ldl_region.o</td><td>1500</td><td>0</td></tr><tr><td>ldl_radio.o</td><td>1437</td><td>0</td></tr><tr><td>ldl_dummy_radio.o</td><td>20</td><td>16</td></tr><tr><td>ldl_mac.o</td><td>7982</td><td>0</td></tr><tr><td>ldl_mac_commands.o</td><td>782</td><td>0</td></tr><tr><td>ldl_frame.o</td><td>888</td><td>0</td></tr><tr><td>ldl_ops.o</td><td>1340</td><td>0</td></tr><tr><td>ldl_sm.o</td><td>262</td><td>0</td></tr><tr><td>ldl_stream.o</td><td>504</td><td>0</td></tr><tr><td>ldl_system.o</td><td>18</td><td>0</td></tr><tr><td>ldl_dummy_mac.o</td><td>36</td><td>992</td></tr><tr><td></td><td><b>14769</b></td><td><b>1008</b></td></tr></tbody></table>
+
+<table><caption>LoRaMAC-Node Compiled Size</caption><theader><tr><th>Object File (from *.c)</th><th>Text (bytes)</th><th>BSS+Data (bytes)</th></tr></theader><tbody><tr><td>Region.o</td><td>1372</td><td>0</td></tr><tr><td>RegionAU915.o</td><td>2810</td><td>917</td></tr><tr><td>RegionCommon.o</td><td>1184</td><td>0</td></tr><tr><td>RegionEU433.o</td><td>2675</td><td>212</td></tr><tr><td>RegionEU868.o</td><td>2883</td><td>292</td></tr><tr><td>RegionUS915.o</td><td>3000</td><td>920</td></tr><tr><td>sx1276.o</td><td>6092</td><td>284</td></tr><tr><td>sx1272.o</td><td>5517</td><td>284</td></tr><tr><td>LoRaMac.o</td><td>12100</td><td>1644</td></tr><tr><td>LoRaMacCommands.o</td><td>608</td><td>256</td></tr><tr><td>LoRaMacConfirmQueue.o</td><td>580</td><td>42</td></tr><tr><td>LoRaMacSerializer.o</td><td>484</td><td>0</td></tr><tr><td>LoRaMacAdr.o</td><td>204</td><td>0</td></tr><tr><td>LoRaMacParser.o</td><td>334</td><td>0</td></tr><tr><td>LoRaMacCrypto.o</td><td>2292</td><td>84</td></tr><tr><td>timer.o</td><td>530</td><td>4</td></tr><tr><td>soft-se.o</td><td>1040</td><td>968</td></tr><tr><td></td><td><b>43705</b></td><td><b>5907</b></td></tr></tbody></table>
+
+<p><img src="/assets/lorawan_comparison/flash_size.jpg" alt="" class="center-image" /></p>
+
+<p><img src="/assets/lorawan_comparison/ram_size.jpg" alt="" class="center-image" /></p>
+
+  </div>
+
+  
+
+  <a class="u-url" href="/2019/12/11/comparing-ldl-to-loramac.html" hidden></a>
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          
+            
+            <li><a class="u-email" href="mailto:contact@cjh.id.au">contact@cjh.id.au</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <ul class="social-media-list">
+  
+  
+  
+  <li><a href="https://github.com/cjhdev"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">cjhdev</span></a></li>
+  
+  <li><a href="https://www.linkedin.com/in/cameronisanengineer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">cameronisanengineer</span></a></li>
+  
+  
+  
+  
+  
+  
+</ul>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

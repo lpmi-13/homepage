@@ -226,6 +226,8 @@ pre {
  * Tables
  */
 table {
+
+  margin: 0 auto;
   margin-bottom: $spacing-unit;
   width: 100%;
   text-align: $table-text-align;
@@ -248,4 +250,16 @@ table {
   td {
     border: 1px solid $grey-color-light;
   }
+}
+
+.table-success {
+    background-color: #c3e6cb;
+}
+
+.table-danger {
+    background-color: #f5c6cb;
+}
+
+.table-warning {
+    background-color: #ffeeba;
 }
