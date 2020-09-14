@@ -5,9 +5,9 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Begin Jekyll SEO tag v2.5.0 -->
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
 <title>Ask HN: Who was hiring? | Cameron Harper</title>
-<meta name="generator" content="Jekyll v3.7.3" />
+<meta name="generator" content="Jekyll v3.7.4" />
 <meta property="og:title" content="Ask HN: Who was hiring?" />
 <meta name="author" content="Cameron Harper" />
 <meta property="og:locale" content="en_US" />
@@ -17,7 +17,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2018-09-21T00:00:00+01:00" />
 <script type="application/ld+json">
-{"description":"This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.","mainEntityOfPage":{"@type":"WebPage","@id":"/2018/09/21/who-was-hiring.html"},"@type":"BlogPosting","url":"/2018/09/21/who-was-hiring.html","headline":"Ask HN: Who was hiring?","dateModified":"2018-09-21T00:00:00+01:00","datePublished":"2018-09-21T00:00:00+01:00","author":{"@type":"Person","name":"Cameron Harper"},"@context":"http://schema.org"}</script>
+{"@type":"BlogPosting","headline":"Ask HN: Who was hiring?","dateModified":"2018-09-21T00:00:00+01:00","datePublished":"2018-09-21T00:00:00+01:00","author":{"@type":"Person","name":"Cameron Harper"},"mainEntityOfPage":{"@type":"WebPage","@id":"/2018/09/21/who-was-hiring.html"},"url":"/2018/09/21/who-was-hiring.html","description":"This post is about techniques you can use to collect old “Who is hiring?” content from Hacker News.","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   <link rel="stylesheet" href="/assets/main.css">
@@ -185,7 +185,7 @@ for me this is a non-successful response code to the request for the 11th page o
 
 <p>This is how I run the script:</p>
 
-<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> ruby search.rb <span class="o">&gt;</span> links.json</code></pre></figure>
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span><span class="w"> </span>ruby search.rb <span class="o">&gt;</span> links.json</code></pre></figure>
 
 <h2 id="getting-the-content">Getting the content</h2>
 
@@ -291,7 +291,7 @@ of failure. This is a lazy solution to recovering from the occasional socket rel
 
 <p>Running the script produces STDERR terminal output that looks like this:</p>
 
-<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> ruby get.rb links.json <span class="o">&gt;</span> posts.json
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span><span class="w"> </span>ruby get.rb links.json <span class="o">&gt;</span> posts.json
 <span class="gp">I, [2018-09-03T12:20:48.334370 #</span>859]  INFO <span class="nt">--</span> : getting <span class="s1">'Ask HN: Who is hiring? (August 2018) | Hacker News'</span>...
 <span class="gp">I, [2018-09-03T12:20:49.000806 #</span>859]  INFO <span class="nt">--</span> : getting 918 posts
 <span class="gp">I, [2018-09-03T12:20:49.025621 #</span>859]  INFO <span class="nt">--</span> : getting <span class="s1">'Ask HN: Who is hiring? (July 2018) | Hacker News'</span>...
@@ -326,9 +326,9 @@ I decided to filter the results by keywords and create human readable lists.</p>
   
   <span class="n">f</span> <span class="o">=</span> <span class="p">{</span>
     
-    <span class="ss">:all</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:all</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[:</span><span class="n">all</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
-    <span class="ss">:any</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:any</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[:</span><span class="n">any</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
-    <span class="ss">:none</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:none</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[:</span><span class="n">none</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
+    <span class="ss">:all</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:all</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:all</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
+    <span class="ss">:any</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:any</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:any</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
+    <span class="ss">:none</span> <span class="o">=&gt;</span> <span class="p">(</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:none</span><span class="p">]</span> <span class="p">?</span> <span class="n">opts</span><span class="p">[</span><span class="ss">:none</span><span class="p">].</span><span class="nf">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:downcase</span><span class="p">).</span><span class="nf">uniq</span><span class="p">.</span><span class="nf">sort</span> <span class="p">:</span> <span class="p">[]</span> <span class="p">),</span>
   <span class="p">}</span>
 
   <span class="n">pattern</span> <span class="o">=</span> <span class="no">Regexp</span><span class="p">.</span><span class="nf">union</span><span class="p">((</span><span class="n">f</span><span class="p">[</span><span class="ss">:all</span><span class="p">]</span> <span class="o">+</span> <span class="n">f</span><span class="p">[</span><span class="ss">:any</span><span class="p">]</span> <span class="o">+</span> <span class="n">f</span><span class="p">[</span><span class="ss">:none</span><span class="p">]).</span><span class="nf">map</span><span class="p">{</span><span class="o">|</span><span class="n">s</span><span class="o">|</span><span class="no">Regexp</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">b"</span> <span class="o">+</span> <span class="no">Regexp</span><span class="p">.</span><span class="nf">escape</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">b"</span><span class="p">,</span> <span class="no">Regexp</span><span class="o">::</span><span class="no">IGNORECASE</span><span class="p">)})</span>

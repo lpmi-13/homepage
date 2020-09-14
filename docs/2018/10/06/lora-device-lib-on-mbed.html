@@ -5,9 +5,9 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Begin Jekyll SEO tag v2.5.0 -->
+  <!-- Begin Jekyll SEO tag v2.6.1 -->
 <title>LoraDeviceLib now works with MBED | Cameron Harper</title>
-<meta name="generator" content="Jekyll v3.7.3" />
+<meta name="generator" content="Jekyll v3.7.4" />
 <meta property="og:title" content="LoraDeviceLib now works with MBED" />
 <meta name="author" content="Cameron Harper" />
 <meta property="og:locale" content="en_US" />
@@ -17,7 +17,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2018-10-06T00:00:00+01:00" />
 <script type="application/ld+json">
-{"description":"I recently completed an MBED wrapper for my LoRaWAN implementation (LDL). This follows on from the Arduino wrapper I wrote about just a few months ago. I thought it would be an interesting point of comparison to see the same demo application implemented for MBED as was implemented for Arduino.","mainEntityOfPage":{"@type":"WebPage","@id":"/2018/10/06/lora-device-lib-on-mbed.html"},"@type":"BlogPosting","url":"/2018/10/06/lora-device-lib-on-mbed.html","headline":"LoraDeviceLib now works with MBED","dateModified":"2018-10-06T00:00:00+01:00","datePublished":"2018-10-06T00:00:00+01:00","author":{"@type":"Person","name":"Cameron Harper"},"@context":"http://schema.org"}</script>
+{"@type":"BlogPosting","headline":"LoraDeviceLib now works with MBED","dateModified":"2018-10-06T00:00:00+01:00","datePublished":"2018-10-06T00:00:00+01:00","author":{"@type":"Person","name":"Cameron Harper"},"mainEntityOfPage":{"@type":"WebPage","@id":"/2018/10/06/lora-device-lib-on-mbed.html"},"url":"/2018/10/06/lora-device-lib-on-mbed.html","description":"I recently completed an MBED wrapper for my LoRaWAN implementation (LDL). This follows on from the Arduino wrapper I wrote about just a few months ago. I thought it would be an interesting point of comparison to see the same demo application implemented for MBED as was implemented for Arduino.","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   <link rel="stylesheet" href="/assets/main.css">
@@ -121,8 +121,8 @@ with the same radio and sensor used for the Arduino demo.</p>
 <figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#include "mbed_ldl.h"
 #include "DHT.h"
 </span>
-<span class="n">Semaphore</span> <span class="n">pending_flag</span><span class="p">(</span><span class="mi">1U</span><span class="p">);</span>
-<span class="n">Semaphore</span> <span class="n">sample_flag</span><span class="p">(</span><span class="mi">1U</span><span class="p">,</span> <span class="mi">1U</span><span class="p">);</span>
+<span class="n">Semaphore</span> <span class="nf">pending_flag</span><span class="p">(</span><span class="mi">1U</span><span class="p">);</span>
+<span class="n">Semaphore</span> <span class="nf">sample_flag</span><span class="p">(</span><span class="mi">1U</span><span class="p">,</span> <span class="mi">1U</span><span class="p">);</span>
 
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">pending_handler</span><span class="p">()</span>
 <span class="p">{</span>
@@ -208,10 +208,10 @@ sleep when there is no work to be done.</p>
 
 <p>Building the application using the mbed-cli tool produces the following output:</p>
 
-<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> mbed compile
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span><span class="w"> </span>mbed compile
 <span class="go">
-</span><span class="gp">&lt;snip&gt;</span>
-<span class="go">
+</span><span class="gp">&lt;snip&gt;</span><span class="w">
+</span><span class="go">
 Link: mbed_ldl_sensor
 Elf2Bin: mbed_ldl_sensor
 | Module                       |         .text |       .data |        .bss |
@@ -255,10 +255,10 @@ objects in the demo application.</p>
 You can compile the application, flash the target, and open a terminal using the following
 mbed-cli command:</p>
 
-<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span> mbed compile <span class="nt">--flash</span> <span class="nt">--sterm</span>
+<figure class="highlight"><pre><code class="language-terminal" data-lang="terminal"><span class="gp">$</span><span class="w"> </span>mbed compile <span class="nt">--flash</span> <span class="nt">--sterm</span>
 <span class="go">
-</span><span class="gp">&lt;snip&gt;</span>
-<span class="go">
+</span><span class="gp">&lt;snip&gt;</span><span class="w">
+</span><span class="go">
 [mbed] Detecting connected targets/boards to your system...
 [mbed] Opening serial terminal to "NUCLEO_F446RE"
 --- Terminal on /dev/ttyACM2 - 9600,8,N,1 ---
