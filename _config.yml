@@ -12,5 +12,8 @@ linkedin_username: cameronisanengineer
 
 plugins:
   - jekyll-toc
+  - jekyll-seo-tag
 
 destination: docs
+
+description: Cameron's wicked awesome personal page
